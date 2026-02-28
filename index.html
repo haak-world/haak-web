@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HAAK — for collective human action</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&family=Jura:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+  --toggle-bg: rgba(255,255,255,0.05);
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+  --toggle-bg: rgba(0,0,0,0.06);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ── GRAVITY GRID CANVAS ── */
+#grid-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+/* All content floats above canvas */
+body > *:not(#grid-canvas) { position: relative; z-index: 1; }
+
+/* ── THEME TOGGLE ── */
+#theme-toggle {
+  position: fixed;
+  top: 22px;
+  right: 26px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(80,60,40,0.20);
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+}
+#theme-toggle:hover { background: rgba(192,114,64,0.22); }
+#theme-toggle svg { width: 13px; height: 13px; fill: var(--gold); transition: fill 0.3s; }
+#theme-toggle span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  transition: color 0.3s;
+  text-transform: uppercase;
+}
+
+/* ── SCROLL REVEAL ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left  { opacity: 0; transform: translateX(-32px); transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1); }
+.reveal-right { opacity: 0; transform: translateX(32px);  transition: opacity 1s cubic-bezier(0.16,1,0.3,1), transform 1s cubic-bezier(0.16,1,0.3,1); }
+.reveal-left.visible, .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+hr.rule      { border: none; border-top: 1px solid var(--line2); }
+hr.rule-gold { border: none; border-top: 1px solid var(--gold); opacity: 0.55; }
+
+.container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 48px;
+}
+
+/* ══════════════════════════════════════════════════════
+   HERO — full viewport, triangle front and center
+══════════════════════════════════════════════════════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 48px 40px;
+  position: relative;
+}
+
+.hero-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(80px, 16vw, 160px);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 0.88;
+  color: var(--cream);
+  margin-bottom: 22px;
+  animation: fadeDown 1.2s cubic-bezier(0.16,1,0.3,1) both;
+}
+.hero-tagline {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(22px, 3.5vw, 34px);
+  color: var(--gold);
+  margin-bottom: 18px;
+  animation: fadeDown 1.2s 0.15s cubic-bezier(0.16,1,0.3,1) both;
+}
+.hero-sub {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: clamp(11px, 1.3vw, 14px);
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  color: var(--silver);
+  margin-bottom: 56px;
+  animation: fadeDown 1.2s 0.28s cubic-bezier(0.16,1,0.3,1) both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#network-svg {
+  width: clamp(280px, 50vw, 480px);
+  height: auto;
+  animation: fadeDown 1.4s 0.4s cubic-bezier(0.16,1,0.3,1) both;
+  overflow: visible;
+}
+
+.scroll-hint {
+  position: absolute;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--silver);
+  opacity: 0.4;
+  animation: pulse 2.5s 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+/* SVG styles */
+.node-outer {
+  fill: var(--bg); stroke: var(--gold); stroke-width: 2.5;
+  transition: stroke-width 0.3s, filter 0.3s, fill 0.4s;
+  cursor: pointer;
+}
+.node-glow {
+  fill: none; stroke: var(--gold); stroke-width: 1.2; opacity: 0.2;
+  transition: opacity 0.3s, stroke 0.3s;
+}
+.node-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px; font-weight: 400; fill: var(--gold);
+  letter-spacing: 0.14em;
+  transition: fill 0.3s; pointer-events: none;
+}
+.inner-dot  { fill: var(--silver); opacity: 0.9; }
+.inner-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 300;
+  fill: #608C8C; opacity: 1; pointer-events: none; letter-spacing: 0.05em;
+}
+.edge-main  { stroke: #1E3C3C; stroke-width: 2; fill: none; transition: stroke 0.3s, opacity 0.3s; }
+.edge-inner { stroke: #142C2C; stroke-width: 1.2; fill: none; opacity: 1; }
+.edge-cross { stroke: #0E2020; stroke-width: 0.9; fill: none; opacity: 0.6; transition: opacity 0.3s, stroke 0.3s; }
+.center-dot { fill: var(--bg); stroke: var(--gold); stroke-width: 2; opacity: 1; }
+.outer-ring { fill: none; stroke: #1A3434; stroke-width: 1.2; stroke-dasharray: 5 7; opacity: 0.7; }
+
+.node-group.active .node-outer   { stroke-width: 3.5; filter: drop-shadow(0 0 14px rgba(46,150,150,0.7)); }
+.node-group.active .node-glow    { opacity: 0.5; stroke: var(--gold); }
+.node-group.active .node-label   { fill: #60C8C8; }
+.edge-main.active                { stroke: var(--gold); opacity: 0.9; stroke-width: 2; }
+
+/* Light-mode SVG adjustments */
+[data-theme="light"] .inner-dot  { fill: var(--silver); }
+[data-theme="light"] .inner-label { fill: #2A7878; }
+[data-theme="light"] .edge-main  { stroke: #689898; }
+[data-theme="light"] .edge-inner { stroke: #90B8B8; }
+[data-theme="light"] .edge-cross { stroke: #A8CCCC; opacity: 0.5; }
+[data-theme="light"] .center-dot { fill: var(--bg); stroke: var(--gold); }
+[data-theme="light"] .outer-ring { stroke: #88B0B0; }
+[data-theme="light"] .node-group.active .node-label { fill: var(--gold); }
+
+/* Node pulse animation */
+@keyframes nodePulse {
+  0%,100% { r: 18; opacity: 1; }
+  50%      { r: 20; opacity: 0.85; }
+}
+.node-outer { animation: nodePulse 4s ease-in-out infinite; }
+#node-agentic      .node-outer { animation-delay: 0s; }
+#node-ontological  .node-outer { animation-delay: 1.3s; }
+#node-constitutional .node-outer { animation-delay: 2.6s; }
+
+/* ══════════════════════════════════════════════════════
+   CONTENT SECTIONS
+══════════════════════════════════════════════════════ */
+.section {
+  padding: 100px 0;
+  border-top: 1px solid var(--line2);
+}
+
+.section-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(36px, 5vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 28px;
+}
+
+.section-title.gold { color: var(--gold); }
+
+.section-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(17px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.72;
+  color: var(--cream2);
+  max-width: 52ch;
+}
+
+.section-body p + p { margin-top: 1em; }
+
+/* Two-column layout */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 80px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .two-col { grid-template-columns: 1fr; gap: 60px 0; }
+  .container { padding: 0 24px; }
+}
+
+/* Statement layout — big centered text */
+.statement {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.statement .section-body {
+  max-width: none;
+  font-size: clamp(19px, 2.2vw, 24px);
+}
+
+/* ── QUOTE ── */
+.quote-section {
+  padding: 100px 0;
+  text-align: center;
+  border-top: 1px solid var(--line2);
+}
+.quote-text {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(22px, 3.5vw, 36px);
+  color: var(--cream);
+  line-height: 1.5;
+  max-width: 820px;
+  margin: 0 auto;
+}
+.quote-attr {
+  margin-top: 24px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--silver);
+  opacity: 0.5;
+}
+
+/* ── PILLARS ── */
+.pillars-section {
+  padding: 80px 0 100px;
+  border-top: 1px solid var(--line2);
+}
+.pillars-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0 60px;
+  margin-top: 60px;
+}
+@media (max-width: 640px) {
+  .pillars-grid { grid-template-columns: 1fr; gap: 48px 0; }
+}
+.pillar { text-align: center; }
+.pillar-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.pillar hr {
+  border: none; border-top: 1px solid var(--gold-dim);
+  opacity: 0.4; margin-bottom: 18px;
+}
+.pillar-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(16px, 1.6vw, 19px);
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--cream2);
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  gap: 16px;
+}
+.footer-center {
+  font-family: 'Jura', sans-serif;
+  font-size: 11px;
+  font-weight: 300;
+  color: #3A3D50;
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+  white-space: nowrap;
+}
+
+/* ── WATERMARK ── */
+.watermark-zone {
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  pointer-events: none;
+}
+.watermark-text {
+  font-family: 'Gloock', serif;
+  font-size: clamp(130px, 24vw, 240px);
+  color: #0C1818;
+  user-select: none;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  transition: color 0.4s;
+}
+[data-theme="light"] .watermark-text { color: #D0C8DC; }
+</style>
+</head>
+<body>
+
+<canvas id="grid-canvas"></canvas>
+
+<!-- ── THEME TOGGLE ──────────────────────────────────────────────── -->
+<button id="theme-toggle" aria-label="Toggle light/dark mode">
+  <svg id="toggle-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <!-- moon icon (shown in dark mode) -->
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+  </svg>
+  <span id="toggle-label">day</span>
+</button>
+
+<!-- ══ HERO ════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <hr class="rule-gold" style="width:100%;max-width:600px;margin-bottom:40px">
+  <h1 class="hero-title">HAAK</h1>
+  <p class="hero-tagline">for collective human action</p>
+  <p class="hero-sub">Agentic &nbsp;·&nbsp; Ontological &nbsp;·&nbsp; Constitutional</p>
+
+  <svg id="network-svg" viewBox="0 0 440 420" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="glow-filter" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Outer rings -->
+    <circle cx="220" cy="210" r="170" class="outer-ring"/>
+    <circle cx="220" cy="210" r="140" class="outer-ring" style="opacity:0.3;stroke-dasharray:1 8"/>
+
+    <!-- Triangle edges -->
+    <line id="edge-ag-on" x1="220" y1="72"  x2="88"  y2="300" class="edge-main" data-nodes="agentic,ontological"/>
+    <line id="edge-ag-co" x1="220" y1="72"  x2="352" y2="300" class="edge-main" data-nodes="agentic,constitutional"/>
+    <line id="edge-on-co" x1="88"  y1="300" x2="352" y2="300" class="edge-main" data-nodes="ontological,constitutional"/>
+
+    <!-- Center spokes -->
+    <line x1="220" y1="72"  x2="220" y2="210" class="edge-cross" data-nodes="agentic"/>
+    <line x1="88"  y1="300" x2="220" y2="210" class="edge-cross" data-nodes="ontological"/>
+    <line x1="352" y1="300" x2="220" y2="210" class="edge-cross" data-nodes="constitutional"/>
+
+    <g id="inner-edges"></g>
+    <g id="cross-edges"></g>
+    <g id="inner-nodes"></g>
+
+    <circle cx="220" cy="210" r="7" class="center-dot"/>
+
+    <!-- AGENTIC -->
+    <g class="node-group" id="node-agentic" data-id="agentic">
+      <circle cx="220" cy="72" r="34" class="node-glow"/>
+      <circle cx="220" cy="72" r="22" class="node-outer"/>
+      <text x="220" y="32" text-anchor="middle" class="node-label">AGENTIC</text>
+    </g>
+
+    <!-- ONTOLOGICAL -->
+    <g class="node-group" id="node-ontological" data-id="ontological">
+      <circle cx="88" cy="300" r="34" class="node-glow"/>
+      <circle cx="88" cy="300" r="22" class="node-outer"/>
+      <text x="50" y="342" text-anchor="middle" class="node-label">ONTO-</text>
+      <text x="50" y="357" text-anchor="middle" class="node-label">LOGICAL</text>
+    </g>
+
+    <!-- CONSTITUTIONAL -->
+    <g class="node-group" id="node-constitutional" data-id="constitutional">
+      <circle cx="352" cy="300" r="34" class="node-glow"/>
+      <circle cx="352" cy="300" r="22" class="node-outer"/>
+      <text x="390" y="342" text-anchor="middle" class="node-label">CONSTI-</text>
+      <text x="390" y="357" text-anchor="middle" class="node-label">TUTIONAL</text>
+    </g>
+  </svg>
+
+  <p class="scroll-hint">↓ &nbsp; scroll</p>
+</section>
+
+<!-- ══ THE PROBLEM + THE VISION ═══════════════════════════════════ -->
+<div class="container">
+  <section class="section">
+    <div class="two-col">
+      <div class="reveal-left">
+        <p class="section-tag">The Problem</p>
+        <h2 class="section-title">The wrong<br>constitution</h2>
+        <p class="section-body">The platforms we use to think together were built to maximize economic value, optimizing for extraction, not for human understanding or judgment.<br><br>This is not a content problem. It is an architectural one.</p>
+      </div>
+      <div class="reveal-right">
+        <p class="section-tag">The Vision</p>
+        <h2 class="section-title gold">Pluralistic.<br>Constitutional.</h2>
+        <p class="section-body">Spaces for collective human action: epistemic and constructive. Pluralistic by design, governed by a constitution that is observable, auditable, and built by humans — not optimized by markets.<br><br>Human values. Not market values.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ ONTOLOGICAL ML ══════════════════════════════════════════ -->
+  <section class="section">
+    <div class="reveal">
+      <p class="section-tag">Ontological Machine Learning</p>
+    </div>
+    <div class="two-col" style="margin-top:0">
+      <div class="reveal-left">
+        <h2 class="section-title" style="font-size:clamp(40px,6vw,68px)">A new kind<br>of AI.</h2>
+      </div>
+      <div class="reveal-right" style="padding-top:8px">
+        <p class="section-body">AI grounded in formal relational ontology — not a knowledge graph fed into a model, but an ontological framework that shapes the system's architecture from the ground up.<br><br>Every action involves actors, methods, domains, and materials. Every situation is governed by policies and engagements. The AI knows this structurally, not statistically.<br><br><em style="color:var(--cream);font-style:italic">The term is new. The need is urgent.</em></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ SCIENCE AS TEST BED ════════════════════════════════════ -->
+  <section class="section">
+    <div class="statement reveal">
+      <p class="section-tag" style="text-align:center">Science as Test Bed</p>
+      <h2 class="section-title" style="font-size:clamp(32px,5vw,52px);text-align:center;max-width:700px;margin:0 auto 32px">Where human judgment is most obviously at stake.</h2>
+      <p class="section-body" style="margin:0 auto">Science is genuinely both epistemic and normative. Its institutional structures — journals, reviewers, grant panels, labs — can be modeled as agent roles, varied experimentally, and compared in ways the real system cannot permit.<br><br>We run a shadow ecosystem: AI agents alongside humans, measuring where each combination prevails.</p>
+    </div>
+  </section>
+</div>
+
+<!-- ══ QUOTE ══════════════════════════════════════════════════════ -->
+<section class="quote-section">
+  <div class="container">
+    <div class="reveal">
+      <p class="quote-text">
+        &ldquo;Science is prior to norms.<br>
+        Norms without knowledge<br>cannot be executed.&rdquo;
+      </p>
+      <p class="quote-attr">— HAAK · 2026</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PILLARS ════════════════════════════════════════════════════ -->
+<div class="container">
+  <section class="pillars-section">
+    <div class="reveal" style="text-align:center">
+      <p class="section-tag" style="text-align:center;margin-bottom:8px">The System</p>
+      <h2 class="section-title" style="text-align:center;font-size:clamp(32px,4vw,48px)">Three principles.<br>One architecture.</h2>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar reveal" style="transition-delay:0.1s">
+        <p class="pillar-name">Agentic</p>
+        <hr>
+        <p class="pillar-body">AI as actor: taking on roles, executing methods, producing outputs that feed back into the system.</p>
+      </div>
+      <div class="pillar reveal" style="transition-delay:0.22s">
+        <p class="pillar-name">Ontological</p>
+        <hr>
+        <p class="pillar-body">Every action structured by formal ontology: what exists, how it relates, what governs it.</p>
+      </div>
+      <div class="pillar reveal" style="transition-delay:0.34s">
+        <p class="pillar-name">Constitutional</p>
+        <hr>
+        <p class="pillar-body">Governance embedded in infrastructure, not weights. Observable. Auditable. Modifiable.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- WATERMARK -->
+<div class="watermark-zone"><span class="watermark-text">HAAK</span></div>
+
+<!-- ══ FOOTER ══════════════════════════════════════════════════════ -->
+<div class="container">
+  <footer class="reveal">
+    <div class="footer-inner">
+      <span class="footer-side">haak.io</span>
+      <span class="footer-center">Named for Theodore Haak &nbsp;·&nbsp; convener of the Invisible College &nbsp;·&nbsp; 1646</span>
+      <span class="footer-side">2026</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+// ── BUILD SVG INNER NETWORK ──────────────────────────────────────
+const NS  = 'http://www.w3.org/2000/svg';
+const cx  = 220, cy = 210, rIn = 62;
+
+const labels = ['Actor','Method','Domain','Material','Situation','Policy','Engagement'];
+const inner  = labels.map((lbl, i) => {
+  const a = (2*Math.PI/7)*i + Math.PI*0.06;
+  return { x: cx + rIn*Math.cos(a), y: cy + rIn*Math.sin(a), label: lbl, a };
+});
+
+const mainNodes = [
+  { x:220, y:72,  id:'agentic' },
+  { x:88,  y:300, id:'ontological' },
+  { x:352, y:300, id:'constitutional' }
+];
+
+// Inner ring
+const ig = document.getElementById('inner-edges');
+for (let i=0; i<7; i++) {
+  const j=(i+1)%7, l=document.createElementNS(NS,'line');
+  l.setAttribute('x1',inner[i].x); l.setAttribute('y1',inner[i].y);
+  l.setAttribute('x2',inner[j].x); l.setAttribute('y2',inner[j].y);
+  l.setAttribute('class','edge-inner'); ig.appendChild(l);
+}
+
+// Cross edges inner→outer
+const cg = document.getElementById('cross-edges');
+inner.forEach(ip => {
+  mainNodes.forEach(mp => {
+    const d = Math.hypot(ip.x-mp.x, ip.y-mp.y);
+    const l = document.createElementNS(NS,'line');
+    l.setAttribute('x1',ip.x); l.setAttribute('y1',ip.y);
+    l.setAttribute('x2',mp.x); l.setAttribute('y2',mp.y);
+    l.setAttribute('class','edge-cross');
+    l.setAttribute('data-nodes',mp.id);
+    l.style.opacity = Math.max(0.04, 0.22 - d*0.0005);
+    cg.appendChild(l);
+  });
+});
+
+// Inner nodes + labels
+const ng = document.getElementById('inner-nodes');
+inner.forEach(ip => {
+  const c = document.createElementNS(NS,'circle');
+  c.setAttribute('cx',ip.x); c.setAttribute('cy',ip.y);
+  c.setAttribute('r','6'); c.setAttribute('class','inner-dot');
+  ng.appendChild(c);
+  const lx = cx+(rIn+28)*Math.cos(ip.a);
+  const ly = cy+(rIn+28)*Math.sin(ip.a);
+  const t = document.createElementNS(NS,'text');
+  t.setAttribute('x',lx); t.setAttribute('y',ly);
+  t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
+  t.setAttribute('class','inner-label'); t.textContent = ip.label;
+  ng.appendChild(t);
+});
+
+// ── HOVER ────────────────────────────────────────────────────────
+document.querySelectorAll('.node-group').forEach(g => {
+  g.addEventListener('mouseenter', () => activate(g.dataset.id));
+  g.addEventListener('mouseleave', () => deactivate());
+});
+
+function activate(id) {
+  document.querySelectorAll('.node-group').forEach(g =>
+    g.classList.toggle('active', g.dataset.id===id));
+  document.querySelectorAll('.edge-main').forEach(e =>
+    e.classList.toggle('active', e.dataset.nodes.includes(id)));
+  document.querySelectorAll('.edge-cross[data-nodes]').forEach(e => {
+    const on = e.dataset.nodes===id;
+    e.style.opacity = on ? '0.45' : '0.04';
+    e.style.stroke  = on ? 'var(--gold)' : '#1A1C2C';
+  });
+}
+function deactivate() {
+  document.querySelectorAll('.node-group').forEach(g => g.classList.remove('active'));
+  document.querySelectorAll('.edge-main').forEach(e => e.classList.remove('active'));
+  document.querySelectorAll('.edge-cross[data-nodes]').forEach(e => {
+    e.style.opacity=''; e.style.stroke='';
+  });
+}
+
+// ── SCROLL REVEAL ────────────────────────────────────────────────
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+  obs.observe(el);
+});
+
+// ── GRAVITY GRID ─────────────────────────────────────────────────
+(function() {
+  const canvas = document.getElementById('grid-canvas');
+  const ctx    = canvas.getContext('2d');
+  const STEP   = 28;   // grid cell size
+  const SUB    = 5;    // sub-segments per cell (smoothness)
+  const STRENGTH = 38; // max warp pixels
+  const SIGMA    = 160; // warp falloff radius
+
+  let W, H;
+  let targetX = -9999, targetY = -9999; // raw mouse
+  let mx = -9999, my = -9999;           // smoothed mouse
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  document.addEventListener('mousemove', e => { targetX = e.clientX; targetY = e.clientY; });
+
+  // Gravitational displacement: push grid points away from cursor
+  function warp(x, y) {
+    const dx = x - mx, dy = y - my;
+    const dist2 = dx*dx + dy*dy;
+    if (dist2 < 1) return [x, y];
+    const dist = Math.sqrt(dist2);
+    const mag = STRENGTH * Math.exp(-dist2 / (2 * SIGMA * SIGMA));
+    return [x + dx/dist * mag, y + dy/dist * mag];
+  }
+
+  function lineColor() {
+    return document.documentElement.getAttribute('data-theme') === 'light'
+      ? 'rgba(160,200,196,0.5)'   // light mode: soft teal grid
+      : 'rgba(16,28,28,1)';       // dark mode: deep teal-black grid
+  }
+
+  function draw() {
+    // Smooth-follow mouse with gentle lag
+    mx += (targetX - mx) * 0.055;
+    my += (targetY - my) * 0.055;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = lineColor();
+    ctx.lineWidth   = 1;
+
+    const dSub = STEP / SUB;
+
+    // Vertical lines — sweep x across columns, y down each
+    for (let gx = 0; gx <= W + STEP; gx += STEP) {
+      ctx.beginPath();
+      let first = true;
+      for (let gy = 0; gy <= H + dSub; gy += dSub) {
+        const [wx, wy] = warp(gx, gy);
+        if (first) { ctx.moveTo(wx, wy); first = false; }
+        else ctx.lineTo(wx, wy);
+      }
+      ctx.stroke();
+    }
+
+    // Horizontal lines — sweep y across rows, x across each
+    for (let gy = 0; gy <= H + STEP; gy += STEP) {
+      ctx.beginPath();
+      let first = true;
+      for (let gx = 0; gx <= W + dSub; gx += dSub) {
+        const [wx, wy] = warp(gx, gy);
+        if (first) { ctx.moveTo(wx, wy); first = false; }
+        else ctx.lineTo(wx, wy);
+      }
+      ctx.stroke();
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ── THEME TOGGLE ─────────────────────────────────────────────────
+const moonPath = "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z";
+const sunPath  = "M12 2a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm10-5a1 1 0 0 1-1 1h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 1 1zM4 12a1 1 0 0 1-1 1H2a1 1 0 0 1 0-2h1a1 1 0 0 1 1 1zm15.07-7.07a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zM6.34 17.66a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zm12.73 0a1 1 0 0 1-1.41 0l-.71-.71a1 1 0 1 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41zM5.64 4.93a1 1 0 0 1 1.41 0l.71.71A1 1 0 1 1 6.35 7.05l-.71-.71a1 1 0 0 1 0-1.41zM12 7a5 5 0 1 0 0 10A5 5 0 0 0 12 7z";
+
+const btn   = document.getElementById('theme-toggle');
+const icon  = document.getElementById('toggle-icon').querySelector('path');
+const label = document.getElementById('toggle-label');
+const html  = document.documentElement;
+
+function applyTheme(light) {
+  if (light) {
+    html.setAttribute('data-theme', 'light');
+    icon.setAttribute('d', sunPath);
+    label.textContent = 'night';
+  } else {
+    html.removeAttribute('data-theme');
+    icon.setAttribute('d', moonPath);
+    label.textContent = 'day';
+  }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+
+// Restore saved preference
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+
+btn.addEventListener('click', () => {
+  applyTheme(html.getAttribute('data-theme') !== 'light');
+});
+</script>
+</body>
+</html>
