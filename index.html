@@ -392,6 +392,52 @@ footer {
   transition: color 0.4s;
 }
 [data-theme="light"] .watermark-text { color: #D0C8DC; }
+
+/* ── DEPTH TOGGLE ── */
+#depth-toggle {
+  position: fixed;
+  top: 22px;
+  right: 138px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(80,60,40,0.20);
+  border: 1px solid var(--gold);
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: border-color 0.3s, background 0.3s;
+}
+#depth-toggle:hover { background: rgba(192,114,64,0.22); }
+#depth-toggle span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  transition: color 0.3s;
+  text-transform: uppercase;
+}
+
+/* ── FACE SWITCHING ── */
+.face-technical { display: none; }
+body.technical .face-plain { display: none; }
+body.technical .face-technical { display: block; }
+body.technical span.face-technical { display: inline; }
+
+/* ── SWITCHING ANIMATION ── */
+.content-wrap { transition: opacity 0.3s ease, transform 0.3s ease; }
+.hero-sub { transition: opacity 0.3s ease; }
+svg .node-label { transition: fill 0.3s, opacity 0.3s; }
+.inner-label { transition: opacity 0.3s; }
+body.switching .content-wrap { opacity: 0; transform: perspective(800px) rotateY(3deg); }
+body.switching .hero-sub { opacity: 0; }
+body.switching .node-label { opacity: 0; }
+body.switching .inner-label { opacity: 0; }
+
+@media (max-width: 720px) {
+  #depth-toggle { right: auto; left: 26px; top: 68px; }
+}
 </style>
 </head>
 <body>
@@ -399,6 +445,7 @@ footer {
 <canvas id="grid-canvas"></canvas>
 
 <!-- ── THEME TOGGLE ──────────────────────────────────────────────── -->
+<a href="blog/" style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);text-decoration:none;position:fixed;top:26px;right:200px;z-index:1000;opacity:0.7;transition:opacity 0.3s" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">blog</a>
 <button id="theme-toggle" aria-label="Toggle light/dark mode">
   <svg id="toggle-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
     <!-- moon icon (shown in dark mode) -->
@@ -407,12 +454,20 @@ footer {
   <span id="toggle-label">day</span>
 </button>
 
+<!-- ── DEPTH TOGGLE ──────────────────────────────────────────────── -->
+<button id="depth-toggle" aria-label="Toggle plain/technical view">
+  <span id="depth-label">technical</span>
+</button>
+
 <!-- ══ HERO ════════════════════════════════════════════════════════ -->
 <section class="hero">
   <hr class="rule-gold" style="width:100%;max-width:600px;margin-bottom:40px">
   <h1 class="hero-title">HAAK</h1>
   <p class="hero-tagline">for collective human action</p>
-  <p class="hero-sub">Agentic &nbsp;·&nbsp; Ontological &nbsp;·&nbsp; Constitutional</p>
+  <p class="hero-sub">
+    <span class="face-plain">who &nbsp;·&nbsp; what &nbsp;·&nbsp; where &nbsp;·&nbsp; why &nbsp;·&nbsp; how &nbsp;·&nbsp; when</span>
+    <span class="face-technical">Agentic &nbsp;·&nbsp; Ontological &nbsp;·&nbsp; Constitutional</span>
+  </p>
 
   <svg id="network-svg" viewBox="0 0 440 420" xmlns="http://www.w3.org/2000/svg">
     <defs>
@@ -446,67 +501,108 @@ footer {
     <g class="node-group" id="node-agentic" data-id="agentic">
       <circle cx="220" cy="72" r="34" class="node-glow"/>
       <circle cx="220" cy="72" r="22" class="node-outer"/>
-      <text x="220" y="32" text-anchor="middle" class="node-label">AGENTIC</text>
+      <text x="220" y="32" text-anchor="middle" class="node-label">WHO ACTS</text>
     </g>
 
     <!-- ONTOLOGICAL -->
     <g class="node-group" id="node-ontological" data-id="ontological">
       <circle cx="88" cy="300" r="34" class="node-glow"/>
       <circle cx="88" cy="300" r="22" class="node-outer"/>
-      <text x="50" y="342" text-anchor="middle" class="node-label">ONTO-</text>
-      <text x="50" y="357" text-anchor="middle" class="node-label">LOGICAL</text>
+      <text x="50" y="342" text-anchor="middle" class="node-label">WHAT'S</text>
+      <text x="50" y="357" text-anchor="middle" class="node-label">REAL</text>
     </g>
 
     <!-- CONSTITUTIONAL -->
     <g class="node-group" id="node-constitutional" data-id="constitutional">
       <circle cx="352" cy="300" r="34" class="node-glow"/>
       <circle cx="352" cy="300" r="22" class="node-outer"/>
-      <text x="390" y="342" text-anchor="middle" class="node-label">CONSTI-</text>
-      <text x="390" y="357" text-anchor="middle" class="node-label">TUTIONAL</text>
+      <text x="390" y="342" text-anchor="middle" class="node-label">WHAT</text>
+      <text x="390" y="357" text-anchor="middle" class="node-label">GOVERNS</text>
     </g>
   </svg>
 
   <p class="scroll-hint">↓ &nbsp; scroll</p>
 </section>
 
-<!-- ══ THE PROBLEM + THE VISION ═══════════════════════════════════ -->
+<!-- ══ CONTENT (two-faced: plain / technical) ═════════════════════ -->
+<div class="content-wrap">
 <div class="container">
   <section class="section">
-    <div class="two-col">
-      <div class="reveal-left">
-        <p class="section-tag">The Problem</p>
-        <h2 class="section-title">The wrong<br>constitution</h2>
-        <p class="section-body">The platforms we use to think together were built to maximize economic value, optimizing for extraction, not for human understanding or judgment.<br><br>This is not a content problem. It is an architectural one.</p>
+    <div class="face-plain">
+      <div class="two-col">
+        <div class="reveal-left">
+          <p class="section-tag">The Crisis</p>
+          <h2 class="section-title">Built to<br>extract.</h2>
+          <p class="section-body">Every platform you use was designed to extract — attention, data, value — from every person who touches it. Collective action became collective chat. We talk and talk. Nothing changes. Power concentrates.<br><br>The organizations that once gave ordinary people leverage — unions, mutual societies, civic groups — have been systematically dismantled. What's left are platforms that monetize your participation and call it community.</p>
+        </div>
+        <div class="reveal-right">
+          <p class="section-tag">The Response</p>
+          <h2 class="section-title gold">Collective<br>power.</h2>
+          <p class="section-body">For the first time, an individual can direct something that functions like another mind. This is a genuine redistribution of intellectual power. The question is not whether to use it — it's who decides how it works, and by what rules.<br><br>An open system, governed by its participants. Not a product to be sold. A commons to be built. Forkable. Public. Free.</p>
+        </div>
       </div>
-      <div class="reveal-right">
-        <p class="section-tag">The Vision</p>
-        <h2 class="section-title gold">Pluralistic.<br>Constitutional.</h2>
-        <p class="section-body">Spaces for collective human action: epistemic and constructive. Pluralistic by design, governed by a constitution that is observable, auditable, and built by humans — not optimized by markets.<br><br>Human values. Not market values.</p>
+    </div>
+    <div class="face-technical">
+      <div class="two-col">
+        <div class="reveal-left">
+          <p class="section-tag">The Problem</p>
+          <h2 class="section-title">The wrong<br>constitution.</h2>
+          <p class="section-body">Every platform is constituted — it has policies that determine who can do what, where, and why. Current platforms are constituted to maximize extraction. Their governance is hidden in model weights, optimized by markets, unreadable by the people they affect.<br><br>This is an institutional failure, not a content problem.</p>
+        </div>
+        <div class="reveal-right">
+          <p class="section-tag">The Vision</p>
+          <h2 class="section-title gold">Pluralistic.<br>Constitutional.</h2>
+          <p class="section-body">Spaces for collective action governed by explicit constitutions — observable, auditable, modifiable. Decentralized governance where agents keep their own charters but collaborate on shared projects.<br><br>Intelligence scales through institutions, not individuals. Trust is evidence-based, not agreement-based.</p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ ONTOLOGICAL ML ══════════════════════════════════════════ -->
+  <!-- ══ HOW IT WORKS / THE MECHANISM ═════════════════════════ -->
   <section class="section">
-    <div class="reveal">
-      <p class="section-tag">Ontological Machine Learning</p>
-    </div>
-    <div class="two-col" style="margin-top:0">
-      <div class="reveal-left">
-        <h2 class="section-title" style="font-size:clamp(40px,6vw,68px)">A new kind<br>of AI.</h2>
+    <div class="face-plain">
+      <div class="reveal">
+        <p class="section-tag">How it works</p>
       </div>
-      <div class="reveal-right" style="padding-top:8px">
-        <p class="section-body">AI grounded in formal relational ontology — not a knowledge graph fed into a model, but an ontological framework that shapes the system's architecture from the ground up.<br><br>Every action involves actors, methods, domains, and materials. Every situation is governed by policies and engagements. The AI knows this structurally, not statistically.<br><br><em style="color:var(--cream);font-style:italic">The term is new. The need is urgent.</em></p>
+      <div class="two-col" style="margin-top:0">
+        <div class="reveal-left">
+          <h2 class="section-title" style="font-size:clamp(40px,6vw,68px)">You already<br>know how<br>to ask.</h2>
+        </div>
+        <div class="reveal-right" style="padding-top:8px">
+          <p class="section-body">Who did this? What happened? Where? Why? These aren't technical terms — they're the questions every person asks when something matters.<br><br>A child asks why. A citizen asks who decided. A scientist asks what will happen next. When a system writes down every step, you can ask these questions and get real answers. When it hides behind a black box, you can't.<br><br><em style="color:var(--cream);font-style:italic">The difference between a tool and a collaborator is whether you can see the process.</em></p>
+        </div>
+      </div>
+    </div>
+    <div class="face-technical">
+      <div class="reveal">
+        <p class="section-tag">The Mechanism</p>
+      </div>
+      <div class="two-col" style="margin-top:0">
+        <div class="reveal-left">
+          <h2 class="section-title" style="font-size:clamp(40px,6vw,68px)">Everything<br>written down.</h2>
+        </div>
+        <div class="reveal-right" style="padding-top:8px">
+          <p class="section-body">When a system runs silently and returns a result, you see a black box. When every step is externalized — written to disk, indexed, auditable — you see a process you can steer.<br><br>The Library Theorem proves this formally: indexed external memory achieves O(log N) retrieval vs. &Omega;(N) without. Intelligence scales through organization, not parameters.<br><br><em style="color:var(--cream);font-style:italic">This is not a metaphor. It is a theorem.</em></p>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ══ SCIENCE AS TEST BED ════════════════════════════════════ -->
+  <!-- ══ WHAT IT LOOKS LIKE / THE EXPERIMENT ════════════════════ -->
   <section class="section">
-    <div class="statement reveal">
-      <p class="section-tag" style="text-align:center">Science as Test Bed</p>
-      <h2 class="section-title" style="font-size:clamp(32px,5vw,52px);text-align:center;max-width:700px;margin:0 auto 32px">Where human judgment is most obviously at stake.</h2>
-      <p class="section-body" style="margin:0 auto">Science is genuinely both epistemic and normative. Its institutional structures — journals, reviewers, grant panels, labs — can be modeled as agent roles, varied experimentally, and compared in ways the real system cannot permit.<br><br>We run a shadow ecosystem: AI agents alongside humans, measuring where each combination prevails.</p>
+    <div class="face-plain">
+      <div class="statement reveal">
+        <p class="section-tag" style="text-align:center">What it looks like</p>
+        <h2 class="section-title" style="font-size:clamp(32px,5vw,52px);text-align:center;max-width:700px;margin:0 auto 32px">A thousand different lives.</h2>
+        <p class="section-body" style="margin:0 auto">A scientist reviewing a paper — seeing every step the AI took, redirecting when it goes wrong. A writer organizing a novel — structure visible, nothing hidden in a chatbot's memory. A community group tracking its budget — who decided what, when, and why. A citizen tracing why a law was passed.<br><br>Wherever people need to work together and stay in control of the process, this is what it looks like.</p>
+      </div>
+    </div>
+    <div class="face-technical">
+      <div class="statement reveal">
+        <p class="section-tag" style="text-align:center">The Experiment</p>
+        <h2 class="section-title" style="font-size:clamp(32px,5vw,52px);text-align:center;max-width:700px;margin:0 auto 32px">Science as test bed.</h2>
+        <p class="section-body" style="margin:0 auto">Science is both epistemic and normative — it discovers truth and governs itself through journals, reviewers, grant panels, labs. These institutions can be modeled as actor roles within domains, governed by policies, varied experimentally.<br><br>We run a shadow ecosystem: AI agents alongside humans, measuring where human judgment is irreplaceable. Not ideologically. Empirically.</p>
+      </div>
     </div>
   </section>
 </div>
@@ -514,12 +610,22 @@ footer {
 <!-- ══ QUOTE ══════════════════════════════════════════════════════ -->
 <section class="quote-section">
   <div class="container">
-    <div class="reveal">
-      <p class="quote-text">
-        &ldquo;Science is prior to norms.<br>
-        Norms without knowledge<br>cannot be executed.&rdquo;
-      </p>
-      <p class="quote-attr">— HAAK · 2026</p>
+    <div class="face-plain">
+      <div class="reveal">
+        <p class="quote-text">
+          &ldquo;Every genuine redistribution of power produces the same reaction: that tool is not for you.<br><br>
+          The anxiety is never about the tool. It is about democratization.&rdquo;
+        </p>
+        <p class="quote-attr">— The Power You Were Not Supposed to Have · 2026</p>
+      </div>
+    </div>
+    <div class="face-technical">
+      <div class="reveal">
+        <p class="quote-text">
+          &ldquo;A constitution prescribes how the normative order itself may be changed. Without one, governance is ad hoc — norms exist, but their authority is unclear.&rdquo;
+        </p>
+        <p class="quote-attr">— Ontology · Definition 14</p>
+      </div>
     </div>
   </div>
 </section>
@@ -527,29 +633,55 @@ footer {
 <!-- ══ PILLARS ════════════════════════════════════════════════════ -->
 <div class="container">
   <section class="pillars-section">
-    <div class="reveal" style="text-align:center">
-      <p class="section-tag" style="text-align:center;margin-bottom:8px">The System</p>
-      <h2 class="section-title" style="text-align:center;font-size:clamp(32px,4vw,48px)">Three principles.<br>One architecture.</h2>
+    <div class="face-plain">
+      <div class="reveal" style="text-align:center">
+        <p class="section-tag" style="text-align:center;margin-bottom:8px">Three questions</p>
+        <h2 class="section-title" style="text-align:center;font-size:clamp(32px,4vw,48px)">Who. What. Why.</h2>
+      </div>
+      <div class="pillars-grid">
+        <div class="pillar reveal" style="transition-delay:0.1s">
+          <p class="pillar-name">Who acts</p>
+          <hr>
+          <p class="pillar-body">People and AI, working together. Not AI replacing people. Not people shouting into the void. Agents with roles, contributing to shared work — writing down every step so anyone can see what happened.</p>
+        </div>
+        <div class="pillar reveal" style="transition-delay:0.22s">
+          <p class="pillar-name">What's real</p>
+          <hr>
+          <p class="pillar-body">The structure of the situation: who is involved, what they're doing, where, and how it connects. Not hidden in model weights. Built into the system so you can question it.</p>
+        </div>
+        <div class="pillar reveal" style="transition-delay:0.34s">
+          <p class="pillar-name">What governs</p>
+          <hr>
+          <p class="pillar-body">Rules you can read. Governance you can audit and change. Not values frozen inside a black box. The constitution is in plain language, and it belongs to the people it affects.</p>
+        </div>
+      </div>
     </div>
-    <div class="pillars-grid">
-      <div class="pillar reveal" style="transition-delay:0.1s">
-        <p class="pillar-name">Agentic</p>
-        <hr>
-        <p class="pillar-body">AI as actor: taking on roles, executing methods, producing outputs that feed back into the system.</p>
+    <div class="face-technical">
+      <div class="reveal" style="text-align:center">
+        <p class="section-tag" style="text-align:center;margin-bottom:8px">The Architecture</p>
+        <h2 class="section-title" style="text-align:center;font-size:clamp(32px,4vw,48px)">Three principles.</h2>
       </div>
-      <div class="pillar reveal" style="transition-delay:0.22s">
-        <p class="pillar-name">Ontological</p>
-        <hr>
-        <p class="pillar-body">Every action structured by formal ontology: what exists, how it relates, what governs it.</p>
-      </div>
-      <div class="pillar reveal" style="transition-delay:0.34s">
-        <p class="pillar-name">Constitutional</p>
-        <hr>
-        <p class="pillar-body">Governance embedded in infrastructure, not weights. Observable. Auditable. Modifiable.</p>
+      <div class="pillars-grid">
+        <div class="pillar reveal" style="transition-delay:0.1s">
+          <p class="pillar-name">Agentic</p>
+          <hr>
+          <p class="pillar-body">Agents assume actor-types, execute method-tokens within domain-instances. Every action externalized as a situation trace — actors, methods, domains, materials, indexed and auditable.</p>
+        </div>
+        <div class="pillar reveal" style="transition-delay:0.22s">
+          <p class="pillar-name">Ontological</p>
+          <hr>
+          <p class="pillar-body">Three axes (actor &times; method &times; domain), four compound types (pattern, situation, policy, engagement). Type/token &times; descriptive/normative. Formal relational ontology grounding every structural choice.</p>
+        </div>
+        <div class="pillar reveal" style="transition-delay:0.34s">
+          <p class="pillar-name">Constitutional</p>
+          <hr>
+          <p class="pillar-body">Policies of maximal scope governing policy creation itself. Observable rules, version-controlled in plain text, forkable. Governance as institutional design, not model calibration.</p>
+        </div>
       </div>
     </div>
   </section>
 </div>
+</div><!-- /content-wrap -->
 
 <!-- WATERMARK -->
 <div class="watermark-zone"><span class="watermark-text">HAAK</span></div>
@@ -558,7 +690,7 @@ footer {
 <div class="container">
   <footer class="reveal">
     <div class="footer-inner">
-      <span class="footer-side">haak.io</span>
+      <span class="footer-side">haak.world</span>
       <span class="footer-center">Named for Theodore Haak &nbsp;·&nbsp; convener of the Invisible College &nbsp;·&nbsp; 1646</span>
       <span class="footer-side">2026</span>
     </div>
@@ -570,7 +702,7 @@ footer {
 const NS  = 'http://www.w3.org/2000/svg';
 const cx  = 220, cy = 210, rIn = 62;
 
-const labels = ['Actor','Method','Domain','Material','Situation','Policy','Engagement'];
+const labels = ['Who','How','Where','What','Event','Rule','Purpose'];
 const inner  = labels.map((lbl, i) => {
   const a = (2*Math.PI/7)*i + Math.PI*0.06;
   return { x: cx + rIn*Math.cos(a), y: cy + rIn*Math.sin(a), label: lbl, a };
@@ -607,6 +739,7 @@ inner.forEach(ip => {
 });
 
 // Inner nodes + labels
+const innerLabelEls = [];
 const ng = document.getElementById('inner-nodes');
 inner.forEach(ip => {
   const c = document.createElementNS(NS,'circle');
@@ -620,6 +753,7 @@ inner.forEach(ip => {
   t.setAttribute('text-anchor','middle'); t.setAttribute('dominant-baseline','middle');
   t.setAttribute('class','inner-label'); t.textContent = ip.label;
   ng.appendChild(t);
+  innerLabelEls.push(t);
 });
 
 // ── HOVER ────────────────────────────────────────────────────────
@@ -764,6 +898,59 @@ if (saved === 'light') applyTheme(true);
 btn.addEventListener('click', () => {
   applyTheme(html.getAttribute('data-theme') !== 'light');
 });
+
+// ── DEPTH TOGGLE (plain ↔ technical) ─────────────────────────────
+const depthBtn = document.getElementById('depth-toggle');
+const depthLbl = document.getElementById('depth-label');
+
+function updateSvgLabels(technical) {
+  const outerLabels = technical
+    ? { ag: ['AGENTIC'], on: ['ONTO-','LOGICAL'], co: ['CONSTI-','TUTIONAL'] }
+    : { ag: ['WHO ACTS'], on: ["WHAT'S",'REAL'], co: ['WHAT','GOVERNS'] };
+  const innerLabels = technical
+    ? ['Actor','Method','Domain','Material','Situation','Policy','Engagement']
+    : ['Who','How','Where','What','Event','Rule','Purpose'];
+
+  document.querySelectorAll('#node-agentic .node-label')[0].textContent = outerLabels.ag[0];
+  const onEls = document.querySelectorAll('#node-ontological .node-label');
+  onEls[0].textContent = outerLabels.on[0];
+  onEls[1].textContent = outerLabels.on[1];
+  const coEls = document.querySelectorAll('#node-constitutional .node-label');
+  coEls[0].textContent = outerLabels.co[0];
+  coEls[1].textContent = outerLabels.co[1];
+  innerLabelEls.forEach((el, i) => { if (i < innerLabels.length) el.textContent = innerLabels[i]; });
+}
+
+function applyDepth(technical) {
+  document.body.classList.add('switching');
+  setTimeout(() => {
+    document.body.classList.toggle('technical', technical);
+    updateSvgLabels(technical);
+    // Ensure reveals visible in new face
+    const sel = technical ? '.face-technical' : '.face-plain';
+    document.querySelectorAll(sel).forEach(face => {
+      face.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => {
+        el.classList.add('visible');
+      });
+    });
+    depthLbl.textContent = technical ? 'plain' : 'technical';
+    localStorage.setItem('haak-depth', technical ? 'technical' : 'plain');
+    document.body.classList.remove('switching');
+  }, 350);
+}
+
+depthBtn.addEventListener('click', () => {
+  applyDepth(!document.body.classList.contains('technical'));
+});
+
+// Restore saved depth
+const savedDepth = localStorage.getItem('haak-depth');
+if (savedDepth === 'technical') {
+  document.body.classList.add('technical');
+  updateSvgLabels(true);
+  depthLbl.textContent = 'plain';
+  document.querySelectorAll('.face-technical .reveal, .face-technical .reveal-left, .face-technical .reveal-right').forEach(el => el.classList.add('visible'));
+}
 </script>
 </body>
 </html>

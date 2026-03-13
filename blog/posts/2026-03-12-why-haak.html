@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why HAAK — HAAK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&family=Jura:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+  --code-bg:  #0A1010;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+  --code-bg:  #D8E4E0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  font-size: 19px;
+  line-height: 1.72;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+  background-image:
+    linear-gradient(var(--line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Nav bar */
+.site-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  background: rgba(8,12,12,0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line2);
+  transition: background 0.4s;
+}
+[data-theme="light"] .site-nav { background: rgba(232,240,238,0.85); }
+
+.site-nav a {
+  text-decoration: none;
+  border: none;
+}
+.nav-brand {
+  font-family: 'Gloock', serif;
+  font-size: 22px;
+  color: var(--cream);
+  letter-spacing: -0.01em;
+}
+.nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+}
+.nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--cream2);
+  transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--gold); }
+
+/* Theme toggle */
+#theme-toggle {
+  background: none;
+  border: 1px solid var(--line2);
+  border-radius: 14px;
+  padding: 4px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#theme-toggle svg { width: 12px; height: 12px; fill: var(--gold); }
+#theme-toggle span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+/* Article layout */
+article {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 120px 32px 80px;
+}
+
+/* Post header */
+.post-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.post-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+.post-subtitle {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.5vw, 24px);
+  color: var(--gold);
+  margin-bottom: 40px;
+}
+.post-header-rule {
+  border: none;
+  border-top: 1px solid var(--gold);
+  opacity: 0.4;
+  margin-bottom: 40px;
+}
+
+/* Typography */
+h1 { font-family: 'Gloock', serif; font-size: 28px; font-weight: 400; color: var(--cream); margin: 48px 0 20px; }
+h2 { font-family: 'Gloock', serif; font-size: 24px; font-weight: 400; color: var(--gold); margin: 40px 0 16px; }
+h3 { font-size: 20px; font-weight: 600; color: var(--cream); margin: 32px 0 12px; }
+p { margin-bottom: 16px; color: var(--cream2); font-weight: 300; }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--silver); text-decoration: none; border-bottom: 1px solid var(--line2); transition: color 0.2s; }
+a:hover { color: var(--gold); border-bottom-color: var(--gold-dim); }
+
+strong { color: var(--cream); font-weight: 600; }
+em { font-style: italic; }
+
+blockquote {
+  border-left: 3px solid var(--gold-dim);
+  padding-left: 20px;
+  margin: 24px 0;
+  color: var(--cream2);
+  font-style: italic;
+}
+
+ul, ol { margin-bottom: 16px; padding-left: 24px; color: var(--cream2); font-weight: 300; }
+li { margin-bottom: 6px; }
+
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 15px;
+  background: var(--code-bg);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 16px;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+pre code { background: none; padding: 0; font-size: 14px; line-height: 1.5; }
+
+img {
+  max-width: 100%;
+  border-radius: 4px;
+  margin: 24px 0;
+}
+
+hr { border: none; border-top: 1px solid var(--line2); margin: 40px 0; }
+
+/* Footer */
+.post-footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.post-footer a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--silver);
+  border: none;
+}
+.post-footer a:hover { color: var(--gold); }
+
+.site-footer {
+  text-align: center;
+  padding: 20px;
+  font-family: 'Jura', sans-serif;
+  font-size: 11px;
+  color: var(--line2);
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 600px) {
+  article { padding: 100px 20px 60px; }
+  .site-nav { padding: 12px 20px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="../" class="nav-brand">HAAK</a>
+  <div class="nav-links">
+    <a href="../">home</a>
+    <a href="./" class="active">blog</a>
+    <button id="theme-toggle" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <span id="toggle-label">day</span>
+    </button>
+  </div>
+</nav>
+
+<article>
+<p class="post-meta">2026-03-12</p>
+<h1 class="post-title">Why HAAK</h1>
+<p class="post-subtitle">The system is its own experiment</p>
+<hr class="post-header-rule">
+<p>Every platform you use was designed to extract something from you.
+Attention, data, value. The architecture is the politics.</p>
+<p>HAAK starts from a different premise: what if the system that
+organizes your work was also the system that studies how work gets
+organized? What if every step was written down, indexed, auditable — not
+because someone might check, but because that’s how you build something
+you can actually steer?</p>
+<h2 id="the-invisible-college">The Invisible College</h2>
+<p>In 1646, Theodore Haak convened a group of natural philosophers who
+met informally to share observations, challenge each other’s reasoning,
+and build knowledge collectively. No institution chartered them. No
+platform hosted them. They organized themselves around a shared
+commitment to making their process visible.</p>
+<p>Three centuries later, the tools changed but the problem didn’t. How
+do people coordinate intellectual work without surrendering control to
+the platform that hosts it?</p>
+<h2 id="what-were-building">What we’re building</h2>
+<p>HAAK is an externalized reasoning workspace. Everything that matters
+gets written to disk — research, review, strategy, architecture itself —
+into indexed, auditable structure. AI agents work alongside humans,
+assuming roles within explicit constitutions. The question at the
+center: <em>where is human participation irreplaceable?</em></p>
+<p>Not ideologically. Empirically.</p>
+<p>We run experiments. We publish papers. The system accumulates
+evidence about its own operation. Architecture evolves through use.
+Methods sharpen through practice.</p>
+<h2 id="three-principles">Three principles</h2>
+<p><strong>Agentic.</strong> People and AI, working together with
+defined roles. Every action externalized as a situation trace — who did
+what, where, when, why.</p>
+<p><strong>Ontological.</strong> A formal structure for what exists and
+how things relate. Not hidden in model weights. Written down, so you can
+question it.</p>
+<p><strong>Constitutional.</strong> Rules you can read. Governance you
+can audit and change. The constitution belongs to the people it
+affects.</p>
+<h2 id="why-now">Why now</h2>
+<p>For the first time, an individual can direct something that functions
+like another mind. This is a genuine redistribution of intellectual
+power. The question is not whether to use it — it’s who decides how it
+works, and by what rules.</p>
+<p>An open system, governed by its participants. Not a product to be
+sold. A commons to be built.</p>
+<div class="post-footer">
+  <a href="./">&larr; all posts</a>
+  <a href="../">haak.world</a>
+</div>
+</article>
+
+<div class="site-footer">haak &middot; 2026</div>
+
+<script>
+const moonPath = "M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z";
+const sunPath  = "M12 2a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0V3a1 1 0 0 1 1-1zm0 15a1 1 0 0 1 1 1v1a1 1 0 0 1-2 0v-1a1 1 0 0 1 1-1zm10-5a1 1 0 0 1-1 1h-1a1 1 0 0 1 0-2h1a1 1 0 0 1 1 1zM4 12a1 1 0 0 1-1 1H2a1 1 0 0 1 0-2h1a1 1 0 0 1 1 1zm15.07-7.07a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zM6.34 17.66a1 1 0 0 1 0 1.41l-.71.71a1 1 0 1 1-1.41-1.41l.71-.71a1 1 0 0 1 1.41 0zm12.73 0a1 1 0 0 1-1.41 0l-.71-.71a1 1 0 1 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41zM5.64 4.93a1 1 0 0 1 1.41 0l.71.71A1 1 0 1 1 6.35 7.05l-.71-.71a1 1 0 0 1 0-1.41zM12 7a5 5 0 1 0 0 10A5 5 0 0 0 12 7z";
+const btn = document.getElementById('theme-toggle');
+const icon = btn.querySelector('path');
+const lbl = document.getElementById('toggle-label');
+const html = document.documentElement;
+
+function applyTheme(light) {
+  if (light) { html.setAttribute('data-theme','light'); icon.setAttribute('d',sunPath); lbl.textContent='night'; }
+  else { html.removeAttribute('data-theme'); icon.setAttribute('d',moonPath); lbl.textContent='day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => applyTheme(html.getAttribute('data-theme') !== 'light'));
+</script>
+</body>
+</html>
