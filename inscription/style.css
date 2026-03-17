@@ -1,51 +1,53 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #080C0C;
-  --cream:    #DFE6E4;
-  --cream2:   #7A8C88;
-  --gold:     #2E9696;
-  --gold-dim: #0C2828;
-  --silver:   #8A7898;
-  --subtitle: #8AABA5;
-  --line:     #101C1C;
-  --line2:    #1A2E2E;
-  --card-bg:  rgba(255,255,255,0.015);
-  --accent-governance:   #2E9696;
-  --accent-philosophy:   #C4A35A;
-  --accent-experience:   #B07A8A;
-  --accent-architecture: #6A8A8A;
-  --accent-knowledge:    #8A9A6A;
-  --accent-computation:  #7A88A8;
-  --accent-ontology:     #A08A60;
-  --accent-neuroscience: #5A9A7A;
-  --accent-topology:     #9A7A60;
-  --accent-history:      #8A7A6A;
-  --accent-interactive:  #8A7898;
+  --bg:       #0E0D0A;
+  --title:    #e2d8c8;
+  --cream:    #d4cabb;
+  --cream2:   #9A8E80;
+  --gold:     #7A9E8E;
+  --gold-dim: #1A1E18;
+  --silver:   #8A7A70;
+  --subtitle: #A09484;
+  --line:     #1A1610;
+  --line2:    #252018;
+  --card-bg:  rgba(255,245,230,0.015);
+  --accent-governance:   #6A9A88;
+  --accent-philosophy:   #B89A58;
+  --accent-experience:   #A07478;
+  --accent-architecture: #6A8478;
+  --accent-knowledge:    #808A60;
+  --accent-computation:  #70788A;
+  --accent-ontology:     #988258;
+  --accent-neuroscience: #5A8A6A;
+  --accent-topology:     #8A7258;
+  --accent-history:      #7A7060;
+  --accent-interactive:  #7A6E6A;
 }
 
 [data-theme="light"] {
-  --bg:       #E8F0EE;
-  --cream:    #101A18;
-  --cream2:   #3A5050;
-  --gold:     #1A6E6E;
-  --gold-dim: #2E9696;
-  --silver:   #685878;
-  --subtitle: #5A7A72;
-  --line:     #C8D8D4;
-  --line2:    #B0C8C4;
-  --card-bg:  #f9f8f6;
-  --accent-governance:   #1A6E6E;
-  --accent-philosophy:   #9A7A30;
-  --accent-experience:   #9A5A6A;
-  --accent-architecture: #4A6A6A;
-  --accent-knowledge:    #6A7A4A;
-  --accent-computation:  #5A6888;
-  --accent-ontology:     #806A40;
-  --accent-neuroscience: #3A7A5A;
-  --accent-topology:     #7A5A40;
-  --accent-history:      #6A5A4A;
-  --accent-interactive:  #685878;
+  --bg:       #F0EBE2;
+  --title:    #1E1A16;
+  --cream:    #2A2420;
+  --cream2:   #5A5048;
+  --gold:     #4A7A68;
+  --gold-dim: #6A9A88;
+  --silver:   #6A6058;
+  --subtitle: #6A6058;
+  --line:     #D4CCC0;
+  --line2:    #C4BAB0;
+  --card-bg:  #F6F2EA;
+  --accent-governance:   #4A7A68;
+  --accent-philosophy:   #8A6A28;
+  --accent-experience:   #8A4A58;
+  --accent-architecture: #4A6458;
+  --accent-knowledge:    #5A6A40;
+  --accent-computation:  #4A5870;
+  --accent-ontology:     #705A38;
+  --accent-neuroscience: #3A6A4A;
+  --accent-topology:     #6A4A38;
+  --accent-history:      #5A4A3A;
+  --accent-interactive:  #5A5048;
 }
 
 html { scroll-behavior: smooth; }
@@ -112,7 +114,7 @@ article { padding: 80px 0 120px; }
   font-size: clamp(32px, 5vw, 48px);
   font-weight: 400;
   line-height: 1.08;
-  color: var(--cream);
+  color: var(--title);
   margin-bottom: 36px;
 }
 
@@ -130,14 +132,14 @@ article { padding: 80px 0 120px; }
   font-family: 'Gloock', serif;
   font-size: clamp(24px, 3vw, 32px);
   font-weight: 400;
-  color: var(--cream);
+  color: var(--title);
   margin-top: 2.4em;
   margin-bottom: 0.8em;
   line-height: 1.15;
 }
 
-.article-body em { font-style: italic; color: var(--cream); }
-.article-body strong { font-weight: 400; color: var(--cream); }
+.article-body em { font-style: italic; color: var(--title); }
+.article-body strong { font-weight: 400; color: var(--title); }
 
 .article-body .highlight {
   font-family: 'Instrument Serif', serif;
@@ -193,7 +195,7 @@ article { padding: 80px 0 120px; }
   font-size: clamp(36px, 6vw, 52px);
   font-weight: 400;
   line-height: 1.05;
-  color: var(--cream);
+  color: var(--title);
   margin-bottom: 16px;
 }
 
@@ -232,7 +234,7 @@ article { padding: 80px 0 120px; }
   margin-bottom: 2px;
 }
 
-.post-title a { color: var(--cream); }
+.post-title a { color: var(--title); }
 .post-title a:hover { color: var(--gold); }
 
 .post-excerpt {
@@ -274,7 +276,7 @@ article { padding: 80px 0 120px; }
 .series-list li a:hover { color: var(--gold); }
 
 .series-list li.current {
-  color: var(--cream);
+  color: var(--title);
   font-weight: 400;
 }
 
