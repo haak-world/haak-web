@@ -70,36 +70,6 @@ a:hover { opacity: 0.8; }
 .container { max-width: 1100px; margin: 0 auto; padding: 0 32px; }
 .narrow { max-width: 680px; }
 
-nav {
-  padding: 28px 32px;
-  max-width: 1100px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-home {
-  font-family: 'Gloock', serif;
-  font-size: 20px;
-  color: var(--cream);
-}
-
-.nav-links { display: flex; gap: 20px; align-items: center; }
-
-.nav-links a, .nav-links button {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--silver);
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
-
 /* ── HEADER ── */
 .page-header {
   padding: 60px 0 40px;
@@ -415,24 +385,6 @@ nav {
 .gen-takes { color: var(--mat-polished); }
 .gen-rejects { color: var(--mat-stub); }
 
-/* ── FOOTER ── */
-footer {
-  border-top: 1px solid var(--line2);
-  padding: 28px 0 40px;
-}
-
-.footer-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.footer-side {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  color: var(--cream2);
-}
-
 /* ── SVG GRAPH STYLES ── */
 .graph-node { cursor: pointer; }
 .graph-node circle { transition: stroke-width 0.15s, opacity 0.15s; }
@@ -458,8 +410,7 @@ footer {
 
 @media (max-width: 700px) {
   .container { padding: 0 16px; }
-  nav { padding: 20px 16px; }
-  .card-fields { grid-template-columns: 1fr; }
+.card-fields { grid-template-columns: 1fr; }
   .card-label { padding-top: 8px; }
   .filter-bar { flex-direction: column; }
   .filter-bar input[type="text"] { width: 100%; }
@@ -469,14 +420,11 @@ footer {
 </head>
 <body>
 
-<nav>
-  <a href="/inscription/" class="nav-home">inscription</a>
-  <div class="nav-links">
-    <a href="/about/">about</a>
-    <a href="/">haak</a>
-    <button id="theme-toggle">day</button>
-  </div>
-</nav>
+<button id="theme-toggle" style="position:fixed;top:20px;right:20px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--silver);background:none;border:none;cursor:pointer;z-index:100;opacity:0.5;">&#9728;</button>
+
+<div class="container" style="max-width:680px;margin:0 auto;padding:0 32px;">
+  <a href="/inscription/" style="display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;color:var(--silver);padding:28px 0 0;text-decoration:none;">&larr; inscription</a>
+</div>
 
 <div class="container">
   <div class="page-header">
@@ -540,11 +488,8 @@ footer {
 </div>
 
 <div class="container">
-  <footer>
-    <div class="footer-inner">
-      <span class="footer-side">haak.world</span>
-      <span class="footer-side">2026</span>
-    </div>
+  <footer style="padding:40px 0 48px;">
+    <a href="https://zmainen.org" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;color:var(--silver);opacity:0.4;text-decoration:none;">zmainen.org</a>
   </footer>
 </div>
 
@@ -1091,16 +1036,16 @@ const htmlEl = document.documentElement;
 function applyTheme(light) {
   if (light) {
     htmlEl.setAttribute('data-theme', 'light');
-    themeBtn.textContent = 'night';
+    themeBtn.textContent = '\u263E';
   } else {
     htmlEl.removeAttribute('data-theme');
-    themeBtn.textContent = 'day';
+    themeBtn.textContent = '\u2600';
   }
   localStorage.setItem('haak-theme', light ? 'light' : 'dark');
 }
 
 const savedTheme = localStorage.getItem('haak-theme');
-if (savedTheme === 'light') applyTheme(true);
+applyTheme(savedTheme === 'light');
 
 themeBtn.addEventListener('click', () => {
   applyTheme(htmlEl.getAttribute('data-theme') !== 'light');
