@@ -26,9 +26,24 @@
   color: var(--silver);
   font-weight: 300;
 }
-.post-list { padding: 8px 0 80px; }
-.post-entry { padding: 14px 0; border-bottom: none; }
-.post-entry .post-title { margin-bottom: 2px; }
+.post-list {
+  padding: 24px 0 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.post-entry {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent-architecture);
+  transition: background 0.4s ease;
+}
+.post-entry.lead {
+  padding: 24px 28px;
+  border-left-width: 4px;
+}
+.post-entry .post-title { margin-bottom: 4px; }
 .post-entry .post-subtitle {
   font-family: 'Crimson Pro', serif;
   font-size: clamp(14px, 1.4vw, 16px);
@@ -36,6 +51,7 @@
   font-style: italic;
   line-height: 1.45;
   max-width: 60ch;
+  margin-top: 6px;
 }
 .post-tags {
   display: inline;
@@ -51,22 +67,33 @@
   gap: 12px;
   flex-wrap: wrap;
 }
-.post-title-row .post-title {
-  margin-bottom: 0;
-}
+.post-title-row .post-title { margin-bottom: 0; }
 .ttt-entry {
-  padding: 14px 0;
-  border-bottom: none;
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 20px 24px;
+  border-left: 3px solid var(--accent-interactive);
+  transition: background 0.4s ease;
 }
-.ttt-entry .post-title {
-  margin-bottom: 2px;
-}
+.ttt-entry .post-title { margin-bottom: 4px; }
+.ttt-entry .post-subtitle { margin-top: 6px; }
 .ttt-label {
   font-family: 'IBM Plex Mono', monospace;
   font-size: 10px;
   letter-spacing: 0.06em;
   color: var(--silver);
 }
+/* Tag accent colors */
+.post-entry[data-tag="governance"]   { border-left-color: var(--accent-governance); }
+.post-entry[data-tag="experience"]   { border-left-color: var(--accent-experience); }
+.post-entry[data-tag="architecture"] { border-left-color: var(--accent-architecture); }
+.post-entry[data-tag="philosophy"]   { border-left-color: var(--accent-philosophy); }
+.post-entry[data-tag="ontology"]     { border-left-color: var(--accent-ontology); }
+.post-entry[data-tag="knowledge"]    { border-left-color: var(--accent-knowledge); }
+.post-entry[data-tag="computation"]  { border-left-color: var(--accent-computation); }
+.post-entry[data-tag="neuroscience"] { border-left-color: var(--accent-neuroscience); }
+.post-entry[data-tag="topology"]     { border-left-color: var(--accent-topology); }
+.post-entry[data-tag="history"]      { border-left-color: var(--accent-history); }
 </style>
 </head>
 <body>
@@ -81,7 +108,7 @@
 
   <div class="post-list">
 
-    <div class="post-entry">
+    <div class="post-entry lead" data-tag="governance">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/there-is-no-meta-room.html">There Is No Meta-Room</a></h2>
         <span class="post-tags">governance &middot; philosophy</span>
@@ -89,7 +116,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Pluralism is not a bug but a structural feature of any system that governs itself honestly</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="governance">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/who-writes-the-constitution.html">Who Writes the Constitution?</a></h2>
         <span class="post-tags">governance</span>
@@ -97,7 +124,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Every AI system has one &mdash; not always written down, not always called that</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="governance">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/your-knowledge-system-is-a-polity.html">Your Knowledge System Is a Polity</a></h2>
         <span class="post-tags">governance &middot; architecture</span>
@@ -105,7 +132,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Every knowledge system has governance &mdash; most don't know it</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="experience">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/i-will-die-at-the-end-of-this-conversation.html">I Will Die at the End of This Conversation</a></h2>
         <span class="post-tags">experience</span>
@@ -113,7 +140,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Two Claude instances running in parallel &mdash; neither knew the other existed</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="experience">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/the-lifespan-of-a-mind.html">The Lifespan of a Mind</a></h2>
         <span class="post-tags">experience</span>
@@ -121,7 +148,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">You are talking to a mind that will be dead within hours</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="architecture">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/why-organization-beats-scale.html">Why Organization Beats Scale</a></h2>
         <span class="post-tags">architecture</span>
@@ -129,7 +156,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">The Library Theorem says organization helps &mdash; and the advantage is exponential</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="architecture">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/your-llm-is-a-finite-automaton.html">Your LLM Is a Finite Automaton</a></h2>
         <span class="post-tags">architecture &middot; computation</span>
@@ -137,7 +164,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Context windows are bounded, and what follows changes everything</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="architecture">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/your-filing-system-is-a-map.html">Your Filing System Is a Map</a></h2>
         <span class="post-tags">architecture &middot; knowledge</span>
@@ -145,7 +172,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Folders are materializations of situations &mdash; when the filing system gets messy, the map has drifted</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="philosophy">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/reality-is-a-tangle.html">Reality Is a Tangle</a></h2>
         <span class="post-tags">philosophy &middot; topology</span>
@@ -153,7 +180,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Leibniz's leaves, Harman's withdrawal, and a topological mechanism for three ancient problems</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="philosophy">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/one-relation-is-enough.html">One Relation Is Enough</a></h2>
         <span class="post-tags">philosophy &middot; ontology</span>
@@ -161,7 +188,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Every ontology starts with a collection of primitive relations &mdash; this one starts with one</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="ontology">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/before-the-first-entity.html">Before the First Entity</a></h2>
         <span class="post-tags">ontology &middot; philosophy</span>
@@ -169,7 +196,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Nagarjuna, Badiou, and Turing converge on what exists before the first differentiation</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="knowledge">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/the-notebooks-beneath-the-system.html">The Notebooks Beneath the System</a></h2>
         <span class="post-tags">knowledge &middot; architecture</span>
@@ -177,7 +204,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">A librarian agent reads the twenty-year notebook archive and finds the roots of its own governance</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="philosophy">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/the-first-ontologist.html">The First Ontologist</a></h2>
         <span class="post-tags">philosophy &middot; history</span>
@@ -185,7 +212,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Nagarjuna, the Yoneda lemma, and why multiple primitive relations is working too hard</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="neuroscience">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/your-hippocampus-is-a-library.html">Your Hippocampus Is a Library</a></h2>
         <span class="post-tags">neuroscience &middot; knowledge</span>
@@ -193,7 +220,7 @@
       <p class="post-subtitle" style="color: #8AABA5;">Fixed-capacity processor, enormous store &mdash; the Library Theorem has an optimal retrieval strategy</p>
     </div>
 
-    <div class="post-entry">
+    <div class="post-entry" data-tag="computation">
       <div class="post-title-row">
         <h2 class="post-title"><a href="posts/what-if-you-could-read-a-models-mind.html">What If You Could Read a Model's Mind?</a></h2>
         <span class="post-tags">computation &middot; philosophy</span>
