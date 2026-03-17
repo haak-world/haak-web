@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papers — HAAK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080C0C; --cream: #DFE6E4; --cream2: #7A8C88;
+  --gold: #2E9696; --gold-dim: #0C2828; --silver: #8A7898;
+  --line2: #1A2E2E;
+}
+body { background: var(--bg); color: var(--cream); font-family: 'Crimson Pro', Georgia, serif; }
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.75; }
+.container { max-width: 740px; margin: 0 auto; padding: 0 32px; }
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 18px 32px; background: rgba(8,12,12,0.92);
+  backdrop-filter: blur(12px); border-bottom: 1px solid var(--line2);
+}
+nav .nav-home { font-family: 'Gloock', serif; font-size: 18px; color: var(--cream); }
+nav .nav-links { display: flex; gap: 24px; }
+nav .nav-links a {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); opacity: 0.7;
+}
+nav .nav-links a:hover { opacity: 1; }
+
+.page-header {
+  padding: 140px 0 48px; border-bottom: 1px solid var(--line2);
+}
+.page-header h1 {
+  font-family: 'Gloock', serif; font-size: clamp(36px, 6vw, 56px);
+  font-weight: 400; color: var(--cream);
+}
+
+.paper-list { padding: 48px 0 80px; }
+.paper-item {
+  padding: 32px 0; border-bottom: 1px solid var(--line2);
+}
+.paper-item h2 {
+  font-family: 'Gloock', serif; font-size: 24px; font-weight: 400; margin-bottom: 8px;
+}
+.paper-item h2 a { color: var(--cream); }
+.paper-item h2 a:hover { color: var(--gold); opacity: 1; }
+.paper-item .paper-meta {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--cream2); margin-bottom: 10px;
+}
+.paper-item p { color: var(--cream2); font-size: 17px; font-weight: 300; line-height: 1.65; }
+
+footer {
+  border-top: 1px solid var(--line2); padding: 28px 0 48px; text-align: center;
+}
+footer p {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--cream2); opacity: 0.6;
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="/papers/">papers</a>
+    <a href="/about/">about</a>
+    <a href="/blog/">blog</a>
+  </div>
+</nav>
+<div class="container">
+  <header class="page-header">
+    <h1>Papers</h1>
+  </header>
+  <div class="paper-list">
+    <div class="paper-item">
+      <h2><a href="/papers/library-theorem/">The Library Theorem</a></h2>
+      <div class="paper-meta">Zachary F. Mainen &middot; Champalimaud Foundation &middot; 2026</div>
+      <p>Why organizing AI memory matters more than making AI smarter. Proves that indexed external memory achieves exponentially better retrieval than unstructured storage, with empirical validation across multiple AI models.</p>
+    </div>
+  </div>
+  <footer>
+    <p><a href="/">haak.world</a> &middot; 2026</p>
+  </footer>
+</div>
+</body>
+</html>

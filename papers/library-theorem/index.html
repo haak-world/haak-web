@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Library Theorem — HAAK</title>
+<meta name="description" content="Why organizing AI memory matters more than making AI smarter. How external organization governs agentic reasoning capacity.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+  --callout-bg: rgba(46,150,150,0.06);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  line-height: 1.72;
+  font-size: 19px;
+  font-weight: 300;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.75; }
+
+.container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 32px;
+  background: rgba(8,12,12,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line2);
+}
+nav .nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 18px;
+  color: var(--cream);
+  letter-spacing: -0.01em;
+}
+nav .nav-links {
+  display: flex;
+  gap: 24px;
+}
+nav .nav-links a {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.7;
+}
+nav .nav-links a:hover { opacity: 1; }
+
+/* ── HEADER ── */
+.paper-header {
+  padding: 140px 0 60px;
+  border-bottom: 1px solid var(--line2);
+}
+.paper-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.22em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.paper-header h1 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+.paper-header .subtitle {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+  font-size: clamp(18px, 2.5vw, 24px);
+  color: var(--gold);
+  margin-bottom: 28px;
+}
+.paper-header .meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--cream2);
+  line-height: 1.8;
+}
+.paper-header .meta strong {
+  color: var(--cream);
+  font-weight: 400;
+}
+
+/* ── LINKS BAR ── */
+.links-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.links-bar a, .links-bar span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  padding: 8px 18px;
+  border: 1px solid var(--gold);
+  border-radius: 4px;
+  transition: background 0.2s, color 0.2s;
+}
+.links-bar a:hover {
+  background: var(--gold);
+  color: var(--bg);
+  opacity: 1;
+}
+.links-bar span.forthcoming {
+  color: var(--cream2);
+  border-color: var(--line2);
+  font-style: italic;
+}
+
+/* ── CONTENT ── */
+.paper-body {
+  padding: 56px 0 80px;
+}
+.paper-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3.5vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin: 56px 0 20px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line2);
+}
+.paper-body h2:first-child { margin-top: 0; }
+.paper-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--cream);
+  margin: 40px 0 14px;
+}
+.paper-body p {
+  color: var(--cream2);
+  margin-bottom: 1.2em;
+}
+.paper-body strong {
+  color: var(--cream);
+  font-weight: 600;
+}
+.paper-body em { font-style: italic; }
+.paper-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.88em;
+  color: var(--gold);
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* ── TABLE ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 24px 0;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+}
+th, td {
+  padding: 10px 14px;
+  text-align: right;
+  border-bottom: 1px solid var(--line2);
+  color: var(--cream2);
+}
+th {
+  font-weight: 400;
+  color: var(--cream);
+  border-bottom: 1px solid var(--gold-dim);
+  letter-spacing: 0.05em;
+}
+td:first-child, th:first-child { text-align: left; }
+
+/* ── FIGURES ── */
+figure {
+  margin: 40px 0;
+  text-align: center;
+}
+figure img {
+  max-width: 100%;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+}
+figcaption {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--cream2);
+  margin-top: 12px;
+  line-height: 1.6;
+  text-align: left;
+}
+
+/* ── CALLOUT ── */
+.callout {
+  background: var(--callout-bg);
+  border-left: 2px solid var(--gold);
+  padding: 20px 24px;
+  margin: 32px 0;
+  font-size: 0.95em;
+  color: var(--cream2);
+}
+.callout em { color: var(--cream); }
+
+/* ── SEPARATOR ── */
+hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 48px 0;
+}
+
+/* ── FOOTER ── */
+.paper-footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 48px;
+  text-align: center;
+}
+.paper-footer p {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--cream2);
+  opacity: 0.6;
+  line-height: 1.8;
+}
+.paper-footer a { color: var(--gold); }
+
+@media (max-width: 600px) {
+  body { font-size: 17px; }
+  nav { padding: 14px 20px; }
+  .container { padding: 0 20px; }
+  .paper-header { padding: 120px 0 48px; }
+  table { font-size: 11px; }
+  th, td { padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="/papers/">papers</a>
+    <a href="/about/">about</a>
+    <a href="/blog/">blog</a>
+  </div>
+</nav>
+
+<div class="container">
+
+<!-- ── HEADER ── -->
+<header class="paper-header">
+  <p class="paper-tag">Research Paper</p>
+  <h1>The Library Theorem</h1>
+  <p class="subtitle">Why organizing AI memory matters more than making AI smarter</p>
+  <div class="meta">
+    <strong>Zachary F. Mainen</strong><br>
+    Champalimaud Foundation, Lisbon &middot; 2026
+  </div>
+  <div class="links-bar">
+    <span class="forthcoming">arXiv &middot; forthcoming</span>
+    <a href="https://github.com/zmainen/library-theorem">GitHub</a>
+    <a href="/blog/posts/why-organization-beats-scale.html">Blog post</a>
+  </div>
+</header>
+
+<!-- ── BODY ── -->
+<div class="paper-body">
+
+<h2>The oldest technology for making knowledge accessible</h2>
+
+<p>A library is not a pile of books. A pile of books is a warehouse. What makes a library a <em>library</em> is that you can find what you need&mdash;that the knowledge in it is accessible, not just present. The difference is organization: catalogs, classification systems, shelf orders. These are old technologies, older than printing, and they solve a problem so fundamental we rarely think about it: how do you retrieve one specific thing from among many?</p>
+
+<p>This problem applies to AI systems in exactly the same way it applies to physical libraries. And the mathematics turns out to be the same mathematics that governs how your computer finds a file on its hard drive.</p>
+
+<h2>Four libraries, same books</h2>
+
+<p>Imagine a library with a thousand books. You're looking for <em>Moby-Dick</em>. The books are distributed ten per shelf, so there are a hundred shelves. We compare four versions of this library&mdash;same books, same shelves, different organization.</p>
+
+<p><strong>Library 1: Random shelves.</strong> Books are placed in no particular order. You pull out a shelf, scan the ten spines, and if <em>Moby-Dick</em> isn't there, try another. On average you'll check about half the shelves&mdash;fifty visits&mdash;before finding it. Double the library size and you double the search. The work grows in direct proportion to the collection.</p>
+
+<p><strong>Library 2: Alphabetical shelves.</strong> The books have been sorted and the shelves are in order&mdash;A through Z, left to right. Now you can be strategic: go to the middle shelf, check whether M comes before or after what's there, and eliminate half the library in one step. Repeat on the remaining half. This is <em>binary search</em>. It takes about log&#8322; of the number of shelves&mdash;roughly 7 visits for a hundred shelves, 10 for a thousand, 20 for a million.</p>
+
+<p><strong>Library 3: Card catalog.</strong> At the entrance sits a single page: <em>"A&ndash;C: shelf 1, D&ndash;F: shelf 2, &hellip; M&ndash;O: shelf 7."</em> You read the catalog, go to shelf 7, find <em>Moby-Dick</em>. One visit. Always one, regardless of library size.</p>
+
+<p><strong>Library 4: Hierarchical catalog.</strong> The library has grown to millions of books. A single catalog page can't list every shelf. Instead: a master catalog points to a section ("Fiction, shelves 4001&ndash;6000"), a section catalog points to a subsection ("M authors, shelves 4801&ndash;4850"), and a subsection catalog points to the exact shelf. Three visits. For millions of books.</p>
+
+<p>This is how every database and file system works. When you open <code>/Documents/Research/paper.pdf</code>, the operating system doesn't scan your entire disk. Each folder in that path is a catalog page&mdash;the directory tree <em>is</em> a hierarchical index, and the file system walks it in a few steps.</p>
+
+<h2>The experiment</h2>
+
+<p>We built these four libraries as digital stores and asked AI models to find specific entries. Each "visit" is a tool call&mdash;the model reads a page of ten entries, examines them, and decides what to do next. This fills the model's context window, which is the fundamental bottleneck: the model can only see one page at a time, just as you can only look at one shelf at a time.</p>
+
+<p>We tested two models. First, GPT-4o-mini&mdash;a capable but not frontier model:</p>
+
+<table>
+  <thead>
+    <tr><th>Library</th><th>100 items</th><th>500 items</th><th>2,000 items</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Random shelves</td><td>6 visits</td><td>22 visits</td><td>133 visits</td></tr>
+    <tr><td>Alphabetical shelves</td><td>5 visits</td><td>21 visits</td><td>&mdash;</td></tr>
+    <tr><td>Card catalog</td><td>1 visit</td><td>1 visit</td><td>1 visit</td></tr>
+    <tr><td>Hierarchical catalog</td><td>1 visit</td><td>1 visit</td><td>1 visit</td></tr>
+  </tbody>
+</table>
+
+<p>The alphabetical library barely helps. We told the model explicitly that the pages were sorted. It tries to jump to the right region, but it can't sustain binary search&mdash;it loses track of its bounds, overshoots, backtracks, and at 500 items it's almost as slow as random scanning: 21 visits versus 22.</p>
+
+<p>Then GPT-5.4&mdash;a much more powerful model:</p>
+
+<table>
+  <thead>
+    <tr><th>Library</th><th>100 items</th><th>500 items</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Alphabetical shelves</td><td>2 visits</td><td>5 visits</td></tr>
+    <tr><td>Card catalog</td><td>1 visit</td><td>1 visit</td></tr>
+    <tr><td>Hierarchical catalog</td><td>1 visit</td><td>1 visit</td></tr>
+  </tbody>
+</table>
+
+<p>GPT-5.4 <em>can</em> do binary search. Five visits at 500 items is almost exactly the theoretical optimum of log&#8322;(50) &asymp; 5.6. The stronger model is building an index <em>in its head</em>&mdash;maintaining mental bounds, reasoning about where a key should fall, narrowing by halves. It's performing what you might call <em>self-indexing in context</em>.</p>
+
+<p>But the card catalog still wins. Five visits versus one. And the gap is exponential: at a million items, even perfect binary search needs about 17 visits. The catalog still needs 1.</p>
+
+<figure>
+  <img src="figures/fig6_multimodel.png" alt="Multi-model comparison showing page reads across conditions for GPT-4o-mini and GPT-5.4">
+  <figcaption>Figure 6. Multi-model comparison. GPT-4o-mini cannot sustain binary search on sorted pages (left). GPT-5.4 achieves near-optimal binary search but indexed retrieval still dominates (center). Both models achieve 100% accuracy with an index (right).</figcaption>
+</figure>
+
+<h2>The separation is exponential</h2>
+
+<p>The mathematical result&mdash;the Library Theorem&mdash;proves that this gap isn't a quirk of our experiment. It's structural.</p>
+
+<p>An AI agent scanning through unstructured memory needs O(N) operations to find something in a store of N items. An agent with an indexed store needs O(log N). That's the difference between a million and twenty. And the costs <em>compound</em>: over a long reasoning session where the agent repeatedly retrieves from its own growing notes, the unindexed agent pays O(T&sup2;) total cost while the indexed agent pays O(T log T). At scale, this is the difference between feasible and infeasible.</p>
+
+<h2>When the AI thinks it already knows</h2>
+
+<p>We discovered something unexpected when we changed the content.</p>
+
+<p>In the random-key experiments, the AI follows the retrieval protocol faithfully: read the index, go to the right page, read the answer, submit it. 100% accuracy. But when we filled the store with encyclopedia entries&mdash;real facts about real words&mdash;the model started cheating. Instead of looking up the answer, it <em>generated</em> it from memory. It had seen these facts during training, and the parametric knowledge competed with the retrieval protocol.</p>
+
+<p>The result was catastrophic. At 200 encyclopedia entries, the model spent its entire token budget generating plausible-sounding answers without ever reading a single page. Accuracy dropped to 27%. The index was perfectly constructed. The tools worked correctly. The model simply didn't <em>use</em> them.</p>
+
+<figure>
+  <img src="figures/fig5_content-comparison.png" alt="Content comparison showing retrieval failure on encyclopedia content">
+  <figcaption>Figure 5. Content familiarity disrupts retrieval. Hash and numeric content: protocol followed, retrieval works. Encyclopedia content: the model generates from memory instead of reading, accuracy collapses.</figcaption>
+</figure>
+
+<p>We call this <em>parametric memory competition</em>: two pathways&mdash;retrieval (follow the protocol) and parametric (generate from memory)&mdash;competing for control of the model's behavior. When the content is unfamiliar, only the retrieval pathway produces a plausible answer, and the model follows it. When the content is familiar, the parametric pathway fires first, and the model shortcuts the protocol.</p>
+
+<p>This leads to a design principle: use language models to <em>build</em> indices (they understand content, they can classify and organize), but use deterministic algorithms to <em>traverse</em> them (no hallucination, no shortcuts, guaranteed O(log N)).</p>
+
+<hr>
+
+<h2>Why this matters</h2>
+
+<h3>A missing axis in scaling</h3>
+
+<p>Current discussions of AI scaling focus on three variables: model size, training data, and compute. The Library Theorem identifies a fourth: the organization of the knowledge the model works with. Its effect is not marginal&mdash;it's exponential. Doubling the model's parameters gives incremental gains. Indexing its knowledge base gives orders-of-magnitude gains.</p>
+
+<p>This means there's an entire axis of improvement that doesn't require bigger models or more training. It requires better infrastructure&mdash;the kind of infrastructure that librarians, archivists, and database engineers have been building for centuries.</p>
+
+<h3>Opening the black box</h3>
+
+<p>When a model generates an answer from parametric memory, you can't see how it got there. The knowledge is inside the model, encoded in billions of parameters, and the retrieval process is opaque. This is the black box problem.</p>
+
+<p>When a model follows an external index, every step is visible. It read the catalog. It went to shelf 14. It found entry 7294. It submitted the value. The retrieval path is <em>fully auditable</em>. You can verify each step. You can inspect the index itself for completeness, bias, or staleness.</p>
+
+<p>The self-indexing result cuts both ways here. A stronger model that builds an index in its head is impressive&mdash;but it puts the search process <em>back inside the black box</em>. External indices keep it outside, where it can be inspected, governed, and corrected.</p>
+
+<div class="callout">
+The Library Theorem gives a <em>performance</em> reason to prefer external structure (exponential speedup) that happens to align with a <em>governance</em> reason (auditability). That's unusual&mdash;efficiency and transparency usually trade off. Here they point the same way.
+</div>
+
+<h3>Implications for AI alignment</h3>
+
+<p>If AI systems increasingly rely on external knowledge stores&mdash;files, databases, structured memory&mdash;then the governance question shifts from "what does the model know?" to "what can the model access, and how is it organized?"</p>
+
+<p>This is a more tractable question. You can audit a database. You can version-control an index. You can grant or revoke access to specific knowledge domains. You can trace exactly what information contributed to a decision. None of this is possible when the knowledge lives inside the model's parameters.</p>
+
+<hr>
+
+<h2>The deeper point</h2>
+
+<p>We tend to think of AI capability as something inside the model&mdash;its size, its training, its architecture. The Library Theorem says that's only half the story. The external structure the model works with is equally consequential, and the effect is provably exponential.</p>
+
+<p>A well-indexed knowledge base makes a weak model perform like a strong one. A disorganized one wastes even a strong model's capabilities on search. A library's card catalog is not a convenience&mdash;it's what makes the knowledge in the collection <em>available</em>. This has been true for centuries. The Library Theorem proves it holds for artificial minds too.</p>
+
+</div><!-- /paper-body -->
+
+<!-- ── FOOTER ── -->
+<footer class="paper-footer">
+  <p>
+    <a href="/">haak.world</a> &middot; Zachary F. Mainen &middot; Champalimaud Foundation &middot; 2026
+  </p>
+</footer>
+
+</div><!-- /container -->
+</body>
+</html>
