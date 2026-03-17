@@ -7,6 +7,7 @@
   --gold:     #2E9696;
   --gold-dim: #0C2828;
   --silver:   #8A7898;
+  --subtitle: #8AABA5;
   --line:     #101C1C;
   --line2:    #1A2E2E;
 }
@@ -18,6 +19,7 @@
   --gold:     #1A6E6E;
   --gold-dim: #2E9696;
   --silver:   #685878;
+  --subtitle: #5A7A72;
   --line:     #C8D8D4;
   --line2:    #B0C8C4;
 }
@@ -186,11 +188,11 @@ article { padding: 80px 0 120px; }
   max-width: 48ch;
 }
 
-.post-list { padding: 40px 0 120px; }
+.post-list { padding: 8px 0 80px; }
 
 .post-entry {
-  padding: 36px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 14px 0;
+  border-bottom: none;
 }
 
 .post-entry:first-child { padding-top: 0; }
@@ -209,7 +211,7 @@ article { padding: 80px 0 120px; }
   font-size: clamp(22px, 3vw, 30px);
   font-weight: 400;
   line-height: 1.15;
-  margin-bottom: 10px;
+  margin-bottom: 2px;
 }
 
 .post-title a { color: var(--cream); }
