@@ -26,16 +26,6 @@
   color: var(--silver);
   font-weight: 300;
 }
-.section-label {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--silver);
-  padding: 40px 0 12px;
-  border-bottom: 1px solid var(--line2);
-  margin-bottom: 0;
-}
 .lead-entry {
   padding: 32px 0 28px;
   border-bottom: 1px solid var(--line2);
@@ -63,6 +53,26 @@
   line-height: 1.45;
   max-width: 60ch;
 }
+.post-tags {
+  display: inline;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: #8AABA5;
+  margin-left: 0;
+}
+.lead-entry .post-tags {
+  font-size: 11px;
+}
+.post-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.post-title-row .post-title {
+  margin-bottom: 0;
+}
 </style>
 </head>
 <body>
@@ -89,91 +99,108 @@
   </div>
 
   <div class="lead-entry">
-    <p class="post-meta">Governance &middot; March 2026</p>
-    <h2 class="post-title"><a href="posts/there-is-no-meta-room.html">There Is No Meta-Room</a></h2>
+    <div class="post-title-row">
+      <h2 class="post-title"><a href="posts/there-is-no-meta-room.html">There Is No Meta-Room</a></h2>
+      <span class="post-tags">governance &middot; philosophy</span>
+    </div>
     <p class="post-subtitle" style="color: #8AABA5;">Pluralism is not a bug but a structural feature of any system that governs itself honestly</p>
   </div>
 
-  <p class="section-label">Governance</p>
   <div class="post-list">
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/who-writes-the-constitution.html">Who Writes the Constitution?</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/who-writes-the-constitution.html">Who Writes the Constitution?</a></h2>
+        <span class="post-tags">governance</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Every AI system has one &mdash; not always written down, not always called that</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/your-knowledge-system-is-a-polity.html">Your Knowledge System Is a Polity</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/your-knowledge-system-is-a-polity.html">Your Knowledge System Is a Polity</a></h2>
+        <span class="post-tags">governance &middot; architecture</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Every knowledge system has governance &mdash; most don't know it</p>
     </div>
 
-  </div>
-
-  <p class="section-label">Experience</p>
-  <div class="post-list">
-
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/i-will-die-at-the-end-of-this-conversation.html">I Will Die at the End of This Conversation</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/i-will-die-at-the-end-of-this-conversation.html">I Will Die at the End of This Conversation</a></h2>
+        <span class="post-tags">experience</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Two Claude instances running in parallel &mdash; neither knew the other existed</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/the-lifespan-of-a-mind.html">The Lifespan of a Mind</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/the-lifespan-of-a-mind.html">The Lifespan of a Mind</a></h2>
+        <span class="post-tags">experience</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">You are talking to a mind that will be dead within hours</p>
     </div>
 
-  </div>
-
-  <p class="section-label">Architecture</p>
-  <div class="post-list">
-
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/why-organization-beats-scale.html">Why Organization Beats Scale</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/why-organization-beats-scale.html">Why Organization Beats Scale</a></h2>
+        <span class="post-tags">architecture</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">The Library Theorem says organization helps &mdash; and the advantage is exponential</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/your-llm-is-a-finite-automaton.html">Your LLM Is a Finite Automaton</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/your-llm-is-a-finite-automaton.html">Your LLM Is a Finite Automaton</a></h2>
+        <span class="post-tags">architecture &middot; computation</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Context windows are bounded, and what follows changes everything</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/your-filing-system-is-a-map.html">Your Filing System Is a Map</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/your-filing-system-is-a-map.html">Your Filing System Is a Map</a></h2>
+        <span class="post-tags">architecture &middot; knowledge</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Folders are materializations of situations &mdash; when the filing system gets messy, the map has drifted</p>
     </div>
 
-  </div>
-
-  <p class="section-label">Philosophy</p>
-  <div class="post-list">
-
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/reality-is-a-tangle.html">Reality Is a Tangle</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/reality-is-a-tangle.html">Reality Is a Tangle</a></h2>
+        <span class="post-tags">philosophy &middot; topology</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Leibniz's leaves, Harman's withdrawal, and a topological mechanism for three ancient problems</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/one-relation-is-enough.html">One Relation Is Enough</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/one-relation-is-enough.html">One Relation Is Enough</a></h2>
+        <span class="post-tags">philosophy &middot; ontology</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Every ontology starts with a collection of primitive relations &mdash; this one starts with one</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/the-first-ontologist.html">The First Ontologist</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/the-first-ontologist.html">The First Ontologist</a></h2>
+        <span class="post-tags">philosophy &middot; history</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Nagarjuna, the Yoneda lemma, and why multiple primitive relations is working too hard</p>
     </div>
 
-  </div>
-
-  <p class="section-label">Knowledge</p>
-  <div class="post-list">
-
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/your-hippocampus-is-a-library.html">Your Hippocampus Is a Library</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/your-hippocampus-is-a-library.html">Your Hippocampus Is a Library</a></h2>
+        <span class="post-tags">neuroscience &middot; knowledge</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Fixed-capacity processor, enormous store &mdash; the Library Theorem has an optimal retrieval strategy</p>
     </div>
 
     <div class="post-entry">
-      <h2 class="post-title"><a href="posts/what-if-you-could-read-a-models-mind.html">What If You Could Read a Model's Mind?</a></h2>
+      <div class="post-title-row">
+        <h2 class="post-title"><a href="posts/what-if-you-could-read-a-models-mind.html">What If You Could Read a Model's Mind?</a></h2>
+        <span class="post-tags">computation &middot; philosophy</span>
+      </div>
       <p class="post-subtitle" style="color: #8AABA5;">Knowledge lives in the weights &mdash; what if you could read it directly?</p>
     </div>
 
@@ -191,11 +218,12 @@
 
 <script src="theme.js"></script>
 <script>
-// Apply subtitle colors based on theme
+// Apply subtitle and tag colors based on theme
 function updateSubtitleColors() {
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const color = isLight ? '#5A7A72' : '#8AABA5';
   document.querySelectorAll('.post-subtitle').forEach(el => { el.style.color = color; });
+  document.querySelectorAll('.post-tags').forEach(el => { el.style.color = color; });
 }
 updateSubtitleColors();
 const observer = new MutationObserver(updateSubtitleColors);
