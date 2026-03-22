@@ -297,6 +297,7 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mainen Lab &mdash; Systems Neuroscience</title>
 <meta name="description" content="The Mainen Lab at the Champalimaud Foundation studies how brains make decisions, interpret the world, and generate conscious experience.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

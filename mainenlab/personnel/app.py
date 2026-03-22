@@ -27,7 +27,7 @@ except ImportError:
 app = Flask(__name__)
 app.secret_key = 'mainenlab-personnel-internal'
 
-BASE = Path(__file__).resolve().parent.parent.parent.parent.parent.parent  # haak root
+BASE = Path(os.environ['HAAK_BASE']) if 'HAAK_BASE' in os.environ else Path(__file__).resolve().parent.parent.parent.parent.parent.parent
 PEOPLE_DIR = BASE / 'workspaces/zach/projects/mainen-lab/people'
 PROJECTS_DIR = BASE / 'workspaces/zach/projects/mainen-lab/projects'
 PUBS_DIR = BASE / 'workspaces/zach/projects/mainen-lab/publications'
