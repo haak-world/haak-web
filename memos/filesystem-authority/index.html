@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filesystem Authority &mdash; HAAK</title>
+<meta name="description" content="Filesystem-authoritative architecture: databases as baked build artifacts from markdown sources.">
+<meta property="og:title" content="Filesystem Authority &mdash; HAAK">
+<meta property="og:description" content="Filesystem-authoritative architecture: databases as baked build artifacts from markdown sources.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#strategy">strategy</a> &rsaquo; Filesystem Authority</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Strategy 32 &middot; March 2026</p>
+      <h1 class="article-title">Filesystem Authority</h1>
+      <p class="article-subtitle">HAAK is moving from ad-hoc mixed filesystem/database storage to a principled architecture in which the filesystem is authoritative for all HAAK-originated data and databases are derived build…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-principle">1. The Principle</a></li>
+<li><a href="#2-the-taxonomy">2. The Taxonomy</a>
+<ol>
+<li><a href="#category-1-haak-originated">Category 1: HAAK-Originated</a></li>
+<li><a href="#category-2-external-mirrors">Category 2: External Mirrors</a></li>
+<li><a href="#category-3-research-corpora">Category 3: Research Corpora</a></li>
+<li><a href="#category-4-agent-infrastructure">Category 4: Agent Infrastructure</a></li>
+<li><a href="#summary-table">Summary Table</a></li>
+<li><a href="#empty-databases-to-delete">Empty Databases to Delete</a></li>
+</ol></li>
+<li><a href="#3-the-build-system">3. The Build System</a>
+<ol>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#invariants">Invariants</a></li>
+</ol></li>
+<li><a href="#4-schema-enforcement">4. Schema Enforcement</a>
+<ol>
+<li><a href="#schema-files">Schema Files</a></li>
+<li><a href="#build-time-validation">Build-Time Validation</a></li>
+<li><a href="#write-time-validation">Write-Time Validation</a></li>
+</ol></li>
+<li><a href="#5-index-enforcement">5. Index Enforcement</a>
+<ol>
+<li><a href="#post-write-hook">Post-Write Hook</a></li>
+<li><a href="#build-time-audit">Build-Time Audit</a></li>
+<li><a href="#index-as-manifest">Index as Manifest</a></li>
+</ol></li>
+<li><a href="#6-migration-plan">6. Migration Plan</a>
+<ol>
+<li><a href="#phase-1-trivial-migrations-week-1">Phase 1: Trivial Migrations (week 1)</a></li>
+<li><a href="#phase-2-structured-migrations-weeks-2-3">Phase 2: Structured Migrations (weeks 2-3)</a></li>
+<li><a href="#phase-3-large-migrations-weeks-4-6">Phase 3: Large Migrations (weeks 4-6)</a></li>
+<li><a href="#duplicate-databases-to-consolidate">Duplicate Databases to Consolidate</a></li>
+</ol></li>
+<li><a href="#8-precedents">8. Precedents</a></li>
+<li><a href="#9-belongings-situations-as-the-locus">9. Belongings: Situations as the Locus</a>
+<ol>
+<li><a href="#the-principle">The Principle</a></li>
+<li><a href="#three-loci">Three Loci</a></li>
+<li><a href="#design-decisions">Design Decisions</a></li>
+<li><a href="#domains-and-situations">Domains and Situations</a></li>
+<li><a href="#wikilinks-as-unqualified-belongings">Wikilinks as Unqualified Belongings</a></li>
+<li><a href="#migration">Migration</a></li>
+</ol></li>
+<li><a href="#10-what-this-does-not-change">10. What This Does Not Change</a></li>
+<li><a href="#11-the-ontological-argument">11. The Ontological Argument</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p>HAAK is moving from ad-hoc mixed filesystem/database storage to a principled architecture in which the filesystem is authoritative for all HAAK-originated data and databases are derived build artifacts. This document argues for that architecture from ontological first principles, specifies its taxonomy, describes the build system, and lays out the migration plan.</p>
+<hr>
+<h2 id="1-the-principle"><a class="heading-anchor" href="#1-the-principle">#</a>1. The Principle</h2>
+<p>The ontology establishes that the filesystem is the materialization of the situation-nesting structure (Definition S4 of ontology/12). A project directory materializes a project-situation. A manuscript file materializes the intellectual act of writing. A review round directory materializes the review episode. These are provenance-quality belongings: the file <em>belongs to</em> the situation it records, with quality "materialization."</p>
+<p>The Library Theorem (<a class="cross-ref" href="/memos/library-theorem/">Foundation 02</a>) grounds the complementary claim: hierarchical indexed retrieval over this materialized structure costs O(log N) per access; scanning a flat store costs Omega(N). The <code>index.md</code> hierarchy is the mechanism that makes this bound achievable. Databases do not participate in this hierarchy. They are opaque blobs to the index system, invisible to navigating agents, and legible only through queries that presuppose knowledge of their schema. A database is a compiled artifact — useful for cross-cutting access, but not a place where knowledge lives.</p>
+<p>The principle follows: <strong>for all data that HAAK originates, the filesystem is the authority and the database is a derived artifact.</strong> Files are the data. The directory hierarchy is the index. SQLite databases are compiled views built by a deterministic build step, analogous to how a compiler produces object code from source. The source is versioned, human-readable, agent-navigable, and durable. The compiled artifact is .gitignored, rebuildable, and disposable.</p>
+<p>This is not a novel architecture. It is the "baked data" pattern described by Simon Willison: source files are authority, a build step produces SQLite as a read-optimized projection. What this document adds is the ontological grounding — <em>why</em> the filesystem is the right authority — and the taxonomy that determines <em>which</em> data falls under this principle and which does not.</p>
+<hr>
+<h2 id="2-the-taxonomy"><a class="heading-anchor" href="#2-the-taxonomy">#</a>2. The Taxonomy</h2>
+<p>Not all databases in HAAK should become filesystem-authoritative. The right distinction tracks where the data originates and who holds the ground truth.</p>
+<h3 id="category-1-haak-originated"><a class="heading-anchor" href="#category-1-haak-originated">#</a>Category 1: HAAK-Originated</h3>
+<p>Data that HAAK itself creates, curates, and owns. The filesystem representation — markdown, YAML, JSONL — is the source of truth. A build step compiles it into SQLite for queryable cross-cutting access. If the database is deleted, <code>make db</code> rebuilds it from the files. If a file is deleted, that data is gone.</p>
+<p>Current databases in this category: <code>books.db</code> (4 books, 64K), <code>lab.db</code> (123 people, 77 projects, 874 documents; 524K), <code>letters.db</code> (874 letters, 2M), <code>music.db</code> (6,786 tracks, 8M), <code>personal.db</code> (4 people, 27 documents, 13 insurance policies; 60K), <code>conversations.db</code> (1,205 conversations, 15,734 messages; 45M), <code>sessions.db</code> (40 sessions, 128K), <code>vault.db</code> (19 services, 22 credentials; 128K), <code>threads.db</code> (286 threads, 2.1M), <code>transcripts.db</code> (196 transcripts, 27,347 segments; 10M), <code>todos.db</code> (467 items, 680K), <code>events.db</code> (1,904 events, 1.1M), <code>photos.db</code> (10 photos, 44K), <code>web_clips.db</code> (0 clips, 12K).</p>
+<p>Also: per-session <code>.db</code> files under <code>data/sessions/</code> (hundreds of Claude Code session databases). And <code>agent-runner.db</code> (192K), which tracks agent sessions and ledger entries.</p>
+<h3 id="category-2-external-mirrors"><a class="heading-anchor" href="#category-2-external-mirrors">#</a>Category 2: External Mirrors</h3>
+<p>Data that originates in an external service. HAAK maintains a local cache for fast querying, but the external service is authoritative. Sync scripts pull fresh data; the local database is the cache, not the source.</p>
+<p>Current databases: <code>google<em>work.db</code> (3.6G — Gmail messages, Drive files, Calendar), <code>google</em>personal.db</code> (604M), <code>contacts.db</code> (8.4M — extracted from Gmail headers + Google Contacts), <code>repos.db</code> (136K — GitHub repository metadata), <code>health.db</code> (2.3G — Apple Health export), <code>arc.db</code> (64M — browser history), <code>notes.db</code> (80M — Apple Notes mirror), <code>mirror.db</code> (7.1M — Apple Reminders/Calendar state).</p>
+<p>These stay as databases. The filesystem-authority principle does not apply because the files would not be the source of truth — the external service is. A markdown file claiming to represent a Gmail message would be a declaration about external mutable state, not the data itself. This is the Terraform lesson: filesystem authority works when files ARE the data. It breaks when files are declarations about state that lives elsewhere. External mirrors need databases precisely because they store the binding between HAAK's view and the external identity.</p>
+<h3 id="category-3-research-corpora"><a class="heading-anchor" href="#category-3-research-corpora">#</a>Category 3: Research Corpora</h3>
+<p>Large ingested datasets from external sources, used for research queries but not originated by HAAK. The data is too voluminous for per-record filesystem representation and too static to need file-level versioning.</p>
+<p>Current databases: <code>public-archives.db</code> (5.2G — 2.4M documents, 1.6M entities from DOJ, WikiLeaks, ICIJ, DDoSecrets), <code>elife.db</code> (482M — eLife journal corpus), <code>papers.db</code> (449M — academic paper metadata), <code>files.db</code> (81M — file metadata index).</p>
+<p>These stay as databases. They are ingested, not originated. Their build step is an ingest script, not a filesystem scan. The ontological status is clear: they are materials that belong to the HAAK domain with quality "reference" — library holdings, not authored works.</p>
+<h3 id="category-4-agent-infrastructure"><a class="heading-anchor" href="#category-4-agent-infrastructure">#</a>Category 4: Agent Infrastructure</h3>
+<p>Data generated by the agent runtime itself — session transcripts, dispatch logs, coordination state. Some of this is already filesystem-native (board.md, index.md files, agent mandates). The rest should become filesystem-native, with databases baked from the files.</p>
+<p>Current databases: <code>console.db</code> (24K), <code>gateway.db</code> (112M — messaging gateway state), <code>entities.db</code> (307M — the entity graph itself).</p>
+<p>The entity graph (<code>entities.db</code>) deserves special attention. Under the new architecture it becomes a <em>baked artifact</em> — built from filesystem belongings, not maintained directly. The <code>index.md</code> files, YAML frontmatter, and explicit belonging declarations in the filesystem are the source; <code>entities.db</code> is compiled from them. This is architecturally coherent: the entity graph is a projection of the filesystem state, exactly as architecture 37 already describes.</p>
+<p>The gateway database is an operational store for a running daemon. It mirrors external messaging state (WhatsApp, Signal, email) and therefore falls under Category 2, not Category 4.</p>
+<h3 id="summary-table"><a class="heading-anchor" href="#summary-table">#</a>Summary Table</h3>
+<table>
+<tr><th>Category</th><th>Authority</th><th>DB role</th><th>Rebuild command</th><th>Examples</th></tr>
+<tr><td>HAAK-originated</td><td>Filesystem (md/yaml/jsonl)</td><td>Baked view</td><td><code>make db</code></td><td>books, lab, letters, music, personal, conversations, threads, transcripts, todos, events, vault, sessions, photos, web_clips, agent-runner</td></tr>
+<tr><td>External mirrors</td><td>External service</td><td>Local cache</td><td>sync scripts</td><td>google<em>work, google</em>personal, contacts, repos, health, arc, notes, mirror, gateway</td></tr>
+<tr><td>Research corpora</td><td>External datasets</td><td>Ingested data</td><td>ingest scripts</td><td>public-archives, elife, papers, files</td></tr>
+<tr><td>Agent infrastructure</td><td>Filesystem (boards, indices)</td><td>Baked view</td><td>indexer/scribe</td><td>entities.db, console.db</td></tr>
+</table>
+<h3 id="empty-databases-to-delete"><a class="heading-anchor" href="#empty-databases-to-delete">#</a>Empty Databases to Delete</h3>
+<p>Six databases at 0 bytes serve no purpose: <code>chatgpt.db</code>, <code>gmail.db</code>, <code>dispatch.db</code>, <code>mailbox.db</code>, <code>agent_mailbox.db</code>, <code>agents.db</code>. These should be deleted outright. Where functionality was planned (mailbox, dispatch), the implementation has moved elsewhere (the mailbox skill, the gateway).</p>
+<hr>
+<h2 id="3-the-build-system"><a class="heading-anchor" href="#3-the-build-system">#</a>3. The Build System</h2>
+<p>The baked data pattern requires a build system: a deterministic process that reads filesystem source and produces SQLite output. The design follows three constraints from the HAAK principles: no hidden state (principle 1 — the build is reproducible from files alone), documents not code (principle 7 — the source is markdown/YAML, not programming constructs), and single source of truth (principle 8 — each datum lives in exactly one file).</p>
+<h3 id="architecture"><a class="heading-anchor" href="#architecture">#</a>Architecture</h3>
+<p>A <code>Makefile</code> at the project root declares each baked database as a target. Each target has a Python builder script that reads filesystem source and produces SQLite. The builder is idempotent: running it twice on the same source produces byte-identical output (modulo SQLite internal ordering, which is normalized by sorting before insert).</p>
+<pre><code>data/books.db: data/books/*.yaml
+    python infra/scripts/bake_books.py
+
+data/lab.db: personas/*.md projects/lab/**/*.md
+    python infra/scripts/bake_lab.py
+
+data/entities.db: **/index.md **/*.md
+    python infra/scripts/bake_entities.py</code></pre>
+<p>The <code>make db</code> target rebuilds all baked databases. Individual targets rebuild specific databases. The build step is also validation — malformed files break the build, providing immediate feedback.</p>
+<h3 id="invariants"><a class="heading-anchor" href="#invariants">#</a>Invariants</h3>
+<p>The build system maintains several invariants that together guarantee the architecture's coherence:</p>
+<p><strong>No direct DB edits.</strong> All mutations flow through files. An agent that wants to add a book writes a YAML file; the build step produces the database row. An agent that wants to update a person's role edits the persona markdown; the build step reflects the change. The database is never opened for INSERT, UPDATE, or DELETE by anything other than the builder.</p>
+<p><strong>Build is validation.</strong> Each builder validates source files against their schema (see section 4) before inserting. A YAML file missing a required field breaks the build. A markdown file with malformed frontmatter breaks the build. The build step surfaces errors that would otherwise accumulate silently in direct-to-database writes.</p>
+<p><strong>DB is .gitignored.</strong> Baked databases are not committed to version control. They are ephemeral artifacts, rebuilt on any machine from the committed source files. This eliminates merge conflicts on binary files, reduces repository size, and makes the source/artifact distinction physically enforced.</p>
+<p><strong>Agents query the DB, read the files.</strong> The baked database serves cross-cutting queries: "which people are on more than one project," "which threads reference this paper," "what events happened in March." Individual content retrieval — reading a letter, reviewing a transcript, checking a todo — goes through the filesystem and the index hierarchy. The database is a lens; the filesystem is the library.</p>
+<hr>
+<h2 id="4-schema-enforcement"><a class="heading-anchor" href="#4-schema-enforcement">#</a>4. Schema Enforcement</h2>
+<p>Without schema enforcement, filesystem authority degrades into filesystem chaos. Three layers prevent drift, each catching errors at a different stage.</p>
+<h3 id="schema-files"><a class="heading-anchor" href="#schema-files">#</a>Schema Files</h3>
+<p>A <code>.schema.yaml</code> per collection declares required fields, optional fields, field types, and controlled vocabularies. The schema file lives alongside its collection — <code>data/books/.schema.yaml</code> governs all files in <code>data/books/</code>. Schema files are human-readable, filesystem-native, versioned in git, and serve as documentation of the collection's structure.</p>
+<pre><code># data/books/.schema.yaml
+required:
+  title: string
+  author: string
+  status: enum [reading, read, want-to-read, abandoned]
+optional:
+  isbn: string
+  rating: integer [1-5]
+  date_read: date
+  tags: list[string]
+  notes: string</code></pre>
+<p>The controlled vocabularies from architecture 37 — domain, concern, status — become the seed vocabulary for index-level schemas. Collection-specific vocabularies extend them for domain-specific fields.</p>
+<h3 id="build-time-validation"><a class="heading-anchor" href="#build-time-validation">#</a>Build-Time Validation</h3>
+<p>Each builder script validates every source file against its schema before inserting into SQLite. Validation checks: required fields present, field types correct, enum values within vocabulary, date formats parseable. A single validation failure stops the build and reports the offending file, field, and violation. This is the safety net — no malformed data enters the baked database.</p>
+<h3 id="write-time-validation"><a class="heading-anchor" href="#write-time-validation">#</a>Write-Time Validation</h3>
+<p>The <code>/write</code> skill validates frontmatter against the schema file before writing. This catches errors at authoring time, before they reach the build. Agents that bypass <code>/write</code> — writing directly via the Write tool — bypass this check, but they are caught at build time. The two layers are complementary: write-time is fast feedback for well-behaved agents; build-time is the backstop for everything else.</p>
+<hr>
+<h2 id="5-index-enforcement"><a class="heading-anchor" href="#5-index-enforcement">#</a>5. Index Enforcement</h2>
+<p>The index hierarchy is the mechanism that makes the Library Theorem's O(log N) bound achievable. If indices drift from the filesystem — files exist without index entries, index entries point to missing files — retrieval degrades toward O(N). Three mechanisms keep indices honest.</p>
+<h3 id="post-write-hook"><a class="heading-anchor" href="#post-write-hook">#</a>Post-Write Hook</h3>
+<p>A Claude Code hook fires after file creation. It checks whether the parent directory's <code>index.md</code> contains an entry for the new file. If not, it warns the agent immediately. The hook does not auto-repair — inserting a meaningful description requires judgment — but it prevents the common failure mode of creating a file and forgetting to index it. The hook is deterministic (a file check, not a judgment call), making it appropriate for a hook rather than an agent.</p>
+<h3 id="build-time-audit"><a class="heading-anchor" href="#build-time-audit">#</a>Build-Time Audit</h3>
+<p>The <code>make db</code> step walks every directory, compares the filesystem against <code>index.md</code> entries, and reports two kinds of inconsistency:</p>
+<p><strong>Orphans</strong> — files on disk without a corresponding index entry. These are invisible to navigating agents and violate the Library Theorem's premise (all items indexed). The build reports them; a human or agent adds the missing entry.</p>
+<p><strong>Ghosts</strong> — index entries without a corresponding file. These send navigating agents to dead ends. The build reports them; the stale entry is removed.</p>
+<p>The audit is advisory, not blocking. A few orphans should not prevent the database from building. But the report is prominent — appended to the build output and optionally posted to the board — so drift is visible.</p>
+<h3 id="index-as-manifest"><a class="heading-anchor" href="#index-as-manifest">#</a>Index as Manifest</h3>
+<p>A conceptual inversion that strengthens the architecture: treat the index not just as a catalog of what exists, but as a manifest of what <em>should</em> exist. Under this interpretation, an orphan file (present on disk, absent from the index) is not merely undiscoverable — it is unauthorized. The index declares the collection's membership; the filesystem instantiates it. Files that appear without index entries are anomalous and require review.</p>
+<p>This inversion is not enforced mechanically — HAAK does not delete unindexed files. But it changes the default expectation. The question shifts from "did someone forget to index this file?" to "should this file exist, and if so, what is it?" The manifest interpretation aligns with Definition S4: the directory materializes a situation, and the index declares the situation's configuration. A file outside the index is a materialization outside the declared configuration.</p>
+<hr>
+<h2 id="6-migration-plan"><a class="heading-anchor" href="#6-migration-plan">#</a>6. Migration Plan</h2>
+<p>Each HAAK-originated database must be migrated from database-authoritative to filesystem-authoritative. The migration follows a standard sequence: export current data to filesystem format, validate that the export is complete, build a new database from the export, diff against the original, and switch over. Priority is determined by a combination of simplicity (smaller databases first to build confidence) and impact (databases that agents query frequently).</p>
+<h3 id="phase-1-trivial-migrations-week-1"><a class="heading-anchor" href="#phase-1-trivial-migrations-week-1">#</a>Phase 1: Trivial Migrations (week 1)</h3>
+<p><strong>books.db</strong> (64K, 4 records) — Export each book to <code>data/books/&lt;slug&gt;.yaml</code>. Four files. Trivial builder. Immediate switchover.</p>
+<p><strong>personal.db</strong> (60K, 4 people + 27 documents + 13 insurance policies) — Export to <code>data/personal/people/&lt;name&gt;.yaml</code>, <code>data/personal/documents/&lt;slug&gt;.yaml</code>, <code>data/personal/insurance/&lt;slug&gt;.yaml</code>. Builder reads the tree, produces SQLite. The data is sensitive; files should be in <code>.gitignore</code> (they already are under <code>data/</code>).</p>
+<p><strong>web<em>clips.db</strong> (12K, 0 records) — Empty. Delete the database. Create <code>data/web</em>clips/</code> with a <code>.schema.yaml</code> for future clips. Builder produces a database from whatever files exist.</p>
+<p><strong>photos.db</strong> (44K, 10 records) — Export to <code>data/photos/&lt;slug&gt;.yaml</code> or integrate photo metadata into the media directory structure. Trivial.</p>
+<p><strong>vault.db</strong> (128K, 19 services + 22 credentials) — Export to <code>data/vault/services/&lt;slug&gt;.yaml</code>, <code>data/vault/credentials/&lt;slug&gt;.yaml</code>. Sensitive data requires encryption at rest; the files must be GPG-encrypted or the vault directory must be excluded from sync. The current <code>vault.db</code> is unencrypted SQLite, which is already a security concern — filesystem migration is an opportunity to add encryption.</p>
+<h3 id="phase-2-structured-migrations-weeks-2-3"><a class="heading-anchor" href="#phase-2-structured-migrations-weeks-2-3">#</a>Phase 2: Structured Migrations (weeks 2-3)</h3>
+<p><strong>todos.db</strong> (680K, 467 items) — Export to <code>data/todos/&lt;id&gt;.yaml</code> or a single <code>data/todos.jsonl</code> file. JSONL is appropriate here: todos are uniform, numerous, and often queried in bulk. The builder reads the JSONL and produces SQLite. Dependencies (<code>todo<em>deps</code>) and tags (<code>todo</em>tags</code>) embed in the YAML/JSONL record.</p>
+<p><strong>events.db</strong> (1.1M, 1,904 events) — Export to <code>data/events/&lt;year&gt;/&lt;slug&gt;.yaml</code> or a <code>data/events.jsonl</code>. Events are calendar-like: date, title, participants, location. JSONL suits the volume and uniformity.</p>
+<p><strong>sessions.db</strong> (128K, 40 sessions) — Export session metadata to <code>data/sessions/index.jsonl</code>. Per-session <code>.db</code> files under <code>data/sessions/claude/</code> should be migrated to per-session directories with <code>session.yaml</code> (metadata) and <code>transcript.md</code> (content). This aligns with the session-as-situation model from ontology/12.</p>
+<p><strong>lab.db</strong> (524K, 123 people + 77 projects + 874 documents) — The richest migration in this phase. People become persona files (many already exist in <code>personas/</code>); projects become project directories (many already exist in <code>projects/lab/</code>); documents become markdown files within their project directories. The builder walks <code>personas/</code>, <code>projects/lab/</code>, and <code>data/lab/</code> to produce the compiled database. Cross-references (project-person links, project-document links) are expressed as YAML frontmatter fields, not as separate join tables.</p>
+<h3 id="phase-3-large-migrations-weeks-4-6"><a class="heading-anchor" href="#phase-3-large-migrations-weeks-4-6">#</a>Phase 3: Large Migrations (weeks 4-6)</h3>
+<p><strong>threads.db</strong> (2.1M, 286 threads) — Export each thread to <code>data/threads/&lt;slug&gt;.md</code> with YAML frontmatter carrying thread metadata (canonical terms, waypoints, intersections). Thread bodies are markdown. References and citations embed in frontmatter. The builder produces SQLite with FTS for cross-thread search.</p>
+<p><strong>letters.db</strong> (2M, 874 letters) — Export each letter to <code>data/letters/&lt;year&gt;/&lt;slug&gt;.md</code>. Letter metadata (recipients, date, type) in YAML frontmatter; letter text in markdown body. The builder produces SQLite. The existing <code>data/letters/</code> directory already exists; the database moves from single-file to directory-of-files.</p>
+<p><strong>transcripts.db</strong> (10M, 196 transcripts + 27,347 segments) — Export each transcript to <code>data/transcripts/&lt;slug&gt;/transcript.md</code> with segments as markdown sections. Speaker metadata and tags in frontmatter. The builder produces SQLite with FTS for segment search. At 10M this is the first database where build time matters — expect 10-30 seconds.</p>
+<p><strong>music.db</strong> (8M, 6,786 tracks) — Export to <code>data/music/tracks.jsonl</code> (one line per track), <code>data/music/playlists/&lt;slug&gt;.yaml</code>, <code>data/music/sets/&lt;slug&gt;.yaml</code>. Track-level JSONL is appropriate given the volume and uniformity. The builder reads JSONL and YAML, produces SQLite with cross-references.</p>
+<p><strong>conversations.db</strong> (45M, 1,205 conversations + 15,734 messages) — The largest originated database. Export each conversation to <code>data/conversations/&lt;id&gt;/conversation.yaml</code> (metadata + summary) with <code>messages.jsonl</code> (message stream). At 1,205 conversations this produces ~1,200 directories. The builder reads the tree, produces SQLite with FTS. Build time will be 30-60 seconds. This migration should be validated carefully — conversations carry historical context that is difficult to reconstruct if lost.</p>
+<p><strong>agent-runner.db</strong> (192K) — Export session metadata to <code>data/agent-runner/sessions/&lt;id&gt;.yaml</code>, ledger entries to <code>data/agent-runner/ledger.jsonl</code>, turn history to per-session directories. The builder compiles these into SQLite. This aligns with the agent-runner's existing content-addressed ledger design.</p>
+<h3 id="duplicate-databases-to-consolidate"><a class="heading-anchor" href="#duplicate-databases-to-consolidate">#</a>Duplicate Databases to Consolidate</h3>
+<p>Three pairs of databases serve overlapping functions:</p>
+<ul>
+<li><code>sessions.db</code> + per-session <code>session.db</code> files — consolidate into filesystem-native session directories</li>
+<li><code>console.db</code> (24K) + <code>conversations.db</code> (45M) — console conversations should merge into the conversations collection</li>
+<li><code>mailbox.db</code> (0B) + <code>agent_mailbox.db</code> (0B) + <code>dispatch.db</code> (0B) — all empty, all superseded by the mailbox skill. Delete all three.</li>
+</ul>
+<hr>
+<h2 id="8-precedents"><a class="heading-anchor" href="#8-precedents">#</a>8. Precedents</h2>
+<p>The filesystem-authoritative architecture has precedents across several domains, each illustrating a different aspect of the pattern.</p>
+<p><strong>Beancount and hledger</strong> implement plain-text accounting: financial transactions are authored as text files, and reporting tools compile views (balance sheets, income statements) from those files. The text file is authoritative; the reports are derived. The accounting community has maintained this pattern for over a decade, demonstrating that even data with strong consistency requirements (double-entry bookkeeping) can be filesystem-authoritative.</p>
+<p><strong>Static site generators</strong> (Hugo, Jekyll, Eleventy) implement the baked data pattern for web publishing. Markdown files with YAML frontmatter are the source; the build step produces HTML with taxonomy pages, tag indices, and search indexes. The generated site is disposable — <code>make clean &amp;&amp; make</code> rebuilds it. HAAK's baked databases are the same architecture applied to structured data rather than web content.</p>
+<p><strong>Obsidian</strong> operates as a markdown vault with derived indices. All knowledge lives in <code>.md</code> files; the application builds a graph view, backlink index, and search index at runtime. Vault portability — the ability to move the folder to another tool — is a stated design goal, enabled by filesystem authority.</p>
+<p><strong>Git itself</strong> demonstrates the pattern at the infrastructure level. Git's object store uses loose files (one file per object) that are periodically compiled into packfiles with derived <code>.idx</code> index files. The loose objects are authoritative; packfiles are a read-optimized projection. The <code>.idx</code> file is a baked artifact — delete it, and <code>git index-pack</code> rebuilds it from the packfile.</p>
+<p><strong>Terraform</strong> provides the cautionary counterexample. Terraform uses filesystem-native configuration files (<code>.tf</code>) to declare infrastructure, but the <em>declared</em> infrastructure lives in external services (AWS, GCP). The configuration file is not the data — it is a declaration about external mutable state. Terraform must maintain a separate state file (<code>.tfstate</code>) to track the binding between declaration and reality. This is precisely the situation that HAAK's external mirrors face: the data lives elsewhere, and the local representation is a cache, not an authority. The lesson is clear — filesystem authority works when files ARE the data; it breaks when files are declarations about data that lives somewhere else.</p>
+<p><strong>Derek Sivers' "tech independence" philosophy</strong> articulates the principle at a personal level: keep all important data in plain text files under your control. No vendor lock-in, no proprietary formats, no dependency on a running service to access your own records. HAAK's filesystem authority extends this from personal philosophy to system architecture.</p>
+<hr>
+<h2 id="9-belongings-situations-as-the-locus"><a class="heading-anchor" href="#9-belongings-situations-as-the-locus">#</a>9. Belongings: Situations as the Locus</h2>
+<p>The filesystem-authority architecture established in sections 1–8 determines where data lives and how databases derive from it. This section addresses the complementary question: how do the <em>relationships</em> between entities — who participates in what, which domains apply, what plays which role — get represented in the filesystem? The answer follows directly from the ontology's treatment of belongings and axis-roles.</p>
+<h3 id="the-principle"><a class="heading-anchor" href="#the-principle">#</a>The Principle</h3>
+<p>The ontology's central relational claim is R4: "Nothing IS an actor in absolute terms. Things PARTICIPATE AS actors in specific situations." Axis-roles — actor, method, material, domain — are qualities of belongings, not intrinsic properties of entities (ontology/02-relations, Definition R4). A person is not intrinsically a principal investigator; they participate as principal investigator in specific situations. The belonging carries the role; the entity carries only intrinsic properties (name, ORCID, institutional affiliation as a persistent fact).</p>
+<p>This distinction maps cleanly onto the filesystem. Entity files — persona descriptions in <code>personas/</code>, method documents in <code>patterns/</code> — carry intrinsic properties: who this person is, what this method does, independent of any particular engagement. Situation files — the <code>index.md</code> of a project, program, or episode directory — carry participatory belongings: who plays what role in this situation. The entity file says what something is. The situation file says what it does here.</p>
+<h3 id="three-loci"><a class="heading-anchor" href="#three-loci">#</a>Three Loci</h3>
+<p>Belongings in the filesystem architecture distribute across three loci, each handling a distinct ontological mode.</p>
+<p><strong>Situation frontmatter</strong> carries participatory belongings — the declarations of who and what plays which role in a given situation. These are the belongings that vary across situations: Cazettes is a postdoc in the Mainen lab situation but an alumna in a future situation. The frontmatter format encodes them directly:</p>
+<pre><code>type: situation
+scale: program  # or project, episode
+status: active
+belongings:
+  - entity: mainen-z
+    quality: principal-investigator
+    since: 2007
+  - entity: cazettes-f
+    quality: postdoc
+    since: 2019
+    until: 2025-06
+domains:
+  - champalimaud
+  - neuroscience</code></pre>
+<p>Departed participants retain their entry with an <code>until:</code> date rather than being deleted. The situation's history is part of its configuration — the record of who participated and when is as much a part of the materialization as the record of what was produced.</p>
+<p><strong>The quality registry</strong> (<code>ontology/quality-registry.yaml</code>) carries the meta-quality relationships between qualities themselves — the quality graph described in ontology/02-relations. This is where <code>principal-investigator</code> is declared as an instance of <code>participant</code>, where <code>sender</code> is declared as the inverse of <code>receiver</code>, where <code>member</code> is declared as implied by <code>principal-investigator</code>. The registry is a small, stable file (hundreds of entries, rarely changing) that enables the inference machinery: implication chains, inverse traversal, transitivity. It is not a belonging store — it is the grammar that makes belonging stores interpretable.</p>
+<p><strong>Compositional belongings</strong> — part-of/contains relationships between entities — are structural rather than situational. A chapter belongs to a book. A track belongs to an album. A file belongs to a directory. These do not vary across situations; they are facts about the entity's composition. The bake step extracts them from the filesystem hierarchy itself (directories contain files) and from explicit frontmatter fields where non-hierarchical composition exists. They populate <code>entities.db</code> as belongings with composition-family qualities.</p>
+<h3 id="design-decisions"><a class="heading-anchor" href="#design-decisions">#</a>Design Decisions</h3>
+<p>Several design choices follow from the ontological commitments and the filesystem-authority principle.</p>
+<p><strong>Use the specific quality directly.</strong> A belonging declares <code>quality: principal-investigator</code>, not <code>quality: actor</code> with a sub-field <code>role: PI</code>. The quality graph resolves the hierarchy — <code>principal-investigator</code> is an instance of <code>participant</code>, which is an instance of <code>actor</code>. Queries at any level of generality traverse the instance chain. Storing the most specific quality preserves information; the bake step and quality registry handle generalization.</p>
+<p><strong>Temporal bounds, never deletion.</strong> The <code>since:</code> and <code>until:</code> fields record when a belonging was active. A postdoc who departs gets <code>until: 2025-06</code>, not removal from the list. This follows from the materialization principle (S4 of ontology/12-situation-nesting): the situation file materializes the situation's full history, not just its current state. Deletion destroys provenance.</p>
+<p><strong>Filesystem hierarchy as sole inheritance mechanism.</strong> A project nested within a program inherits participants from the program through the directory hierarchy — the same mechanism that S3 (situation subsumption) describes. There is no <code>parent:</code> field in the frontmatter. Nesting is structural, not declared. Cross-domain affiliation — a project that participates in both <code>champalimaud</code> and <code>neuroscience</code> — uses the <code>domains:</code> list, which records domain-quality belongings without implying hierarchical containment.</p>
+<p><strong>Selective inheritance.</strong> Not all qualities propagate downward through situation nesting. Only qualities whose entry in the quality registry declares <code>implies: participant</code> inherit — a principal-investigator on the program is a participant in the program's projects, but a visiting-speaker at the program level does not automatically become a participant in every sub-project. The bake step resolves inheritance by walking the nesting hierarchy and the quality graph together, and flags inferred belongings separately from declared ones in the baked database. Agents can distinguish "declared here" from "inherited from parent" in query results.</p>
+<p><strong><code>type: situation</code> distinguishes situation directories from structural directories.</strong> The frontmatter field <code>type: situation</code> marks a directory's <code>index.md</code> as carrying situation semantics. Directories without this marker — <code>data/</code>, <code>patterns/</code>, <code>infra/</code> — are structural scaffolding, not situations. The bake step skips unmarked directories when extracting participatory belongings.</p>
+<h3 id="domains-and-situations"><a class="heading-anchor" href="#domains-and-situations">#</a>Domains and Situations</h3>
+<p>Long-lived situations that play the domain role (S2 of ontology/12-situation-nesting) remain situations in their frontmatter typing. Champalimaud is a domain — it persists independently of any particular action within it. The Mainen lab is a situation with domain-like properties: it provides context for sub-projects, carries resources, and attracts participants, but it exists because of the ongoing research activity and would terminate if that activity ceased. The frontmatter records this: <code>type: situation</code>, <code>scale: program</code>, with <code>domains: [champalimaud, neuroscience]</code> declaring the persistent domains it draws context from. The distinction matters for the bake step: domains are always available as context; situations are available only within their temporal bounds.</p>
+<h3 id="wikilinks-as-unqualified-belongings"><a class="heading-anchor" href="#wikilinks-as-unqualified-belongings">#</a>Wikilinks as Unqualified Belongings</h3>
+<p>Inline <code>[[entity-id]]</code> references in document bodies are extracted by the bake step as unqualified belongings with quality <code>reference</code>. These are navigational — they record that a document mentions an entity — but they are not the primary belonging mechanism. The structured frontmatter carries the ontological work: who participates as what, with temporal bounds and specific qualities. Wikilinks supplement this with a lightweight discovery layer, useful for "show me everything that mentions Cazettes" queries without requiring every mention to be a formal belonging declaration.</p>
+<h3 id="migration"><a class="heading-anchor" href="#migration">#</a>Migration</h3>
+<p>The migration is incremental. The bake step tolerates <code>index.md</code> files without <code>type: situation</code> frontmatter — it warns and skips them. No existing file breaks. Migration proceeds one project at a time, starting with a dense subgraph: <code>projects/lab/mainen-lab/</code> and its sub-projects, which have enough participants, temporal depth, and nesting to exercise the full representation model.</p>
+<p>The first migration pass populates only participants and domains. The frontmatter schema accommodates all four axis-roles — actor, method, material, domain — but methods and materials are added to specific situations only when concrete queries demand them. Start with the belongings that agents actually need to resolve: who works on this project, and in what domain does it sit. The rest follows from use.</p>
+<hr>
+<h2 id="10-what-this-does-not-change"><a class="heading-anchor" href="#10-what-this-does-not-change">#</a>10. What This Does Not Change</h2>
+<p>Several aspects of the current architecture are already correct and should not be modified.</p>
+<p><strong>External mirrors stay as databases.</strong> Google Workspace data, Apple Health exports, GitHub repository metadata, browser history, Apple Notes — all originate outside HAAK. The external service is authoritative. Local databases are caches refreshed by sync scripts. Applying filesystem authority here would create Terraform's problem: files that declare what external state should look like, requiring a state-binding mechanism to reconcile declaration with reality.</p>
+<p><strong>Research corpora stay as databases.</strong> Public archives (5.2G, 2.4M documents), eLife (482M), papers (449M) — these are ingested external datasets with millions of rows. Per-record filesystem representation is neither practical nor useful. The ingest script is their build step; the external dataset is their authority.</p>
+<p><strong>The entity graph becomes a baked artifact.</strong> <code>entities.db</code> (307M) currently occupies an ambiguous position — partly maintained by sync daemons, partly by direct writes. Under filesystem authority, it becomes fully baked. The <code>index.md</code> files, YAML frontmatter, and belonging declarations in the filesystem are the source. The build step (<code>bake_entities.py</code>) walks the filesystem, extracts entities and belongings, and produces <code>entities.db</code>. This is the same role architecture 37 already assigns to Veda's sync daemon, but made deterministic and reproducible.</p>
+<p><strong>The ontology, foundations, and constitution are unaffected.</strong> They are already filesystem-native. They are the reason filesystem authority is correct — the theoretical ground that this document applies to the data layer.</p>
+<p><strong>The operational gateway stays as a database.</strong> <code>gateway.db</code> is a running daemon's state store for message routing. It mirrors external messaging services and maintains delivery state. This is operational infrastructure, not authored content.</p>
+<hr>
+<h2 id="11-the-ontological-argument"><a class="heading-anchor" href="#11-the-ontological-argument">#</a>11. The Ontological Argument</h2>
+<p>The taxonomy in section 2 is not arbitrary. It follows from the ontology's treatment of materialization and authority.</p>
+<p>A HAAK-originated datum — a book record, a letter, a todo item — is a material entity that belongs to a situation with quality "materialization." The letter materializes the act of writing it. The book record materializes the act of reading and annotating. The todo materializes the intention to act. In each case, the file IS the materialization. The materialization relation is direct: the file is the material evidence of the situation it records.</p>
+<p>When we store this datum in a database instead, we introduce a layer of indirection. The database row is a representation of a representation — a compiled encoding of the file that materializes the situation. The row belongs to the database with quality "encoding"; the database belongs to the build process with quality "output." The provenance chain lengthens: situation → file (materialization) → database row (encoding). But only the first link carries semantic authority. The file is evidence of what happened. The database row is a derived index of that evidence.</p>
+<p>For external mirrors, the ontological structure is different. A Gmail message does not materialize a HAAK situation — it materializes a communication situation that occurred in Google's domain. HAAK's copy of it belongs to the original with quality "cache" or "replica." The local database is the most natural representation of this cached state because the cache must track sync cursors, external identifiers, and reconciliation state that have no natural filesystem representation.</p>
+<p>The taxonomy thus reduces to a single ontological question: <strong>does the file directly materialize a HAAK situation, or does it cache state from an external domain?</strong> If the former, the file is authoritative. If the latter, the database is the appropriate local representation.</p>
+<hr>
+<p><em>strategy · 32 · filesystem authority · 2026-03-21 · zach + claude</em></p>
+
+        <p class="endnote">Strategy 32 &mdash; Filesystem Authority &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/agent-runner-next-steps/">&larr; 31: Strategy 31 — Agent Runner: Next Steps Roadmap</a><a class="memo-nav-next" href="/memos/dissolving-data/">36: 36 — Dissolving data/ — governance determines location &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-principle">1. The Principle</a></li>
+<li><a href="#2-the-taxonomy">2. The Taxonomy</a>
+<ol>
+<li><a href="#category-1-haak-originated">Category 1: HAAK-Originated</a></li>
+<li><a href="#category-2-external-mirrors">Category 2: External Mirrors</a></li>
+<li><a href="#category-3-research-corpora">Category 3: Research Corpora</a></li>
+<li><a href="#category-4-agent-infrastructure">Category 4: Agent Infrastructure</a></li>
+<li><a href="#summary-table">Summary Table</a></li>
+<li><a href="#empty-databases-to-delete">Empty Databases to Delete</a></li>
+</ol></li>
+<li><a href="#3-the-build-system">3. The Build System</a>
+<ol>
+<li><a href="#architecture">Architecture</a></li>
+<li><a href="#invariants">Invariants</a></li>
+</ol></li>
+<li><a href="#4-schema-enforcement">4. Schema Enforcement</a>
+<ol>
+<li><a href="#schema-files">Schema Files</a></li>
+<li><a href="#build-time-validation">Build-Time Validation</a></li>
+<li><a href="#write-time-validation">Write-Time Validation</a></li>
+</ol></li>
+<li><a href="#5-index-enforcement">5. Index Enforcement</a>
+<ol>
+<li><a href="#post-write-hook">Post-Write Hook</a></li>
+<li><a href="#build-time-audit">Build-Time Audit</a></li>
+<li><a href="#index-as-manifest">Index as Manifest</a></li>
+</ol></li>
+<li><a href="#6-migration-plan">6. Migration Plan</a>
+<ol>
+<li><a href="#phase-1-trivial-migrations-week-1">Phase 1: Trivial Migrations (week 1)</a></li>
+<li><a href="#phase-2-structured-migrations-weeks-2-3">Phase 2: Structured Migrations (weeks 2-3)</a></li>
+<li><a href="#phase-3-large-migrations-weeks-4-6">Phase 3: Large Migrations (weeks 4-6)</a></li>
+<li><a href="#duplicate-databases-to-consolidate">Duplicate Databases to Consolidate</a></li>
+</ol></li>
+<li><a href="#8-precedents">8. Precedents</a></li>
+<li><a href="#9-belongings-situations-as-the-locus">9. Belongings: Situations as the Locus</a>
+<ol>
+<li><a href="#the-principle">The Principle</a></li>
+<li><a href="#three-loci">Three Loci</a></li>
+<li><a href="#design-decisions">Design Decisions</a></li>
+<li><a href="#domains-and-situations">Domains and Situations</a></li>
+<li><a href="#wikilinks-as-unqualified-belongings">Wikilinks as Unqualified Belongings</a></li>
+<li><a href="#migration">Migration</a></li>
+</ol></li>
+<li><a href="#10-what-this-does-not-change">10. What This Does Not Change</a></li>
+<li><a href="#11-the-ontological-argument">11. The Ontological Argument</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

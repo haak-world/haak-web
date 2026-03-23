@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zach Mainen — Neuroscientist · AI Researcher</title>
+<meta name="description" content="Zach Mainen is a Principal Investigator at the Champalimaud Foundation in Lisbon, working on serotonin, decision-making, perception, AI governance, and art-science.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #FAFAF8;
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --accent: #2a5a5a;
+  --border: #e8e8e4;
+  --card-bg: #ffffff;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+}
+
+[data-theme="dark"] {
+  --bg: #131313;
+  --text: #e8e6e2;
+  --muted: #999;
+  --accent: #6aaeae;
+  --border: #2a2a2a;
+  --card-bg: #1a1a1a;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.7;
+  transition: background 0.3s, color 0.3s;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+/* ── HEADER ── */
+header {
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.avatar {
+  width: 88px; height: 88px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Instrument Serif', serif;
+  font-size: 32px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.header-text h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+.header-text .subtitle {
+  font-size: 15px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 300;
+}
+
+/* ── THEME TOGGLE ── */
+#theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  transition: border-color 0.3s, background 0.3s;
+}
+#theme-toggle:hover { border-color: var(--accent); }
+
+/* ── SECTIONS ── */
+section { padding: 48px 0; border-bottom: 1px solid var(--border); }
+section:last-of-type { border-bottom: none; }
+
+h2 {
+  font-family: 'Instrument Serif', serif;
+  font-size: 24px;
+  font-weight: 400;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+
+.bio { font-weight: 300; color: var(--text); max-width: 60ch; }
+
+/* ── RESEARCH CARDS ── */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.card {
+  display: block;
+  padding: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  text-decoration: none;
+}
+
+.card-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 19px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.card-url {
+  font-size: 13px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.card-desc {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── PUBLICATIONS ── */
+.pub-list { list-style: none; }
+
+.pub-list li {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+
+.pub-list li:last-child { border-bottom: none; }
+
+.pub-title { font-weight: 400; }
+.pub-journal { font-style: italic; color: var(--muted); }
+.pub-year { color: var(--muted); font-size: 13px; }
+
+/* ── CONTACT ── */
+.contact-info { font-weight: 300; font-size: 15px; line-height: 1.8; }
+.contact-info .label { font-weight: 400; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* ── FOOTER ── */
+footer {
+  padding: 32px 0;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+}
+
+@media (max-width: 540px) {
+  header { padding: 48px 0 40px; }
+  .header-row { flex-direction: column; text-align: center; gap: 16px; }
+  .header-text h1 { font-size: 28px; }
+  .wrap { padding: 0 20px; }
+}
+</style>
+</head>
+<body>
+
+<button id="theme-toggle" aria-label="Toggle dark mode"><span id="toggle-icon">&#9790;</span></button>
+
+<div class="wrap">
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="header-row">
+    <div class="avatar">ZM</div>
+    <div class="header-text">
+      <h1>Zach Mainen</h1>
+      <p class="subtitle">Neuroscientist &middot; AI Researcher &middot; Champalimaud Foundation, Lisbon</p>
+    </div>
+  </div>
+</header>
+
+<!-- ── BIO ── -->
+<section>
+  <p class="bio">I am a Principal Investigator at the <a href="https://fchampalimaud.org">Champalimaud Centre for the Unknown</a> in Lisbon, where I run a systems neuroscience lab studying serotonin, decision-making, and perception. I co-founded the <a href="https://www.internationalbrainlab.com">International Brain Laboratory</a>, a collaboration rethinking how neuroscience is done. I also lead <a href="https://haak.world">HAAK</a>, a research project at the intersection of AI, formal ontology, and governance, and <a href="https://latentstates.org">Latent States</a>, an art-science practice.</p>
+</section>
+
+<!-- ── RESEARCH ── -->
+<section>
+  <h2>Research</h2>
+  <div class="cards">
+    <a class="card" href="https://mainenlab.org">
+      <div class="card-title">Neuroscience Lab</div>
+      <div class="card-url">mainenlab.org</div>
+      <div class="card-desc">Systems neuroscience of serotonin, decision-making, and rapid perception. Neural circuits underlying confidence, uncertainty, and flexible behavior in mice and humans.</div>
+    </a>
+    <a class="card" href="https://haak.world">
+      <div class="card-title">AI &amp; Governance</div>
+      <div class="card-url">haak.world</div>
+      <div class="card-desc">Formal ontology for AI systems. Constitutional governance of autonomous agents. The Library Theorem and externalized intelligence. Open infrastructure for collective human action.</div>
+    </a>
+    <a class="card" href="https://latentstates.org">
+      <div class="card-title">Art Practice</div>
+      <div class="card-url">latentstates.org</div>
+      <div class="card-desc">Latent States: art-science installations exploring perception, agency, and the boundary between observer and observed. Collaborative work across neuroscience, music, and visual art.</div>
+    </a>
+  </div>
+</section>
+
+<!-- ── PUBLICATIONS ── -->
+<section>
+  <h2>Selected Publications</h2>
+  <ul class="pub-list">
+    <li>
+      <span class="pub-title">A standardized and reproducible method to measure decision-making in mice.</span>
+      The International Brain Laboratory <em>et al.</em>
+      <span class="pub-journal">eLife</span> <span class="pub-year">(2021)</span>
+    </li>
+    <li>
+      <span class="pub-title">Activation of serotonin neurons promotes active persistence in a probabilistic foraging task.</span>
+      Lottem E, Banerjee D, Vertechi P, Sarra D, Özel Duygan M, Mainen ZF.
+      <span class="pub-journal">Nature Communications</span> <span class="pub-year">(2018)</span> <a href="https://doi.org/10.1038/s41467-018-03438-y">10.1038/s41467-018-03438-y</a>
+    </li>
+    <li>
+      <span class="pub-title">Activation of dorsal raphe serotonin neurons promotes waiting but is not reinforcing.</span>
+      Fonseca MS, Murakami M, Mainen ZF.
+      <span class="pub-journal">Current Biology</span> <span class="pub-year">(2015)</span> <a href="https://doi.org/10.1016/j.cub.2014.12.002">10.1016/j.cub.2014.12.002</a>
+    </li>
+    <li>
+      <span class="pub-title">Reliability of spike timing in neocortical neurons.</span>
+      Mainen ZF, Sejnowski TJ.
+      <span class="pub-journal">Science</span> <span class="pub-year">(1995)</span>
+    </li>
+  </ul>
+</section>
+
+<!-- ── CONTACT ── -->
+<section>
+  <h2>Contact</h2>
+  <div class="contact-info">
+    <p><span class="label">Email</span><br><a href="mailto:zmainen@neuro.fchampalimaud.org">zmainen@neuro.fchampalimaud.org</a></p>
+    <p style="margin-top:12px"><span class="label">Address</span><br>Champalimaud Centre for the Unknown<br>Av. Bras&iacute;lia, 1400-038 Lisbon, Portugal</p>
+  </div>
+</section>
+
+</div>
+
+<footer>&copy; 2026 Zach Mainen</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const icon = document.getElementById('toggle-icon');
+function applyTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  icon.innerHTML = dark ? '&#9788;' : '&#9790;';
+  localStorage.setItem('zm-theme', dark ? 'dark' : 'light');
+}
+if (localStorage.getItem('zm-theme') === 'dark') applyTheme(true);
+btn.addEventListener('click', () => {
+  applyTheme(document.documentElement.getAttribute('data-theme') !== 'dark');
+});
+</script>
+</body>
+</html>

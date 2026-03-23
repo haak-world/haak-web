@@ -12,9 +12,11 @@ Outputs:
   - web/mainenlab/index.html (complete static site, all CSS/JS inline)
 """
 
-import json, re, html as html_mod
+import json, re, html as html_mod, hashlib, subprocess, time, argparse, shutil
 from pathlib import Path
+from datetime import datetime
 from collections import defaultdict
+import markdown as md_lib
 
 try:
     import yaml
@@ -49,6 +51,17 @@ def parse_frontmatter(text):
 
 def esc(s):
     return html_mod.escape(str(s)) if s else ""
+
+def _md_link_replace(m):
+    text, url = m.group(1), m.group(2)
+    if url.startswith('#'):
+        return f'<a href="{url}">{text}</a>'
+    return f'<a href="{url}" target="_blank" rel="noopener">{text}</a>'
+
+def md_links_to_html(text):
+    """Convert markdown [text](url) links to HTML <a> tags.
+    In-page anchors (#...) stay same-tab; external links open new tab."""
+    return re.sub(r'\[([^\]]+)\]\(([^)]+)\)', _md_link_replace, text)
 
 # ── Taxonomy ──
 
@@ -212,7 +225,105 @@ def link_papers_to_projects(projects, pubs, theme_children):
 
 # ── Narratives ──
 
-def generate_narratives(taxonomy, projects, pubs, people, theme_children):
+NARRATIVE_CACHE_PATH = WEB / ".narrative-cache.json"
+
+NARRATIVE_SYSTEM_PROMPT = """You are writing research theme narratives for the Mainen Lab website at Champalimaud Foundation, Lisbon. Each narrative describes a research theme spanning multiple projects and publications.
+
+STRICT RULES:
+- Write in FIRST PERSON PLURAL (we/our)
+- Active projects: present tense. Completed work: past tense for findings, but keep the question alive.
+- NO person names
+- NO target journals, grants, or internal references
+- NO unexpanded abbreviations on first use
+- Expand: DRN->dorsal raphe nucleus, 5-HT->serotonin, PFC->prefrontal cortex, OFC->orbitofrontal cortex, IBL->International Brain Laboratory
+
+STYLE:
+- Scholarly but accessible -- like the best lab website prose
+- Lead with the motivating scientific question
+- Show how the theme evolved through different projects
+- Mention key methods and findings naturally
+- 2-3 paragraphs, not more
+
+LINKING RULES:
+- When citing a published paper, use markdown link format: [Author et al., Year](https://doi.org/DOI)
+- When referencing a lab project, link to it: [project name](#project-slug)
+- Only link papers that have DOIs (provided in the context below)
+- First mention only -- don't re-link the same entity"""
+
+def _get_anthropic_client():
+    from anthropic import Anthropic
+    result = subprocess.run(
+        ['bash', '-c', 'source ~/.secrets && echo $ANTHROPIC_API_KEY'],
+        capture_output=True, text=True)
+    api_key = result.stdout.strip()
+    if not api_key:
+        raise RuntimeError("ANTHROPIC_API_KEY not found in ~/.secrets")
+    return Anthropic(api_key=api_key)
+
+def _narrative_input_hash(theme_projects, theme_pubs):
+    blob = json.dumps({
+        "projects": [(p["slug"], p["name"], p["description"], p["status"]) for p in theme_projects],
+        "pubs": [(p["slug"], p["title"], p["year"]) for p in theme_pubs],
+    }, sort_keys=True)
+    return hashlib.sha256(blob.encode()).hexdigest()[:16]
+
+def _load_narrative_cache():
+    if NARRATIVE_CACHE_PATH.exists():
+        return json.loads(NARRATIVE_CACHE_PATH.read_text())
+    return {}
+
+def _save_narrative_cache(cache):
+    NARRATIVE_CACHE_PATH.write_text(json.dumps(cache, indent=2, ensure_ascii=False))
+
+def _build_theme_data(slug, taxonomy, projects, pubs, theme_children):
+    expanded = {slug}
+    expanded.update(theme_children.get(slug, set()))
+    for parent, children in theme_children.items():
+        if slug in children: expanded.add(parent)
+    theme_projects = [p for p in projects if set(p["themes"]) & expanded]
+    theme_pubs = sorted(
+        [p for p in pubs if set(p["themes"]) & expanded],
+        key=lambda p: (-p.get("citations", 0), -p["year"])
+    )
+    return theme_projects, theme_pubs
+
+def _generate_narrative_via_api(client, slug, label, theme_projects, theme_pubs):
+    parts = [f"Write a narrative for this research theme:\n"]
+    parts.append(f"Theme: {label}")
+    proj_lines = []
+    for p in sorted(theme_projects, key=lambda x: x["start_year"] or 9999):
+        line = f"- {p['name']} [slug: {p['slug']}] ({p['status']}, {p['start_year'] or '?'})"
+        if p.get("description"):
+            line += f": {p['description'][:200]}"
+        proj_lines.append(line)
+    parts.append(f"Projects (link with #project-slug):\n" + "\n".join(proj_lines))
+    if theme_pubs:
+        pub_lines = []
+        for p in theme_pubs[:8]:
+            doi = p.get('doi', '')
+            doi_str = f" -- DOI: {doi}" if doi else " -- no DOI (unpublished)"
+            pub_lines.append(f"- {p['title']} ({p['year']}){doi_str}")
+        parts.append(f"Key publications:\n" + "\n".join(pub_lines))
+    methods = set()
+    organisms = set()
+    for p in theme_projects:
+        methods.update(p.get("methods", []))
+        organisms.update(p.get("organisms", []))
+    if methods:
+        parts.append(f"Methods used: {', '.join(sorted(methods))}")
+    if organisms:
+        parts.append(f"Organisms: {', '.join(sorted(organisms))}")
+    parts.append("\nGenerate only the narrative text, nothing else.")
+
+    response = client.messages.create(
+        model="claude-opus-4-20250514",
+        max_tokens=600,
+        system=NARRATIVE_SYSTEM_PROMPT,
+        messages=[{"role": "user", "content": "\n".join(parts)}],
+    )
+    return response.content[0].text.strip()
+
+def generate_narratives(taxonomy, projects, pubs, people, theme_children, regenerate=False):
     people_by_slug = {p["slug"]: p for p in people}
     narratives = {}
     all_theme_slugs = set()
@@ -221,48 +332,63 @@ def generate_narratives(taxonomy, projects, pubs, people, theme_children):
         for c in t.get("children", []):
             all_theme_slugs.add(c["slug"])
 
-    for slug in all_theme_slugs:
-        expanded = {slug}
-        expanded.update(theme_children.get(slug, set()))
-        for parent, children in theme_children.items():
-            if slug in children: expanded.add(parent)
+    cache = _load_narrative_cache()
+    client = None
+    api_calls = 0
 
-        theme_projects = [p for p in projects if set(p["themes"]) & expanded]
-        if not theme_projects: continue
+    for slug in sorted(all_theme_slugs):
+        theme_projects, theme_pubs = _build_theme_data(slug, taxonomy, projects, pubs, theme_children)
+        if not theme_projects:
+            continue
 
-        years = [y for p in theme_projects for y in [p["start_year"], p["end_year"]] if y]
-        if years:
+        input_hash = _narrative_input_hash(theme_projects, theme_pubs)
+        cached = cache.get(slug, {})
+
+        if not regenerate and cached.get("hash") == input_hash and cached.get("text"):
+            narratives[slug] = cached["text"]
+            continue
+
+        if not regenerate:
+            # Data hasn't changed or no cache — use fallback template
+            label = slug.replace("-", " ").title()
+            years = [y for p in theme_projects for y in [p["start_year"], p["end_year"]] if y]
             active_any = any(p["status"] == "active" for p in theme_projects)
-            span = f"{min(years)}\u2013present" if active_any else f"{min(years)}\u2013{max(years)}"
-        else:
-            span = ""
+            span = f"{min(years)}\u2013present" if (years and active_any) else (f"{min(years)}\u2013{max(years)}" if years else "")
+            parts = []
+            if span: parts.append(f"The lab's {label.lower()} research spans {span}.")
+            if theme_projects:
+                proj_strs = [f"{p['name']} ({p['start_year'] or '?'})" for p in sorted(theme_projects, key=lambda x: x["start_year"] or 9999)]
+                parts.append(f"Projects: {'; '.join(proj_strs)}.")
+            active_projects = [p for p in theme_projects if p["status"] == "active"]
+            if active_projects:
+                parts.append(f"{len(active_projects)} currently active project{'s' if len(active_projects) != 1 else ''}.")
+            narratives[slug] = " ".join(parts)
+            continue
 
-        person_counts = defaultdict(int)
-        for p in theme_projects:
-            for pid in p["people"]: person_counts[pid] += 1
-        top_people = sorted(person_counts, key=lambda x: -person_counts[x])[:5]
-        people_names = [people_by_slug[pid]["name"] for pid in top_people if pid in people_by_slug]
-
-        theme_pubs = sorted(
-            [p for p in pubs if set(p["themes"]) & expanded],
-            key=lambda p: (-p["citations"], -p["year"])
-        )
-
-        active_projects = [p for p in theme_projects if p["status"] == "active"]
+        # Regenerate via API
+        if client is None:
+            client = _get_anthropic_client()
         label = slug.replace("-", " ").title()
+        for t in taxonomy.get("themes", []):
+            if t["slug"] == slug:
+                label = t["label"]
+                break
+            for c in t.get("children", []):
+                if c["slug"] == slug:
+                    label = c["label"]
+                    break
 
-        parts = []
-        if span: parts.append(f"The lab's {label.lower()} research spans {span}.")
-        if people_names: parts.append(f"Key contributors: {', '.join(people_names)}.")
-        if theme_projects:
-            proj_strs = [f"{p['name']} ({p['start_year'] or '?'})" for p in sorted(theme_projects, key=lambda x: x["start_year"] or 9999)]
-            parts.append(f"Projects: {'; '.join(proj_strs)}.")
-        if theme_pubs[:3]:
-            paper_strs = [f"{p['authors'][0].split(',')[0] if p['authors'] else 'Unknown'} et al. ({p['year']})" for p in theme_pubs[:3]]
-            parts.append(f"Headline papers: {', '.join(paper_strs)}.")
-        if active_projects:
-            parts.append(f"{len(active_projects)} currently active project{'s' if len(active_projects) != 1 else ''}.")
-        narratives[slug] = " ".join(parts)
+        print(f"    Generating narrative for {slug}...")
+        text = _generate_narrative_via_api(client, slug, label, theme_projects, theme_pubs)
+        narratives[slug] = text
+        cache[slug] = {"hash": input_hash, "text": text}
+        api_calls += 1
+        time.sleep(1)  # rate limiting
+
+    if api_calls > 0:
+        _save_narrative_cache(cache)
+        print(f"    {api_calls} narratives generated via API, cache updated")
+
     return narratives
 
 def load_overrides():
@@ -276,9 +402,45 @@ def load_overrides():
         if body.strip(): overrides[f.stem] = body.strip()
     return overrides
 
+def load_programs():
+    programs_dir = WEB / "research" / "programs"
+    if not programs_dir.exists(): return []
+    converter = md_lib.Markdown(extensions=["extra"])
+    programs = []
+    for f in sorted(programs_dir.glob("*.md")):
+        text = f.read_text(errors="replace")
+        meta, body = parse_frontmatter(text)
+        if not meta.get("title"): continue
+        converter.reset()
+        body_html = converter.convert(body.strip())
+        span = meta.get("span", "")
+        start_match = re.match(r'(\d{4})', str(span))
+        sort_year = int(start_match.group(1)) if start_match else 9999
+        programs.append({
+            "slug": meta.get("slug", f.stem),
+            "title": meta["title"],
+            "span": span,
+            "color": meta.get("color", "slate"),
+            "status": meta.get("status", "active"),
+            "themes": _as_list(meta.get("themes", [])),
+            "projects": _as_list(meta.get("projects", [])),
+            "repos": meta.get("repos", []),
+            "body_html": body_html,
+            "_sort_year": sort_year,
+        })
+    programs.sort(key=lambda p: p["_sort_year"], reverse=True)
+    for p in programs: del p["_sort_year"]
+    return programs
+
 # ── Lab intro ──
 
 def generate_lab_intro(people, projects, taxonomy):
+    site_md = WEB / "site.md"
+    if site_md.exists():
+        text = site_md.read_text(errors="replace")
+        _, body = parse_frontmatter(text)
+        if body.strip():
+            return body.strip()
     return (
         "How do brains make decisions, interpret the world, and generate conscious experience? "
         "The Mainen Lab at the Champalimaud Foundation in Lisbon investigates these questions "
@@ -418,6 +580,10 @@ header .subtitle { color: var(--muted); font-size: 0.95rem; margin-top: 0.2rem; 
 }
 .narrative-block h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.4rem; }
 .narrative-block p { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+.narrative-block a { color: var(--accent); text-decoration: none; }
+.narrative-block a:hover { text-decoration: underline; }
+.lab-intro a { color: var(--accent); text-decoration: none; }
+.lab-intro a:hover { text-decoration: underline; }
 
 /* Stats bar */
 .stats-bar {
@@ -478,6 +644,8 @@ details[open] > .completed-toggle::before { transform: rotate(90deg); }
 .card-detail.open { max-height: 3000px; }
 .card-detail-inner { padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; }
 .card-description { font-size: 0.85rem; line-height: 1.6; margin-bottom: 0.75rem; }
+.card-description a { color: var(--accent); text-decoration: none; }
+.card-description a:hover { text-decoration: underline; }
 .card-pub-list { list-style: none; padding: 0; }
 .card-pub-list li { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.4rem; line-height: 1.5; }
 .card-pub-list li a { color: var(--accent); text-decoration: none; }
@@ -486,9 +654,6 @@ details[open] > .completed-toggle::before { transform: rotate(90deg); }
 .expand-icon { color: var(--muted); font-size: 1rem; transition: transform 0.2s; flex-shrink: 0; }
 .card-detail.open ~ .card-header .expand-icon,
 .project-card.expanded .expand-icon { transform: rotate(180deg); }
-
-/* Section titles */
-.section-title { font-size: 1.15rem; font-weight: 600; margin-bottom: 1rem; }
 
 /* Unified timeline */
 .unified-timeline { position: relative; display: flex; }
@@ -605,6 +770,44 @@ footer .sep { margin: 0 0.5rem; opacity: 0.4; }
 .timeline-tooltip .tt-span { color: var(--muted); font-size: 0.72rem; margin-bottom: 0.2rem; }
 .timeline-tooltip .tt-desc { color: var(--muted); line-height: 1.4; }
 
+/* Programs — mirrors project-card styling */
+.programs-section { padding: 1.5rem 0 1rem; }
+.program-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 0.6rem;
+  box-shadow: var(--shadow); border-left: 3px solid var(--muted);
+  transition: box-shadow 0.15s;
+}
+.program-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.program-card-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  cursor: pointer; user-select: none;
+}
+.program-card-header .card-title { font-weight: 600; font-size: 0.95rem; }
+.program-card-header .card-meta { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.3rem; }
+.program-card-header .card-span { font-size: 0.78rem; color: var(--muted); }
+.program-summary { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-top: 0.3rem; }
+.program-body {
+  max-height: 0; overflow: hidden; transition: max-height 0.35s ease;
+}
+.program-card.expanded .program-body { max-height: 3000px; }
+.program-body-inner {
+  padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem;
+  font-size: 0.85rem; line-height: 1.6; color: var(--text);
+}
+.program-body-inner h1 { font-size: 1.05rem; font-weight: 600; margin: 1rem 0 0.4rem; }
+.program-body-inner h2 { font-size: 0.95rem; font-weight: 600; margin: 0.8rem 0 0.35rem; }
+.program-body-inner h3 { font-size: 0.88rem; font-weight: 600; margin: 0.6rem 0 0.25rem; }
+.program-body-inner p { margin-bottom: 0.6rem; }
+.program-body-inner ul, .program-body-inner ol { margin: 0.4rem 0 0.6rem 1.2rem; }
+.program-body-inner li { margin-bottom: 0.3rem; }
+.program-body-inner em { font-style: italic; }
+.program-body-inner strong { font-weight: 600; }
+.program-body-inner a { color: var(--accent); text-decoration: none; }
+.program-body-inner a:hover { text-decoration: underline; }
+.program-card .expand-icon { color: var(--muted); font-size: 1rem; transition: transform 0.2s; flex-shrink: 0; }
+.program-card.expanded .expand-icon { transform: rotate(180deg); }
+
 /* Responsive */
 @media (max-width: 640px) {
   header h1 { font-size: 1.3rem; }
@@ -660,6 +863,12 @@ footer .sep { margin: 0 0.5rem; opacity: 0.4; }
 <div class="stats-bar" id="stats-bar"></div>
 
 <div id="projects-container"></div>
+
+<!-- Research Programs -->
+<div class="programs-section" id="programs-section">
+  <div class="section-heading">Research Programs</div>
+  <div id="programs-container"></div>
+</div>
 
 </div><!-- .container -->
 
@@ -875,7 +1084,7 @@ function renderNarratives() {
     if (!text) return;
     const block = document.createElement('div');
     block.className = 'narrative-block';
-    block.innerHTML = '<h4>' + findLabel('themes', slug) + '</h4><p>' + escHTML(text) + '</p>';
+    block.innerHTML = '<h4>' + findLabel('themes', slug) + '</h4><p>' + text + '</p>';
     area.appendChild(block);
   });
 }
@@ -884,6 +1093,12 @@ function escHTML(s) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+
+function stripTags(s) {
+  const d = document.createElement('div');
+  d.innerHTML = s;
+  return d.textContent || '';
 }
 
 function renderProjects() {
@@ -920,6 +1135,7 @@ function sortProjects(a, b) {
 function makeProjectCard(p) {
   const card = document.createElement('div');
   card.className = 'project-card';
+  card.id = 'project-' + p.slug;
   const span = p.start_year ? (p.status === 'active' ? p.start_year + '\u2013present' : p.start_year + (p.end_year ? '\u2013' + p.end_year : '')) : '';
   const peopleBySlug = {};
   DATA.people.forEach(pe => peopleBySlug[pe.slug] = pe);
@@ -952,7 +1168,7 @@ function makeProjectCard(p) {
           '<span class="status-pill ' + p.status + '">' + p.status + '</span>' +
         '</div>' +
         (keyPeople ? '<div class="card-people">' + escHTML(keyPeople) + '</div>' : '') +
-        (p.description ? '<div class="card-desc-preview">' + escHTML(p.description.length > 150 ? p.description.slice(0, 150) + '\u2026' : p.description) + '</div>' : '') +
+        (p.description ? '<div class="card-desc-preview">' + escHTML(stripTags(p.description).length > 150 ? stripTags(p.description).slice(0, 150) + '\u2026' : stripTags(p.description)) + '</div>' : '') +
         (p.paper_count ? '<div class="card-papers">' + p.paper_count + ' publication' + (p.paper_count !== 1 ? 's' : '') + '</div>' : '') +
         '<div class="card-tags">' + tags.join('') + '</div>' +
       '</div>' +
@@ -960,7 +1176,7 @@ function makeProjectCard(p) {
     '</div>' +
     '<div class="card-detail">' +
       '<div class="card-detail-inner">' +
-        (p.description ? '<div class="card-description">' + escHTML(p.description) + '</div>' : '') +
+        (p.description ? '<div class="card-description">' + p.description + '</div>' : '') +
         (pubListHTML ? '<ul class="card-pub-list">' + pubListHTML + '</ul>' : '') +
         (allPeople ? '<div class="card-all-people"><strong>People:</strong> ' + escHTML(allPeople) + '</div>' : '') +
       '</div>' +
@@ -1167,7 +1383,7 @@ function renderFullTimeline() {
       seg.addEventListener('mouseenter', function() {
         tooltip.querySelector('.tt-name').textContent = p.name;
         tooltip.querySelector('.tt-span').textContent = p.start_year + '\u2013' + (p.status === 'active' ? 'present' : (p.end_year || '?'));
-        const desc = p.description || '';
+        const desc = stripTags(p.description || '');
         tooltip.querySelector('.tt-desc').textContent = desc.length > 120 ? desc.slice(0, 120) + '\u2026' : desc;
         tooltip.classList.add('visible');
       });
@@ -1358,37 +1574,121 @@ function selectTimelineTheme(slug, projectSlug) {
   renderFullTimeline();
 
   if (projectSlug) {
-    // Scroll to projects and expand the target card
-    setTimeout(function() {
-      const cards = document.querySelectorAll('.project-card');
-      for (const card of cards) {
-        const title = card.querySelector('.card-title');
-        const proj = DATA.projects.find(p => p.slug === projectSlug);
-        if (proj && title && title.textContent === proj.name) {
-          card.classList.add('expanded');
-          const detail = card.querySelector('.card-detail');
-          if (detail) detail.classList.add('open');
-          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          break;
-        }
-      }
-    }, 50);
+    setTimeout(function() { scrollToProject(projectSlug); }, 50);
   } else {
     const projContainer = document.getElementById('projects-container');
     if (projContainer) projContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 }
 
+// ── Programs ──
+const PROGRAM_COLORS = {
+  slate: '#64748b', amber: '#d97706', indigo: '#6366f1',
+  teal: '#14b8a6', violet: '#8b5cf6', blue: '#3b82f6'
+};
+
+function renderPrograms() {
+  const container = document.getElementById('programs-container');
+  if (!container || !DATA.programs) return;
+  container.innerHTML = '';
+  DATA.programs.forEach(prog => {
+    const color = PROGRAM_COLORS[prog.color] || '#64748b';
+    const card = document.createElement('div');
+    card.className = 'program-card';
+    card.style.borderLeftColor = color;
+
+    // Extract first paragraph from body_html as summary
+    const tmp = document.createElement('div');
+    tmp.innerHTML = prog.body_html;
+    let summary = '';
+    const firstP = tmp.querySelector('p');
+    if (firstP) summary = firstP.textContent;
+    if (summary.length > 200) summary = summary.slice(0, 200) + '\u2026';
+
+    card.innerHTML =
+      '<div class="program-card-header" onclick="this.parentElement.classList.toggle(\'expanded\')">' +
+        '<div>' +
+          '<div class="card-title">' + escHTML(prog.title) + '</div>' +
+          '<div class="card-meta">' +
+            '<span class="card-span">' + escHTML(prog.span) + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<span class="expand-icon">&#9662;</span>' +
+      '</div>' +
+      '<div class="program-summary">' + escHTML(summary) + '</div>' +
+      '<div class="program-body"><div class="program-body-inner">' + prog.body_html + '</div></div>';
+
+    container.appendChild(card);
+  });
+}
+
+// ── Scroll to project helper ──
+function scrollToProject(slug) {
+  const card = document.getElementById('project-' + slug);
+  if (!card) return;
+  // If inside a closed <details>, open it
+  const details = card.closest('details');
+  if (details && !details.open) details.open = true;
+  card.classList.add('expanded');
+  const detail = card.querySelector('.card-detail');
+  if (detail) detail.classList.add('open');
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Hash-based navigation ──
+function handleHash() {
+  const hash = window.location.hash.slice(1);
+  if (!hash) return;
+
+  // #project-<slug> -> scroll to and expand that card
+  const projectMatch = hash.match(/^project-(.+)$/);
+  if (projectMatch) {
+    const slug = projectMatch[1];
+    setTimeout(function() { scrollToProject(slug); }, 100);
+    return;
+  }
+
+  // #themes=<slug>,<slug2>&methods=... -> activate filters
+  AXES.forEach(a => filters[a].clear());
+  hash.split('&').forEach(part => {
+    const [axis, vals] = part.split('=');
+    if (filters[axis] && vals) vals.split(',').forEach(v => filters[axis].add(v));
+  });
+  render();
+}
+
+// ── Handle in-page link clicks ──
+document.addEventListener('click', function(e) {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a) return;
+  const href = a.getAttribute('href');
+  const projectMatch = href.match(/^#project-(.+)$/);
+  if (projectMatch) {
+    e.preventDefault();
+    history.pushState(null, '', href);
+    scrollToProject(projectMatch[1]);
+    return;
+  }
+  const themeMatch = href.match(/^#themes=(.+)$/);
+  if (themeMatch) {
+    e.preventDefault();
+    history.pushState(null, '', href);
+    AXES.forEach(a => filters[a].clear());
+    themeMatch[1].split(',').forEach(v => filters.themes.add(v));
+    render();
+    renderFullTimeline();
+  }
+});
+
 // ── Init ──
 buildFilterPills();
-readURL();
+renderPrograms();
 renderFullTimeline();
+handleHash();
 render();
 scrollTimelineToPresent();
 window.addEventListener('hashchange', () => {
-  AXES.forEach(a => filters[a].clear());
-  readURL();
-  render();
+  handleHash();
 });
 </script>
 </body>
@@ -1396,7 +1696,7 @@ window.addEventListener('hashchange', () => {
 
 # ── Build ──
 
-def build():
+def build(regenerate=False):
     print("Loading taxonomy...")
     taxonomy = load_taxonomy()
     theme_children = build_theme_children(taxonomy)
@@ -1425,8 +1725,12 @@ def build():
     completed_proj = [p for p in projects if p["status"] != "active"]
     print(f"  {len(active_proj)} active, {len(completed_proj)} completed/other")
 
+    print("Loading programs...")
+    programs = load_programs()
+    print(f"  {len(programs)} programs")
+
     print("Generating narratives...")
-    narratives = generate_narratives(taxonomy, projects, pubs, people, theme_children)
+    narratives = generate_narratives(taxonomy, projects, pubs, people, theme_children, regenerate=regenerate)
     overrides = load_overrides()
     generated_count = len(narratives)
     for slug, body in overrides.items():
@@ -1434,6 +1738,13 @@ def build():
     print(f"  {len(narratives)} narratives ({generated_count - len(overrides)} generated, {len(overrides)} hand-written overrides)")
 
     # Fields allowed in public JSON (no internal IDs, paths, or type)
+    # Convert markdown links in text fields that render on the site
+    for p in projects:
+        if p.get("description"):
+            p["description"] = md_links_to_html(esc(p["description"]))
+    for slug in list(narratives):
+        narratives[slug] = md_links_to_html(esc(narratives[slug]))
+
     site_data = {
         "taxonomy": taxonomy,
         "projects": [{
@@ -1456,6 +1767,11 @@ def build():
             "start_date": p["start_date"], "end_date": p["end_date"],
         } for p in people],
         "narratives": narratives,
+        "programs": [{
+            "slug": p["slug"], "title": p["title"], "span": p["span"],
+            "color": p["color"], "status": p["status"], "themes": p["themes"],
+            "projects": p["projects"], "repos": p["repos"], "body_html": p["body_html"],
+        } for p in programs],
     }
 
     print("Generating lab intro...")
@@ -1466,10 +1782,49 @@ def build():
     print(f"  JSON blob: {len(json_blob):,} bytes")
 
     html = HTML_TEMPLATE.replace("__SITE_DATA_PLACEHOLDER__", json_blob)
-    html = html.replace("__LAB_INTRO_PLACEHOLDER__", esc(lab_intro))
+    html = html.replace("__LAB_INTRO_PLACEHOLDER__", md_links_to_html(esc(lab_intro)))
     out_path = WEB / "index.html"
     out_path.write_text(html)
     print(f"\nDone. {len(html):,} bytes written to {out_path}")
 
+DEPLOY_REPO = "mainenlab/mainenlab.github.io"
+DEPLOY_CACHE = Path("/tmp/mainenlab.github.io")
+DEPLOY_FILES = ["index.html", "favicon.svg", "CNAME"]
+
+def deploy():
+    if DEPLOY_CACHE.exists() and (DEPLOY_CACHE / ".git").exists():
+        print("Pulling latest deployment repo...")
+        subprocess.run(["git", "pull", "--ff-only"], cwd=DEPLOY_CACHE, check=True)
+    else:
+        print("Cloning deployment repo...")
+        if DEPLOY_CACHE.exists():
+            shutil.rmtree(DEPLOY_CACHE)
+        subprocess.run(["gh", "repo", "clone", DEPLOY_REPO, str(DEPLOY_CACHE)], check=True)
+
+    for name in DEPLOY_FILES:
+        src = WEB / name
+        if src.exists():
+            shutil.copy2(src, DEPLOY_CACHE / name)
+        else:
+            print(f"  warning: {name} not found in {WEB}, skipping")
+
+    msg = f"build: deploy {datetime.now().strftime('%Y-%m-%d %H:%M')}"
+    subprocess.run(["git", "add", "-A"], cwd=DEPLOY_CACHE, check=True)
+    result = subprocess.run(["git", "diff", "--cached", "--quiet"], cwd=DEPLOY_CACHE)
+    if result.returncode == 0:
+        print("No changes to deploy.")
+        return
+    subprocess.run(["git", "commit", "-m", msg], cwd=DEPLOY_CACHE, check=True)
+    subprocess.run(["git", "push"], cwd=DEPLOY_CACHE, check=True)
+    print(f"Deployed: {msg}")
+
 if __name__ == "__main__":
-    build()
+    parser = argparse.ArgumentParser(description="Build mainenlab.org static site")
+    parser.add_argument("--regenerate", action="store_true",
+                        help="Regenerate all theme narratives (and project descriptions) via Claude API")
+    parser.add_argument("--deploy", action="store_true",
+                        help="Push built site to mainenlab.github.io after building")
+    args = parser.parse_args()
+    build(regenerate=args.regenerate)
+    if args.deploy:
+        deploy()

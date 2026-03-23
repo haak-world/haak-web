@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notation &mdash; HAAK</title>
+<meta name="description" content="Layered formalism: sets, posets, categories. From entity sets through tag dimensions to Yoneda identity and situations as limits.">
+<meta property="og:title" content="Notation &mdash; HAAK">
+<meta property="og:description" content="Layered formalism: sets, posets, categories. From entity sets through tag dimensions to Yoneda identity and situations as limits.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#ontology">ontology</a> &rsaquo; Notation</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Ontology 03 &middot; March 2026</p>
+      <h1 class="article-title">Notation</h1>
+      <p class="article-subtitle">This document formalizes the ontology of [[01-objects]] and [[02-relations]] in three layers of increasing expressiveness: sets, partially ordered sets, and categories. Each layer builds on the…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#layer-1-sets">Layer 1 — Sets</a>
+<ol>
+<li><a href="#meta-qualities-as-operations-on-q">Meta-qualities as operations on Q</a></li>
+<li><a href="#derived-closure">Derived closure</a></li>
+</ol></li>
+<li><a href="#layer-2-posets">Layer 2 — Posets</a>
+<ol>
+<li><a href="#tag-dimensions">Tag dimensions</a></li>
+<li><a href="#visibility">Visibility</a></li>
+<li><a href="#policy-inheritance">Policy inheritance</a></li>
+<li><a href="#library-theorem-connection">Library Theorem connection</a></li>
+</ol></li>
+<li><a href="#layer-3-categories-first-pass">Layer 3 — Categories (first pass)</a>
+<ol>
+<li><a href="#the-category-ent">The category Ent</a></li>
+<li><a href="#the-subcategory-qual">The subcategory Qual</a></li>
+<li><a href="#the-quality-functor">The quality functor</a></li>
+<li><a href="#yoneda-and-dependent-origination">Yoneda and dependent origination</a></li>
+<li><a href="#situations-as-limits">Situations as limits</a></li>
+<li><a href="#layer-3b-deferred">Layer 3b — Deferred</a></li>
+</ol></li>
+<li><a href="#summary-of-layers">Summary of Layers</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p>This document formalizes the ontology of [[01-objects]] and [[02-relations]] in three layers of increasing expressiveness: sets, partially ordered sets, and categories. Each layer builds on the previous. A reader can stop at any layer and have a complete formalization — Layer 1 captures the data model, Layer 2 captures the governance and navigation structure, Layer 3 captures the deep identities (dependent origination, limits, functoriality).</p>
+<p>Three running examples are carried throughout: <em>(a) a student sitting an examination</em>, <em>(b) a Filix ledger entry recording that an agent holds the architect role</em>, <em>(c) a tag-partitioned mesh where agents' visibility is determined by tag overlap</em>.</p>
+<hr>
+<h2 id="layer-1-sets"><a class="heading-anchor" href="#layer-1-sets">#</a>Layer 1 — Sets</h2>
+<p>The base formalization. Anyone who knows set theory can read this.</p>
+<p><strong>Definition N1 (<em>Entity set</em>).</strong> Let <strong>E</strong> be the set of all entities. Entities include everything the ontology tracks: persons, agents, documents, situations, qualities, policies, methods, domains. No type distinction is drawn at this level — all are elements of E.</p>
+<p><em>Example (a).</em> E contains: the student Maria, the invigilator Dr. Ramos, the examination hall, the exam paper, the silence policy, the examination situation, the quality "actor," the quality "material."</p>
+<p><em>Example (b).</em> E contains: the agent <code>agent:lina</code>, the role entity <code>role:architect</code>, the quality "holds-role," the session situation <code>situation:session-2026-03-16</code>, the ledger entry itself (as a materialization entity).</p>
+<p><strong>Definition N2 (<em>Quality subset</em>).</strong> Let <strong>Q</strong> ⊆ E be the subset of entities that are qualities. The inclusion Q ⊆ E IS the reflexive closure of [[02-relations]], Definition R3: qualities are entities, subject to the same relational treatment as everything else. There is no separate universe of labels. The quality "author" is an element of both Q and E.</p>
+<p><strong>Definition N3 (<em>Time</em>).</strong> Let <strong>T</strong> be a linearly ordered set of time points. A <em>time interval</em> is a subset τ ⊆ T of the form [t₁, t₂], (t₁, ∞), or similar. T provides temporal bounds for belongings; it is not an axis of the ontology but a universal property of all objects ([[01-objects]], Properties).</p>
+<p><strong>Definition N4 (<em>Belonging</em>).</strong> A <em>belonging</em> is a tuple</p>
+<p>&gt; b = (e, t, q, τ)</p>
+<p>where e ∈ E is the dependent, t ∈ E is the context, q ∈ Q is the quality, and τ ⊆ T is a time interval (possibly unbounded). The set of all stored belongings is</p>
+<p>&gt; B ⊆ E × E × Q × 𝒫(T)</p>
+<p>This is Definition R1 of [[02-relations]] made set-theoretic. The <code>entity_id</code>, <code>target</code>, <code>quality</code>, and temporal fields of the ledger entry ([[33-constitutional-ledger]]) map directly to e, t, q, τ.</p>
+<p><em>Example (a).</em> The student participating in the examination:</p>
+<pre><code>(Maria, examination:tuesday, actor, [09:00, 12:00])
+(exam-paper, examination:tuesday, material, [09:00, 12:00])
+(Dr.Ramos, examination:tuesday, authority, [09:00, 12:00])
+(silence-policy, examination:tuesday, governs, [09:00, 12:00])</code></pre>
+<p><em>Example (b).</em> The Filix ledger entry:</p>
+<pre><code>(agent:lina, role:architect, holds-role, [2026-03-16, ∞))</code></pre>
+<p>One tuple. The ledger entry is a materialization of this belonging — a content-addressed JSON record whose fields (entity_id, target, quality, timestamp) are a serialization of (e, t, q, τ).</p>
+<p><strong>Definition N5 (<em>Entity graph</em>).</strong> The <em>entity graph</em> is the pair</p>
+<p>&gt; G = (E, B)</p>
+<p>where E is the entity set and B is the set of stored belongings. G is the complete state of the ontology at rest — what the ledger stores, what agents query.</p>
+<hr>
+<h3 id="meta-qualities-as-operations-on-q"><a class="heading-anchor" href="#meta-qualities-as-operations-on-q">#</a>Meta-qualities as operations on Q</h3>
+<p>The meta-qualities of [[02-relations]], Definition R5, are operations on the quality set Q. They define the grammar of how qualities relate to each other and how belongings propagate.</p>
+<p><strong>N6.1 (<em>Instance</em>).</strong> A partial order ≤<em>inst on Q. If q₁ ≤</em>inst q₂, then q₁ is a specialization of q₂, and any belonging with quality q₁ is implicitly a belonging with quality q₂. "Principal-investigator" ≤<em>inst "member." "Author" ≤</em>inst "creation."</p>
+<p><strong>N6.2 (<em>Inverse</em>).</strong> A partial involution inv : Q → Q. If (e, t, q, τ) ∈ B and inv(q) is defined, then (t, e, inv(q), τ) is derivable. inv("sender") = "receiver." inv("part-of") = "contains." Partial: not every quality has an inverse.</p>
+<p><strong>N6.3 (<em>Implies</em>).</strong> A preorder ≤<em>imp on Q. If q₁ ≤</em>imp q₂, then any belonging (e, t, q₁, τ) entails (e, t, q₂, τ). "Principal-investigator" ≤<em>imp "member." "Owner" ≤</em>imp "authority." Implies and instance are distinct: instance is taxonomic classification; implies is inferential entailment.</p>
+<p><strong>N6.4 (<em>Transitive</em>).</strong> A predicate trans ⊆ Q. If trans(q) and (e₁, e₂, q, τ₁) ∈ B and (e₂, e₃, q, τ₂) ∈ B, then (e₁, e₃, q, τ₁ ∩ τ₂) is derivable. trans("part-of") holds. trans("episode-of") holds. trans("author") does not hold.</p>
+<p><strong>N6.5 (<em>Applies-to</em>).</strong> A function dom : Q → 𝒫(E) restricting which entities can appear as targets of a belonging with that quality. dom("sender") ⊆ {situations}. dom("track-on") ⊆ {albums}. This prevents nonsensical belongings.</p>
+<p><em>Example (a).</em> The quality "participant" has: "actor" ≤<em>inst "participant" and "authority" ≤</em>inst "participant." So Maria's belonging as actor and Dr. Ramos's belonging as authority are both implicitly participations in the exam. A query for all participants returns both without explicit participant records.</p>
+<hr>
+<h3 id="derived-closure"><a class="heading-anchor" href="#derived-closure">#</a>Derived closure</h3>
+<p><strong>Definition N7 (<em>Derived closure</em>).</strong> The <em>derived closure</em> B* is the smallest set containing B and closed under the four propagation operations:</p>
+<ol>
+<li><strong>Instance</strong>: if (e, t, q₁, τ) ∈ B<em> and q₁ ≤_inst q₂, then (e, t, q₂, τ) ∈ B</em>.</li>
+<li><strong>Inverse</strong>: if (e, t, q, τ) ∈ B<em> and inv(q) is defined, then (t, e, inv(q), τ) ∈ B</em>.</li>
+<li><strong>Implies</strong>: if (e, t, q₁, τ) ∈ B<em> and q₁ ≤_imp q₂, then (e, t, q₂, τ) ∈ B</em>.</li>
+<li><strong>Transitive</strong>: if (e₁, e₂, q, τ₁) ∈ B<em> and (e₂, e₃, q, τ₂) ∈ B</em> and trans(q), then (e₁, e₃, q, τ₁ ∩ τ₂) ∈ B*.</li>
+</ol>
+<p>B is what the ledger stores. B* is what agents query. The difference is the inferential work the system performs.</p>
+<p><strong>Properties of the closure.</strong></p>
+<p><strong>N8.1.</strong> B<em> is computable from B and the </em>quality graph<em> (Q, ≤<em>inst, inv, ≤</em>imp, trans, dom). The quality graph is finite and small — hundreds of quality entities, not millions. The four operations are monotone: adding a belonging to B</em> can only add further belongings, never remove them. The closure terminates because instance and implies chains are bounded by the depth of Q's partial orders, inverse produces at most one new belonging per input, and transitive extends chains only along qualities where trans holds.</p>
+<p><strong>N8.2.</strong> The closure terminates at depth 1 for meta-qualities. Meta-qualities of meta-qualities are just meta-qualities. The quality "instance" is itself an element of Q; asking "what is the instance of instance?" yields "meta-quality" — a structural role, not a further recursion. This is [[02-relations]], Definition R5's observation that the recursion bottoms out in structural roles, now stated precisely: the quality graph restricted to meta-qualities has no cycles of length greater than 1.</p>
+<p><em>Example (b).</em> The Filix entry <code>(agent:lina, role:architect, holds-role, τ)</code> has: "holds-role" ≤_imp "member." So B* contains <code>(agent:lina, role:architect, member, τ)</code> without explicit storage. If a query asks "who is a member of the architect role?" it finds Lina through the implies closure, even though only "holds-role" was stored.</p>
+<hr>
+<h2 id="layer-2-posets"><a class="heading-anchor" href="#layer-2-posets">#</a>Layer 2 — Posets</h2>
+<p>Layer 1 captures data. Layer 2 captures governance and navigation — how policies inherit, how visibility is determined, and how the Library Theorem's O(log N) bound connects to the mesh. The structures here are partially ordered sets built over the entity graph G = (E, B).</p>
+<hr>
+<h3 id="tag-dimensions"><a class="heading-anchor" href="#tag-dimensions">#</a>Tag dimensions</h3>
+<p><strong>Definition N9 (<em>Tag dimension</em>).</strong> A <em>tag dimension</em> is a rooted tree (Dᵢ, ≤ᵢ) where ≤ᵢ is the ancestor relation: x ≤ᵢ y iff y is an ancestor of x (or x = y). The root is the most general element. Leaves are the most specific.</p>
+<p><em>Example (c).</em> Three dimensions in the Filix mesh:</p>
+<ul>
+<li><strong>Domain</strong>: <code>*</code> → <code>ai-ontology</code> → <code>inscription</code> → <code>review-round-3</code>. Root sees everything in the domain axis; leaves see specific sub-projects.</li>
+<li><strong>Role</strong>: <code>*</code> → <code>architect</code> | <code>librarian</code> | <code>steward</code> | <code>reviewer</code>. Root sees all roles; leaves see one.</li>
+<li><strong>Place</strong>: <code>*</code> → <code>europe</code> → <code>lisbon</code> → <code>champalimaud</code>. Geographic hierarchy.</li>
+</ul>
+<p><strong>Definition N10 (<em>Tag space</em>).</strong> The <em>tag space</em> is the product</p>
+<p>&gt; D = D₁ × D₂ × ... × Dₖ</p>
+<p>Each dimension is independent. An agent's position is a point in D — one tag per dimension. An entry's visibility is determined by its tag set, also a point (or set of points) in D.</p>
+<p><em>Example (c).</em> Agent Lina has position (inscription, architect, lisbon). An entry tagged (ai-ontology, <em>, </em>) is visible to Lina because <code>inscription ≤ ai-ontology</code> in the domain dimension — Lina's tag is a descendant of the entry's tag.</p>
+<hr>
+<h3 id="visibility"><a class="heading-anchor" href="#visibility">#</a>Visibility</h3>
+<p><strong>Definition N11 (<em>Visibility rule</em>).</strong> Agent a can see entry x iff for every dimension i where x has a non-root tag, a's tag in dimension i is comparable to x's tag in dimension i: one is an ancestor of the other in Dᵢ.</p>
+<p>Formally: for all i, if x.tagᵢ ≠ root, then either a.tagᵢ ≤ᵢ x.tagᵢ or x.tagᵢ ≤ᵢ a.tagᵢ.</p>
+<p>This is the tag-overlap semantics of [[33-constitutional-ledger]], Section "Tags and Topology," given its order-theoretic statement. Comparable means "on the same branch of the tree" — either the agent is more specific than the entry (the agent is deeper) or the entry is more specific than the agent (the agent has broader scope). Incomparable tags — on different branches — produce no visibility.</p>
+<p><em>Example (c).</em> An entry tagged (inscription, reviewer, <em>) is visible to an agent at (inscription, reviewer, lisbon) — same branch in domain, same node in role. It is NOT visible to an agent at (inscription, architect, lisbon) — incomparable in the role dimension (reviewer and architect are siblings, not ancestors of each other). It IS visible to an agent at (inscription, </em>, lisbon) — agent has root in role dimension, so no comparison needed there.</p>
+<hr>
+<h3 id="policy-inheritance"><a class="heading-anchor" href="#policy-inheritance">#</a>Policy inheritance</h3>
+<p><strong>Definition N12 (<em>Policy lattice</em>).</strong> Let <strong>P</strong> be the set of all policies. Define a partial order on P by <em>strength</em>: p₁ ≤ p₂ if p₂ is at least as constraining as p₁. The join p₁ ∨ p₂ is the policy that enforces both. P with join forms a lattice.</p>
+<p><strong>Definition N13 (<em>Policy inheritance</em>).</strong> Policies are monotone functions from the tag poset to the policy lattice:</p>
+<p>&gt; π : D → P</p>
+<p>Monotone means: if d₁ ≤ d₂ (d₁ is deeper, more specific), then π(d₁) ≥ π(d₂). Policies accumulate downward — inner nodes inherit all policies of outer nodes and may add their own. This is Definition 12 of [[01-objects]] ("policies accumulate through domain subsumption") and Definition S5 of [[12-situation-nesting]] ("innermost applicable policy prevails"), unified in a single monotonicity condition.</p>
+<p><strong>Non-overridable policies</strong> are join-irreducible elements in P — elements that cannot be expressed as the join of strictly weaker policies. The constitution (Definition 14 of [[01-objects]]) is the supremum of P: the policy from which all others descend. Constitutional rules are non-overridable because removing them from any policy point would violate monotonicity — the resulting function would no longer be order-preserving.</p>
+<p><em>Example (a).</em> Domain dimension: <code>university</code> → <code>faculty-of-science</code> → <code>examination-hall-A</code>. Policies: "academic integrity" at university level, "exam-specific format rules" at hall level. The student at (examination-hall-A, student, *) inherits both. The hall-level format rules are local and overridable. Academic integrity is join-irreducible — it cannot be weakened at any inner scope.</p>
+<p><em>Example (c).</em> The Filix mesh. A constitutional rule "all work must be externalized" is tagged <code>scope:universal</code> — it maps from the root of every dimension. By monotonicity, every point in D inherits it. A domain-specific rule "reviewer anonymity in this round" maps from (review-round-3, reviewer, *). Agents not on that branch do not see the rule (visibility, N11) and are not bound by it (monotonicity applies only downward from the rule's position).</p>
+<hr>
+<h3 id="library-theorem-connection"><a class="heading-anchor" href="#library-theorem-connection">#</a>Library Theorem connection</h3>
+<p><strong>Proposition N14.</strong> Navigation through a balanced tag tree of N entries is O(log N). Each dimension Dᵢ has depth at most log₂(Nᵢ) where Nᵢ is the number of leaves. Retrieving all entries visible from a point d ∈ D requires descending each dimension's tree from root to d — a total cost of Σᵢ log₂(Nᵢ). For k dimensions, this is O(k · log N) where N = max(Nᵢ). Since k is small (single digits), the cost is O(log N).</p>
+<p>This connects the Library Theorem of <a class="cross-ref" href="/memos/library-theorem/">Foundation 02</a> to the mesh of Paper 4a. The Library Theorem proves that organized external memory admits O(log N) retrieval. The tag-dimension structure IS that organization, applied to the ledger. The index hierarchy that [[12-situation-nesting]] identifies as "the materialization of the situation-nesting structure" is the concrete instantiation of this tag tree. Each <code>index.md</code> is a node in the tree; the one-liners in its Contents section are the compressed representations that make descent efficient.</p>
+<hr>
+<h2 id="layer-3-categories-first-pass"><a class="heading-anchor" href="#layer-3-categories-first-pass">#</a>Layer 3 — Categories (first pass)</h2>
+<p>Layer 2 captures hierarchy and inheritance. Layer 3 captures composition, identity, and the deeper structural claims — that an entity IS its incoming belongings, that situations are universal constructions, that observation depends on position. This is the first pass: it covers the core categories and the Yoneda identity. Presheaf topoi and productive inconsistency are flagged for Layer 3b.</p>
+<hr>
+<h3 id="the-category-ent"><a class="heading-anchor" href="#the-category-ent">#</a>The category Ent</h3>
+<p><strong>Definition N15 (<em>Ent</em>).</strong> Define a category <strong>Ent</strong> as follows:</p>
+<ul>
+<li><strong>Objects</strong>: the elements of E (all entities).</li>
+<li><strong>Morphisms</strong>: the belongings. A belonging (e, t, q, τ) is a morphism e → t labeled by q. We write e →_q t.</li>
+<li><strong>Identity</strong>: for each entity e, the identity morphism id_e is the trivial belonging of e to itself.</li>
+<li><strong>Composition</strong>: partial. Two morphisms e →<em>q₁ t and t →</em>q₂ u compose to e →<em>q₃ u only when q₁ and q₂ are related by transitivity or implication in the quality graph. If trans(q₁) and q₁ = q₂, composition yields e →</em>q₁ u (transitive closure). If q₁ ≤_imp q₂, composition is through the implies chain. Not all pairs of morphisms compose — this is a category enriched over a partial monoid, not a standard category.</li>
+</ul>
+<p>The partial composition is not a deficiency; it encodes the ontology's constraint that not all belongings chain. "Maria is actor in the exam" and "the exam is episode-of the academic term" compose (transitivity of episode-of gives Maria a derived connection to the term). "Maria is actor in the exam" and "the exam paper is material in the exam" do not compose — there is no quality that would label a direct morphism from Maria to the exam paper.</p>
+<p><em>Example (a).</em> In Ent:</p>
+<pre><code>Maria  →_actor  examination  →_episode-of  academic-term</code></pre>
+<p>Composes (trans(episode-of)) to give Maria →<em>participant academic-term (via implies: actor ≤</em>imp participant, and the composite inherits the weaker quality).</p>
+<pre><code>Maria  →_actor  examination
+exam-paper  →_material  examination</code></pre>
+<p>Does not compose. Maria and the exam paper are co-participants in the examination, but this co-participation is a derived view ([[09-situation-graph]]), not a morphism.</p>
+<hr>
+<h3 id="the-subcategory-qual"><a class="heading-anchor" href="#the-subcategory-qual">#</a>The subcategory Qual</h3>
+<p><strong>Definition N16 (<em>Qual</em>).</strong> Define <strong>Qual</strong> as the full subcategory of Ent restricted to objects in Q — the quality entities. Morphisms in Qual are belongings between qualities: "author" →<em>instance "creation," "sender" →</em>inverse "receiver."</p>
+<p>The inclusion functor I : Qual → Ent sends each quality entity to itself, viewed as an element of E. This functor IS the reflexive closure: qualities are entities. The functor is faithful (it preserves distinctness of morphisms) and injective on objects.</p>
+<hr>
+<h3 id="the-quality-functor"><a class="heading-anchor" href="#the-quality-functor">#</a>The quality functor</h3>
+<p><strong>Definition N17 (<em>Quality functor</em>).</strong> Define F : Mor(Ent) → Obj(Qual) as the functor that sends each morphism (belonging) to its quality. F(e →_q t) = q. This functor extracts the "nature of dependence" from every belonging and places it in the quality graph.</p>
+<p>F is well-defined because every belonging has exactly one quality (by Definition N4). F is not full — not every quality is realized by a morphism in a given graph state. F is the formal counterpart of the informal claim in [[02-relations]] that "the relation does not carry meaning; the quality does."</p>
+<hr>
+<h3 id="yoneda-and-dependent-origination"><a class="heading-anchor" href="#yoneda-and-dependent-origination">#</a>Yoneda and dependent origination</h3>
+<p><strong>Definition N18 (<em>Representable presheaf</em>).</strong> For any entity e ∈ Obj(Ent), define the presheaf</p>
+<p>&gt; h_e = Hom(−, e) : Ent^op → Set</p>
+<p>This sends each entity x to the set of all morphisms x → e — all belongings whose context is e. The Yoneda lemma states: h_e fully characterizes e up to isomorphism. Two entities with identical incoming belongings are isomorphic.</p>
+<p>This is the categorical statement of dependent origination from [[08-relational-ground]]: an entity IS its incoming belongings. There is no hidden essence behind the relational profile. If you know every way anything belongs to e — every quality, every dependent, every time interval — you know everything about e that the ontology can express. The Yoneda lemma does not merely suggest this; it proves it. Completeness is a theorem, not a philosophical position.</p>
+<p><em>Example (a).</em> The examination situation is fully characterized by: Maria →<em>actor exam, Dr. Ramos →</em>authority exam, exam-paper →<em>material exam, silence-policy →</em>governs exam, hall-A →<em>venue exam, academic-term →</em>domain exam. Remove any of these belongings and you have a different situation. Add one and you have a different situation. The examination IS this profile.</p>
+<p><em>Example (b).</em> The ledger entry recording Lina's role is fully characterized by: entry →<em>materialization situation:session, entry →</em>records belonging:(lina, architect, holds-role). The entry IS its incoming belongings — its provenance, its content, its position in the DAG.</p>
+<hr>
+<h3 id="situations-as-limits"><a class="heading-anchor" href="#situations-as-limits">#</a>Situations as limits</h3>
+<p><strong>Definition N19 (<em>Situation as limit</em>).</strong> A situation S is a limit (universal cone) in Ent. The participants — entities with belongings targeting S — form a diagram. S is the universal entity through which all participants factor: for any entity x with morphisms to all participants, x factors uniquely through S.</p>
+<p>Concretely: the examination is the universal object that "collects" Maria (as actor), the exam paper (as material), Dr. Ramos (as authority), and the silence policy (as governance). Any entity that relates to all of these individually — say, the academic transcript that records Maria's grade, the paper's content, the invigilator's report, and the policy compliance — factors through the examination situation.</p>
+<p>This characterization requires care. The partial composition structure of Ent means that not all diagrams have limits. The claim is not that every collection of entities determines a situation, but that every situation, when it exists, satisfies the universal property. Situations are limits when they exist; their existence is contingent on the qualities involved admitting the necessary compositions.</p>
+<p><em>Flagged for careful treatment.</em> The partial composition complicates the standard categorical limit construction. A full treatment requires either enriching Ent to handle the partiality (e.g., via a monoidal category where the monoidal product reflects quality compatibility) or working in a 2-categorical setting where the quality graph provides the enrichment. This is deferred to Layer 3b.</p>
+<hr>
+<h3 id="layer-3b-deferred"><a class="heading-anchor" href="#layer-3b-deferred">#</a>Layer 3b — Deferred</h3>
+<p>The following constructions are flagged for future development. Each is stated precisely enough to guide the formalization when it is undertaken.</p>
+<p><strong>Observation frames as presheaves on the tag poset.</strong> The tag space D of Layer 2 is a poset, hence a category. A presheaf on D assigns to each tag position the set of entries visible from that position. This is a functor D^op → Set. The collection of all such functors forms the presheaf category Psh(D).</p>
+<p><strong>Psh(D) as a topos with internal logic.</strong> The category Psh(D) is an elementary topos: it has a subobject classifier Ω, exponential objects, and an internal logic. The subobject classifier Ω assigns to each position d ∈ D the set of sieves on d — the "degrees of truth" as seen from that position. This means visibility has a built-in logic: statements about entries can be true, false, or true-at-some-positions-but-not-others. The internal logic of Psh(D) is intuitionistic, not classical — the law of excluded middle fails because an entry might be neither visible nor provably invisible from a given position. Observation is perspectival; truth is local.</p>
+<p><strong>Productive inconsistency as the non-existence of a global sections functor.</strong> When two agents occupy incompatible positions in D (different branches of a tag tree, no common ancestor below the root), their observation frames are distinct presheaves. A <em>global section</em> would be a natural transformation from the terminal presheaf to the combined observation — a "view from everywhere." Productive inconsistency, in the sense of Paper 4a, is the structural fact that this global section does not exist when the presheaves disagree. The forks in the constitutional ledger ([[33-constitutional-ledger]], Section "The DAG", property 3) are exactly the points where global sections fail: two entries that cannot coexist under the same constitutional scope. The fork is the topos-theoretic obstruction to a global section, made concrete as a DAG bifurcation.</p>
+<p><strong>Connection to the Indexed Inconsistency Theorem.</strong> The Indexed Inconsistency Theorem (Paper 4a) states that productive inconsistency is not a failure of the system but a resource: forks create new observation frames, and the governance situation (ontology/13, Definition G1) that resolves them is itself a limit in Ent. The merge is the categorical construction that restores a (local) global section across the previously incompatible branches. The full treatment requires the machinery of indexed categories or fibered categories over D, where each fiber is the local topos of one constitutional scope.</p>
+<hr>
+<h2 id="summary-of-layers"><a class="heading-anchor" href="#summary-of-layers">#</a>Summary of Layers</h2>
+<table>
+<tr><th>Layer</th><th>Structure</th><th>What it captures</th><th>Sufficient for</th></tr>
+<tr><td>1 — Sets</td><td>(E, Q, B, B*)</td><td>Data model, inference, closure</td><td>Implementing the ledger, querying the entity graph, computing derived belongings</td></tr>
+<tr><td>2 — Posets</td><td>(Dᵢ, ≤ᵢ), π : D → P</td><td>Tag hierarchy, visibility, policy inheritance, O(log N) navigation</td><td>Governance, access control, search, connecting Library Theorem to mesh topology</td></tr>
+<tr><td>3 — Categories</td><td>Ent, Qual, F, h_e, limits</td><td>Dependent origination, compositionality, situations as universal constructions</td><td>Proving completeness (Yoneda), formalizing observation frames, productive inconsistency</td></tr>
+</table>
+<p>Each layer is self-contained. Layer 1 readers get the data model. Layer 2 readers get governance and navigation. Layer 3 readers get the deep structural identities. Nothing in Layer 2 contradicts Layer 1; it adds structure. Nothing in Layer 3 contradicts Layer 2; it reveals why the structure works.</p>
+<hr>
+<p><em>ontology · 03 · notation · 2026-03-16 · zach + claude</em></p>
+
+        <p class="endnote">Ontology 03 &mdash; Notation &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/ontology-relations/">&larr; 02: Relations</a><a class="memo-nav-next" href="/memos/ontology-correspondence/">04: Three Correspondences (v1.2 — Relational Revision) &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#layer-1-sets">Layer 1 — Sets</a>
+<ol>
+<li><a href="#meta-qualities-as-operations-on-q">Meta-qualities as operations on Q</a></li>
+<li><a href="#derived-closure">Derived closure</a></li>
+</ol></li>
+<li><a href="#layer-2-posets">Layer 2 — Posets</a>
+<ol>
+<li><a href="#tag-dimensions">Tag dimensions</a></li>
+<li><a href="#visibility">Visibility</a></li>
+<li><a href="#policy-inheritance">Policy inheritance</a></li>
+<li><a href="#library-theorem-connection">Library Theorem connection</a></li>
+</ol></li>
+<li><a href="#layer-3-categories-first-pass">Layer 3 — Categories (first pass)</a>
+<ol>
+<li><a href="#the-category-ent">The category Ent</a></li>
+<li><a href="#the-subcategory-qual">The subcategory Qual</a></li>
+<li><a href="#the-quality-functor">The quality functor</a></li>
+<li><a href="#yoneda-and-dependent-origination">Yoneda and dependent origination</a></li>
+<li><a href="#situations-as-limits">Situations as limits</a></li>
+<li><a href="#layer-3b-deferred">Layer 3b — Deferred</a></li>
+</ol></li>
+<li><a href="#summary-of-layers">Summary of Layers</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

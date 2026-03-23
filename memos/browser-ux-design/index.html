@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Browser UX Design &mdash; HAAK</title>
+<meta name="description" content="UX specification for the HAAK Browser: home screen, engagement view, agent view, search, chat, mobile.">
+<meta property="og:title" content="Browser UX Design &mdash; HAAK">
+<meta property="og:description" content="UX specification for the HAAK Browser: home screen, engagement view, agent view, search, chat, mobile.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Browser UX Design</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 41 &middot; March 2026</p>
+      <h1 class="article-title">Browser UX Design</h1>
+      <p class="article-subtitle">Every iteration of the HAAK browser has built good data plumbing and bad UX. The symptoms are consistent: the user opens the browser and cannot answer &quot;what is happening right now?&quot; within five…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-what-failed">1. What failed</a></li>
+<li><a href="#2-the-five-second-rule">2. The five-second rule</a></li>
+<li><a href="#3-layout">3. Layout</a></li>
+<li><a href="#4-tab-bar">4. Tab bar</a>
+<ol>
+<li><a href="#tab-anatomy">Tab anatomy</a></li>
+<li><a href="#tab-dropdown-actions">Tab dropdown actions</a></li>
+<li><a href="#button">[+] button</a></li>
+<li><a href="#tab-behavior">Tab behavior</a></li>
+</ol></li>
+<li><a href="#5-main-area-modes">5. Main area modes</a>
+<ol>
+<li><a href="#5-1-home-mode-no-tab-selected">5.1. Home mode (no tab selected)</a></li>
+<li><a href="#5-2-session-mode-tab-clicked">5.2. Session mode (tab clicked)</a></li>
+<li><a href="#5-3-chat-mode-from-tab-dropdown-chat">5.3. Chat mode (from tab dropdown &quot;Chat&quot;)</a></li>
+<li><a href="#5-4-engagement-mode-from-utility-bar-engagements-button">5.4. Engagement mode (from utility bar &quot;Engagements&quot; button)</a></li>
+<li><a href="#5-5-search-mode-from-search-box">5.5. Search mode (from search box)</a></li>
+</ol></li>
+<li><a href="#6-naming-conventions">6. Naming conventions</a></li>
+<li><a href="#7-url-structure">7. URL structure</a></li>
+<li><a href="#8-mobile-design">8. Mobile design</a>
+<ol>
+<li><a href="#tab-bar">Tab bar</a></li>
+<li><a href="#mode-behavior-on-mobile">Mode behavior on mobile</a></li>
+<li><a href="#breakpoints">Breakpoints</a></li>
+<li><a href="#minimum-viable-mobile">Minimum viable mobile</a></li>
+</ol></li>
+<li><a href="#9-visual-design-decisions">9. Visual design decisions</a></li>
+<li><a href="#10-component-inventory">10. Component inventory</a></li>
+<li><a href="#11-testing-plan">11. Testing plan</a>
+<ol>
+<li><a href="#tab-lifecycle-tests">Tab lifecycle tests</a></li>
+<li><a href="#mode-tests">Mode tests</a></li>
+<li><a href="#integration-tests">Integration tests</a></li>
+<li><a href="#edge-cases">Edge cases</a></li>
+</ol></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="1-what-failed"><a class="heading-anchor" href="#1-what-failed">#</a>1. What failed</h2>
+<p>Every iteration of the HAAK browser has built good data plumbing and bad UX. The symptoms are consistent: the user opens the browser and cannot answer "what is happening right now?" within five seconds.</p>
+<p>Root causes: (a) sessions displayed by UUID, not by what they are doing; (b) engagement IDs shown raw instead of named; (c) flat lists of 500 items with no hierarchy; (d) no search over content; (e) dotted-line bars for sessions without transcripts; (f) no control surface -- can look but cannot act.</p>
+<p>The deeper problem: the user works in Zed with named sessions as tabs. Bouncing between them is instant. The browser should work the same way. The tab IS the session manager.</p>
+<h2 id="2-the-five-second-rule"><a class="heading-anchor" href="#2-the-five-second-rule">#</a>2. The five-second rule</h2>
+<p>When the user opens the browser, within five seconds they must know:</p>
+<ul>
+<li>How many agents are alive and what they are doing (names, not UUIDs)</li>
+<li>Whether any agent is in danger (context &gt; 75%)</li>
+<li>What work is active (engagement names, not IDs)</li>
+<li>Whether anything needs attention (stuck agents, failed obligations)</li>
+</ul>
+<p>Everything else is drill-down.</p>
+<h2 id="3-layout"><a class="heading-anchor" href="#3-layout">#</a>3. Layout</h2>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |  &lt;- tab bar
++-------------------------------------------------------------------+
+| search...                                        [Engagements]    |  &lt;- utility bar
++-------------------------------------------------------------------+
+|                                                                   |
+|  (main area -- changes based on what&#x27;s selected)                  |
+|                                                                   |
++-------------------------------------------------------------------+</code></pre>
+<p>Three horizontal zones, top to bottom: tab bar, utility bar, main area. The tab bar is the primary navigation. The utility bar provides search and the engagement axis. The main area renders content for the selected tab or mode.</p>
+<h2 id="4-tab-bar"><a class="heading-anchor" href="#4-tab-bar">#</a>4. Tab bar</h2>
+<p>The tab bar shows all LIVING agents/sessions. It is the session manager.</p>
+<h3 id="tab-anatomy"><a class="heading-anchor" href="#tab-anatomy">#</a>Tab anatomy</h3>
+<p>Each tab shows:</p>
+<ul>
+<li><strong>Colored dot</strong>: green = active, amber = frozen</li>
+<li><strong>Label</strong>: <code>[agent<em>name]: [session</em>name]</code> or just <code>[session_name]</code> if agent is "claude"</li>
+<li><strong>Context bar</strong>: thin colored stripe under the label (green &lt; 50%, amber 50-75%, red &gt; 75%, pulsing red &gt; 90%)</li>
+<li><strong>Dropdown arrow</strong> (<code>.|</code>): opens session management menu</li>
+</ul>
+<p>No UUIDs shown anywhere in the UI. Ever.</p>
+<h3 id="tab-dropdown-actions"><a class="heading-anchor" href="#tab-dropdown-actions">#</a>Tab dropdown actions</h3>
+<p>Right of each tab label, a dropdown menu with:</p>
+<table>
+<tr><th>Action</th><th>Effect</th></tr>
+<tr><td>Rename</td><td>Inline edit of session name</td></tr>
+<tr><td>Chat</td><td>Open chat with this agent (main area switches to chat mode)</td></tr>
+<tr><td>Terminal</td><td>Open terminal to tmux pane (desktop only, xterm.js)</td></tr>
+<tr><td>Freeze</td><td>Pause agent, keep context</td></tr>
+<tr><td>Revive</td><td>Inscribe + start new session with compressed context</td></tr>
+<tr><td>Split into...</td><td>Select rounds by engagement, fork into new agents</td></tr>
+<tr><td>Merge with...</td><td>Combine with another session</td></tr>
+<tr><td>Kill</td><td>Bury agent, archive session</td></tr>
+<tr><td>Dispatch</td><td>Send message to agent mailbox</td></tr>
+</table>
+<h3 id="button"><a class="heading-anchor" href="#button">#</a>[+] button</h3>
+<p>Creates a new agent/session. Dialog: name, role, model selection. New tab appears on creation.</p>
+<h3 id="tab-behavior"><a class="heading-anchor" href="#tab-behavior">#</a>Tab behavior</h3>
+<ul>
+<li>Click tab -&gt; switch main area to that session's rounds (session mode)</li>
+<li>Tab names are editable inline (double-click to rename)</li>
+<li>Renaming syncs to inscription database</li>
+<li>Sessions get named on first inscription (from first user message) or via <code>/rename</code> in Claude Code</li>
+<li>Frozen agents shown with amber dot, active with green dot</li>
+<li>Dead agents do not appear as tabs (findable via search or "All agents" in engagement mode)</li>
+<li>Draggable tab reordering (future enhancement, not v1)</li>
+</ul>
+<h2 id="5-main-area-modes"><a class="heading-anchor" href="#5-main-area-modes">#</a>5. Main area modes</h2>
+<p>The main area has four modes. These are not separate pages -- they are modes within the same window, all sharing the tab bar.</p>
+<h3 id="5-1-home-mode-no-tab-selected"><a class="heading-anchor" href="#5-1-home-mode-no-tab-selected">#</a>5.1. Home mode (no tab selected)</h3>
+<p>What you see on first open, or when no tab is active.</p>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |
++-------------------------------------------------------------------+
+| search...                                        [Engagements]    |
++-------------------------------------------------------------------+
+|                                                                   |
+|  ACTIVE WORK                                                      |
+|  +---------------------------------------------------------------+|
+|  | Session inscription system        Reed, Sill   3h ago         ||
+|  | 12 rounds across 4 sessions       phase: build                ||
+|  +---------------------------------------------------------------+|
+|  | ASC manuscript review             Veda          1d ago         ||
+|  | 8 rounds across 2 sessions        phase: collect              ||
+|  +---------------------------------------------------------------+|
+|                                                                   |
+|  RECENT ROUNDS                                                    |
+|  R14  Reed  3m ago   &quot;write the UX spec&quot; -&gt; &quot;Here&#x27;s the...&quot;      |
+|  R13  Reed  8m ago   &quot;read the engagement viewer&quot; -&gt; &quot;I see...&quot;   |
+|  R12  Veda  1h ago   &quot;check ASC references&quot; -&gt; &quot;Found 3...&quot;      |
+|  ...                                                              |
++-------------------------------------------------------------------+</code></pre>
+<p>Engagement cards show: name (human-readable), contributing agents, recency, round count, phase. Sorted by most recent activity. Max 10 shown; "Show all N engagements" link if more. Click a card to enter engagement mode.</p>
+<p>Recent rounds: reverse-chronological feed of last ~20 rounds across all agents. Click a round to expand. Click agent name to activate that agent's tab.</p>
+<h3 id="5-2-session-mode-tab-clicked"><a class="heading-anchor" href="#5-2-session-mode-tab-clicked">#</a>5.2. Session mode (tab clicked)</h3>
+<p>Default when clicking a tab. Shows that session's rounds with collapsible drill-down.</p>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |
++-------------------------------------------------------------------+
+| search...                                        [Engagements]    |
++-------------------------------------------------------------------+
+| Reed: browser-ux | opus-4-6 | 42% [==========          ] | R14   |
++-------------------------------------------------------------------+
+| [user] [assistant] [thinking] [tools]            filter toggles   |
++-------------------------------------------------------------------+
+|                                                                   |
+|  R14  3m ago   &quot;write the UX spec&quot;                                |
+|       -&gt; &quot;Here&#x27;s the revised spec with tab-based navigation...&quot;   |
+|       [4 tools]                                                   |
+|                                                                   |
+|  R13  8m ago   &quot;read the engagement viewer&quot;                       |
+|       -&gt; &quot;I see the current implementation...&quot;                    |
+|       [2 tools]                                                   |
+|                                                                   |
+|  ...                                                              |
++-------------------------------------------------------------------+</code></pre>
+<p>Session metadata bar: name, agent, model, context %, round count. Filter toggles for thinking/tools (carried forward from current viewer). Rounds expand/collapse on click. Tool calls and thinking blocks are nested collapsibles within expanded rounds.</p>
+<h3 id="5-3-chat-mode-from-tab-dropdown-chat"><a class="heading-anchor" href="#5-3-chat-mode-from-tab-dropdown-chat">#</a>5.3. Chat mode (from tab dropdown "Chat")</h3>
+<p>Full-width conversation with the selected agent. Streaming responses.</p>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |
++-------------------------------------------------------------------+
+|                                                                   |
+|  [conversation history scrolls here]                              |
+|                                                                   |
+|  Reed: I&#x27;ve written the UX spec at patterns/architecture/41-...   |
+|                                                                   |
+|  You: Can you also add mobile considerations?                     |
+|                                                                   |
+|  Reed: [streaming response...]                                    |
+|                                                                   |
++-------------------------------------------------------------------+
+| [Type a message...                              ] [Send] [+File]  |
++-------------------------------------------------------------------+</code></pre>
+<p>Message input pinned to bottom. Send button + file upload. WebSocket connection to router or agent session. Drag-drop for files.</p>
+<h3 id="5-4-engagement-mode-from-utility-bar-engagements-button"><a class="heading-anchor" href="#5-4-engagement-mode-from-utility-bar-engagements-button">#</a>5.4. Engagement mode (from utility bar "Engagements" button)</h3>
+<p>Engagements cross-cut sessions -- they are a different navigation axis, not a tab. Accessed from the utility bar, not from the tab bar.</p>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |
++-------------------------------------------------------------------+
+| search...                                        [Engagements *]  |
++-------------------------------------------------------------------+
+| ENGAGEMENTS          |                                             |
+| +------------------+ |                                             |
+| | Session inscrip. | | phase: build | Mar 19 | 12 rounds          |
+| | ASC manuscript   | | Reed, Sill                                  |
+| | Browser redesign | | obligations: implement round writer, ...    |
+| | Face decoding    | | +-----------------------------------------+ |
+| +------------------+ | | R12  Reed  Mar 21  &quot;implement writer&quot;   | |
+|                      | |      -&gt; &quot;I&#x27;ll create the round file...&quot;  | |
+|  [Show dead]         | | R11  Sill  Mar 21  &quot;check store struct&quot;  | |
+|                      | |      -&gt; &quot;The store follows the spec...&quot;  | |
+|                      | | R10  Reed  Mar 20  &quot;design SQL schema&quot;   | |
+|                      | |      -&gt; &quot;Here&#x27;s the schema...&quot;           | |
+|                      | +-----------------------------------------+ |
++-------------------------------------------------------------------+</code></pre>
+<p>Left sidebar lists engagements (name, phase, contributor count). Click an engagement to load its cross-agent round stream in the main panel. Engagement metadata at top of stream: phase, start date, round count, participating agents, current obligations.</p>
+<p>Rounds from all contributing agents, chronological. Agent names color-coded (hash-to-hue). Left-border color distinguishes agents. Same filter bar for thinking/tools.</p>
+<h3 id="5-5-search-mode-from-search-box"><a class="heading-anchor" href="#5-5-search-mode-from-search-box">#</a>5.5. Search mode (from search box)</h3>
+<pre><code>+-------------------------------------------------------------------+
+| [* Reed .|] [* haak-simons .|] [* orchest .|]              [+]   |
++-------------------------------------------------------------------+
+| [round model_____]                               [Engagements]    |
++-------------------------------------------------------------------+
+| 7 results across 3 sessions                                       |
++-------------------------------------------------------------------+
+|                                                                   |
+|  R8  Reed  Mar 20  [Session inscription system]                   |
+|  &quot;...the round model stores each turn as a JSON file...&quot;          |
+|                                                                   |
+|  R5  Sill  Mar 19  [Session inscription system]                   |
+|  &quot;...round model needs to support retroactive tagging...&quot;         |
+|                                                                   |
+|  R22  Reed  Mar 18  [Architecture review]                         |
+|  &quot;...decided the round is the atomic unit, not the message...&quot;    |
+|                                                                   |
++-------------------------------------------------------------------+</code></pre>
+<p>FTS5 over <code>rounds_fts</code> table in <code>sessions.db</code>. Results ranked by relevance. Each result shows: round number, agent name, date, engagement badge, matching text with highlights. Click result to expand full round. Click engagement badge to enter engagement mode. Click agent name to activate tab. 20 results shown, "Load more" for pagination.</p>
+<h2 id="6-naming-conventions"><a class="heading-anchor" href="#6-naming-conventions">#</a>6. Naming conventions</h2>
+<ul>
+<li>Sessions get named on first inscription (derived from first user message)</li>
+<li><code>/rename</code> in Claude Code syncs to inscription database</li>
+<li>Tab names editable inline (double-click)</li>
+<li>Agent name (Reed, Kavi) is primary identifier</li>
+<li>Session name is subtitle/qualifier</li>
+<li>Tab label: <code>[agent<em>name]: [session</em>name]</code> or just <code>[session_name]</code> if agent is "claude"</li>
+<li>Engagement names: transform <code>infra-session-inscription</code> to "Session inscription system" by stripping known prefixes (<code>infra-</code>, <code>lab-</code>, <code>ops-</code>), replacing hyphens with spaces, title-casing. Override via <code>display_name</code> field in engagement data.</li>
+<li>NO UUIDs shown anywhere in the UI. Ever.</li>
+</ul>
+<h2 id="7-url-structure"><a class="heading-anchor" href="#7-url-structure">#</a>7. URL structure</h2>
+<table>
+<tr><th>URL</th><th>Mode</th></tr>
+<tr><td><code>/</code></td><td>Home mode (no tab active)</td></tr>
+<tr><td><code>/session/&lt;name&gt;</code></td><td>Session mode (tab active)</td></tr>
+<tr><td><code>/session/&lt;name&gt;/chat</code></td><td>Chat mode</td></tr>
+<tr><td><code>/session/&lt;name&gt;/terminal</code></td><td>Terminal mode</td></tr>
+<tr><td><code>/engagement/&lt;id&gt;</code></td><td>Engagement mode with engagement selected</td></tr>
+<tr><td><code>/search?q=&lt;query&gt;</code></td><td>Search mode</td></tr>
+</table>
+<p>All URLs served by the same <code>index.html</code>. <code>pushState</code> on every navigation. Back/forward works. Bookmarkable. Every entity on screen is a link: engagement name -&gt; engagement mode, agent name -&gt; session tab, round number -&gt; expand in place.</p>
+<h2 id="8-mobile-design"><a class="heading-anchor" href="#8-mobile-design">#</a>8. Mobile design</h2>
+<p>Phone is a real use case -- the user checks "what's happening" from their phone.</p>
+<h3 id="tab-bar"><a class="heading-anchor" href="#tab-bar">#</a>Tab bar</h3>
+<p>Becomes a horizontal scrollable strip. Dropdown becomes long-press on a tab. Tabs show dot + name only (no context bar -- too small).</p>
+<h3 id="mode-behavior-on-mobile"><a class="heading-anchor" href="#mode-behavior-on-mobile">#</a>Mode behavior on mobile</h3>
+<ul>
+<li><strong>Home mode</strong>: engagement cards and recent rounds stack vertically. Single column.</li>
+<li><strong>Session mode</strong>: full width, rounds stack naturally. Filter bar wraps.</li>
+<li><strong>Chat mode</strong>: works well (standard mobile messaging layout). Input pinned to bottom.</li>
+<li><strong>Engagement mode</strong>: sidebar collapses to a top dropdown selector. Rounds full width.</li>
+<li><strong>Search mode</strong>: full width, results stack.</li>
+<li><strong>Terminal mode</strong>: hidden on mobile (not usable). Button not shown.</li>
+</ul>
+<h3 id="breakpoints"><a class="heading-anchor" href="#breakpoints">#</a>Breakpoints</h3>
+<ul>
+<li><strong>&gt; 900px</strong>: full layout as designed</li>
+<li><strong>600-900px</strong>: single column, engagement cards 2-up</li>
+<li><strong>&lt; 600px</strong>: single column, everything stacked, tab bar scrollable</li>
+</ul>
+<h3 id="minimum-viable-mobile"><a class="heading-anchor" href="#minimum-viable-mobile">#</a>Minimum viable mobile</h3>
+<p>The phone user must be able to: (1) see which agents are alive and their context %; (2) see active engagements; (3) search for content; (4) read rounds. Chat is a stretch goal. Terminal is desktop-only.</p>
+<h2 id="9-visual-design-decisions"><a class="heading-anchor" href="#9-visual-design-decisions">#</a>9. Visual design decisions</h2>
+<p><strong>Dark theme.</strong> <code>--bg: #0d1117</code>, <code>--surface: #161b22</code>, existing palette. No changes.</p>
+<p><strong>No timeline canvas.</strong> The previous implementation's timeline canvas is removed. Engagement card list with recency labels does the same job in less space and works on mobile.</p>
+<p><strong>No dotted lines.</strong> Sessions without transcripts are not shown unless explicitly requested.</p>
+<p><strong>Agent colors.</strong> Hash-to-hue for round streams. Named colors for known agents (Reed=green, Sill=purple, Veda=amber).</p>
+<p><strong>Typography.</strong> 13px body, system font stack. Monospace for round numbers, tool names. No UUIDs to render.</p>
+<p><strong>Tab bar styling.</strong> Tabs have a 2px bottom border in the agent's color when active. Context bar is a 3px stripe under the tab label, width proportional to usage, colored by threshold. Inactive tabs have muted text. Hover shows full session name if truncated.</p>
+<h2 id="10-component-inventory"><a class="heading-anchor" href="#10-component-inventory">#</a>10. Component inventory</h2>
+<table>
+<tr><th>Component</th><th>Data source</th><th>Interactions</th></tr>
+<tr><td><strong>Tab bar</strong></td><td>Agent roster, session DB</td><td>Click tab, dropdown actions, [+] create</td></tr>
+<tr><td><strong>Tab dropdown</strong></td><td>Agent roster, session state</td><td>Rename, Chat, Terminal, Freeze, Revive, Split, Merge, Kill, Dispatch</td></tr>
+<tr><td><strong>Utility bar</strong></td><td>--</td><td>Search submit, Engagements toggle</td></tr>
+<tr><td><strong>Engagement card</strong></td><td><code>engagement.md</code> + session DB</td><td>Click to enter engagement mode</td></tr>
+<tr><td><strong>Round row (collapsed)</strong></td><td><code>rounds</code> table</td><td>Click to expand</td></tr>
+<tr><td><strong>Round row (expanded)</strong></td><td>Round JSON files</td><td>Collapse, nested tool/thinking collapsers</td></tr>
+<tr><td><strong>Filter bar</strong></td><td>Derived from round content types</td><td>Toggle type visibility</td></tr>
+<tr><td><strong>Context bar</strong></td><td>Agent roster (context_pct)</td><td>Visual only, color thresholds</td></tr>
+<tr><td><strong>Search results</strong></td><td>FTS5 on <code>rounds_fts</code></td><td>Click to expand, click badges</td></tr>
+<tr><td><strong>Chat panel</strong></td><td>WebSocket to router/agent</td><td>Send message, upload file</td></tr>
+<tr><td><strong>Terminal panel</strong></td><td>WebSocket PTY bridge (xterm.js)</td><td>Full terminal emulation</td></tr>
+<tr><td><strong>Engagement sidebar</strong></td><td>Engagement state files</td><td>Click to select engagement</td></tr>
+</table>
+<h2 id="11-testing-plan"><a class="heading-anchor" href="#11-testing-plan">#</a>11. Testing plan</h2>
+<h3 id="tab-lifecycle-tests"><a class="heading-anchor" href="#tab-lifecycle-tests">#</a>Tab lifecycle tests</h3>
+<table>
+<tr><th>Test</th><th>Verify</th></tr>
+<tr><td>Create via [+]</td><td>Tab appears in bar with name, dot, context bar</td></tr>
+<tr><td>Rename tab</td><td>Inline edit works, inscription database updated</td></tr>
+<tr><td>Click tab</td><td>Main area switches to session mode, rounds load</td></tr>
+<tr><td>Chat from dropdown</td><td>Main area switches to chat mode, WebSocket connects</td></tr>
+<tr><td>Kill from dropdown</td><td>Tab disappears, session archived in DB</td></tr>
+<tr><td>Freeze from dropdown</td><td>Dot changes to amber, agent paused</td></tr>
+<tr><td>Revive from dropdown</td><td>New tab appears with fresh session, old tab removed</td></tr>
+</table>
+<h3 id="mode-tests"><a class="heading-anchor" href="#mode-tests">#</a>Mode tests</h3>
+<table>
+<tr><th>Test</th><th>Verify</th></tr>
+<tr><td>Home mode (no tab)</td><td>Engagement cards + recent rounds visible</td></tr>
+<tr><td>Session mode</td><td>Rounds load for selected session, filter toggles work</td></tr>
+<tr><td>Chat mode</td><td>WebSocket streaming works, messages render incrementally</td></tr>
+<tr><td>Engagement mode</td><td>Cross-agent rounds load, sidebar lists engagements</td></tr>
+<tr><td>Search mode</td><td>FTS5 returns results, clicking jumps to round in context</td></tr>
+</table>
+<h3 id="integration-tests"><a class="heading-anchor" href="#integration-tests">#</a>Integration tests</h3>
+<table>
+<tr><th>Scenario</th><th>Steps</th></tr>
+<tr><td>Full navigation loop</td><td>Home -&gt; click engagement -&gt; click agent name -&gt; tab activates -&gt; chat -&gt; home</td></tr>
+<tr><td>Search to context</td><td>Search "round model" -&gt; click result -&gt; verify engagement badge links</td></tr>
+<tr><td>Tab management</td><td>Create -&gt; rename -&gt; freeze -&gt; revive -&gt; kill</td></tr>
+<tr><td>Mobile flow</td><td>Viewport 375x812 -&gt; tab bar scrolls -&gt; search -&gt; read rounds -&gt; chat</td></tr>
+<tr><td>Live update</td><td>Inscribe a session while browser open, verify tab appears without refresh</td></tr>
+</table>
+<h3 id="edge-cases"><a class="heading-anchor" href="#edge-cases">#</a>Edge cases</h3>
+<table>
+<tr><th>Case</th><th>Expected behavior</th></tr>
+<tr><td>Agent with 0 rounds</td><td>Tab shows, session mode says "No activity yet"</td></tr>
+<tr><td>Engagement with 1 session</td><td>Card shows "1 session" (not "1 sessions")</td></tr>
+<tr><td>Dead agent</td><td>No tab, findable via search or "All agents"</td></tr>
+<tr><td>Session without engagement</td><td>Rounds appear in "Untagged" in recent rounds</td></tr>
+<tr><td>500+ engagements</td><td>10 shown on home, "Show all" link</td></tr>
+<tr><td>Tab name collision</td><td>Append round count or model as disambiguator</td></tr>
+</table>
+<hr>
+<p><em>architecture . 41 . browser ux design . 2026-03-21 . zach + claude</em></p>
+
+        <p class="endnote">Architecture 41 &mdash; Browser UX Design &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/governance-architecture/">&larr; 41: Governance Architecture</a><a class="memo-nav-next" href="/memos/unified-messaging/">42: Unified Messaging &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-what-failed">1. What failed</a></li>
+<li><a href="#2-the-five-second-rule">2. The five-second rule</a></li>
+<li><a href="#3-layout">3. Layout</a></li>
+<li><a href="#4-tab-bar">4. Tab bar</a>
+<ol>
+<li><a href="#tab-anatomy">Tab anatomy</a></li>
+<li><a href="#tab-dropdown-actions">Tab dropdown actions</a></li>
+<li><a href="#button">[+] button</a></li>
+<li><a href="#tab-behavior">Tab behavior</a></li>
+</ol></li>
+<li><a href="#5-main-area-modes">5. Main area modes</a>
+<ol>
+<li><a href="#5-1-home-mode-no-tab-selected">5.1. Home mode (no tab selected)</a></li>
+<li><a href="#5-2-session-mode-tab-clicked">5.2. Session mode (tab clicked)</a></li>
+<li><a href="#5-3-chat-mode-from-tab-dropdown-chat">5.3. Chat mode (from tab dropdown &quot;Chat&quot;)</a></li>
+<li><a href="#5-4-engagement-mode-from-utility-bar-engagements-button">5.4. Engagement mode (from utility bar &quot;Engagements&quot; button)</a></li>
+<li><a href="#5-5-search-mode-from-search-box">5.5. Search mode (from search box)</a></li>
+</ol></li>
+<li><a href="#6-naming-conventions">6. Naming conventions</a></li>
+<li><a href="#7-url-structure">7. URL structure</a></li>
+<li><a href="#8-mobile-design">8. Mobile design</a>
+<ol>
+<li><a href="#tab-bar">Tab bar</a></li>
+<li><a href="#mode-behavior-on-mobile">Mode behavior on mobile</a></li>
+<li><a href="#breakpoints">Breakpoints</a></li>
+<li><a href="#minimum-viable-mobile">Minimum viable mobile</a></li>
+</ol></li>
+<li><a href="#9-visual-design-decisions">9. Visual design decisions</a></li>
+<li><a href="#10-component-inventory">10. Component inventory</a></li>
+<li><a href="#11-testing-plan">11. Testing plan</a>
+<ol>
+<li><a href="#tab-lifecycle-tests">Tab lifecycle tests</a></li>
+<li><a href="#mode-tests">Mode tests</a></li>
+<li><a href="#integration-tests">Integration tests</a></li>
+<li><a href="#edge-cases">Edge cases</a></li>
+</ol></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

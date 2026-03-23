@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latent States</title>
+<meta name="description" content="Latent States explores the hidden worlds within us — through art, science, and the spaces where they meet.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --text-primary: #e8e4e0;
+  --text-secondary: #8a8580;
+  --accent: #c4956a;
+  --accent-secondary: #7a9a8a;
+  --border: #1a1816;
+  --placeholder-bg: #141210;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f0ec;
+    --text-primary: #1a1816;
+    --text-secondary: #6a6560;
+    --accent: #9a6a42;
+    --accent-secondary: #4a7a6a;
+    --border: #d8d4d0;
+    --placeholder-bg: #e8e4e0;
+  }
+}
+
+[data-theme="light"] {
+  --bg: #f4f0ec;
+  --text-primary: #1a1816;
+  --text-secondary: #6a6560;
+  --accent: #9a6a42;
+  --accent-secondary: #4a7a6a;
+  --border: #d8d4d0;
+  --placeholder-bg: #e8e4e0;
+}
+
+html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.75;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: text-decoration 0.2s;
+}
+a:hover { text-decoration: underline; }
+
+/* ── Section layout ── */
+.section {
+  min-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px clamp(20px, 5vw, 64px);
+}
+
+.section-text {
+  max-width: 640px;
+  margin: 0 auto;
+  font-size: clamp(16px, 1.8vw, 19px);
+  line-height: 1.75;
+  color: var(--text-primary);
+}
+
+.section-text p { margin-bottom: 1.5em; }
+.section-text p:last-child { margin-bottom: 0; }
+
+.section-meta {
+  max-width: 640px;
+  margin: 2em auto 0;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.section-meta a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.section-meta a:hover { text-decoration: underline; }
+
+/* ── Image placeholders ── */
+.image-placeholder {
+  width: 100%;
+  height: 60vh;
+  min-height: 360px;
+  background: var(--placeholder-bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+/* ── Hero images ── */
+.hero-image { margin: 0 0 48px; width: 100%; }
+.hero-image img { width: 100%; max-height: 70vh; object-fit: cover; border-radius: 2px; }
+
+/* ── Opening ── */
+#opening {
+  height: 100vh;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 clamp(20px, 5vw, 64px);
+  position: relative;
+}
+
+#opening h1 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: clamp(48px, 8vw, 80px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin-bottom: 48px;
+}
+
+.opening-subjects {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: clamp(18px, 2.5vw, 24px);
+  letter-spacing: 0.02em;
+  line-height: 2.2;
+  color: var(--text-primary);
+  margin-bottom: 80px;
+}
+
+.opening-statement {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: clamp(16px, 1.8vw, 19px);
+  line-height: 1.75;
+  color: var(--text-secondary);
+  max-width: 560px;
+}
+
+.opening-bottom {
+  position: absolute;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.opening-bottom .epoch {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+
+.scroll-indicator {
+  width: 1px;
+  height: 32px;
+  background: var(--text-secondary);
+  animation: gentle-bounce 2.4s ease-in-out infinite;
+}
+
+@keyframes gentle-bounce {
+  0%, 100% { transform: translateY(0); opacity: 0.4; }
+  50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* ── Footer ── */
+footer {
+  padding: 80px clamp(20px, 5vw, 64px);
+  border-top: 1px solid var(--border);
+}
+
+.footer-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.footer-brand {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 24px;
+  margin-bottom: 48px;
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  margin-bottom: 64px;
+}
+
+.footer-col h3 {
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col a {
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col a:hover { color: var(--accent); }
+
+.footer-attribution {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.footer-contact {
+  font-size: 13px;
+  margin-bottom: 48px;
+}
+
+.footer-contact a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.footer-contact a:hover { text-decoration: underline; }
+
+.footer-closer {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+  opacity: 0.6;
+}
+
+/* ── Print ── */
+@media print {
+  body { background: #fff; color: #111; }
+  .image-placeholder { background: #eee; color: #666; border-color: #ccc; }
+  a { color: #333; }
+  .scroll-indicator, .opening-bottom { display: none; }
+  .section { min-height: auto; page-break-inside: avoid; }
+  footer { border-top-color: #ccc; }
+  .footer-col a { color: #333; }
+  .section-meta, .footer-attribution, .footer-contact { color: #555; }
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+  .footer-columns {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .image-placeholder {
+    height: 40vh;
+    min-height: 240px;
+  }
+}
+</style>
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
+
+<!-- ── Section 1: Opening ── -->
+<section id="opening">
+  <h1>What is it like to experience?</h1>
+  <div class="opening-subjects">
+    Yourself. The world. Other people. A machine.
+  </div>
+  <p class="opening-statement">
+    Latent States explores the hidden worlds within us — through art, science, and the spaces where they meet.
+  </p>
+  <div class="opening-bottom">
+    <span class="epoch">LS &middot; 2016–2026</span>
+    <div class="scroll-indicator"></div>
+  </div>
+</section>
+
+<!-- ── Section 2: Act I — Sensing the collective (2016–2018) ── -->
+<section id="collective" class="section">
+  <figure class="hero-image">
+    <img src="assets/Psilloscope dance.png" alt="Psiloscope concept render — collective dance floor visualization at Boom Festival 2016" loading="lazy">
+  </figure>
+  <div class="section-text">
+    <p>Psiloscope began with a hundred wireless sensors on a dance floor at Boom festival. MindCrystal added EEG under trance conditions. The question: what does collective experience look like when you externalize it? We brought instruments designed for the laboratory into the place where experience actually happens — a festival, at night, among strangers, in motion.</p>
+  </div>
+  <div class="section-meta">
+    <a href="psiloscope/">Psiloscope</a> (2016) &middot; <a href="mindcrystal/">MindCrystal</a> (2018) &middot; Boom Festival, Portugal
+  </div>
+</section>
+
+<!-- ── Section 3: Act II — The encounter (2022–2024) ── -->
+<section id="encounter" class="section">
+  <figure class="hero-image">
+    <img src="assets/Latent Space - The Whale AI_43.jpg" alt="Latent Space I film still — The Whale, AI-generated VR dream sequence" loading="lazy">
+  </figure>
+  <div class="section-text">
+    <p>At the Champalimaud Foundation warehouse, we built spaces where visitors encountered AI — not as tool or threat but as mirror. Atavic Forest was a generative neural network trained on 180,000 images, steered by collective movement in the room. Latent Space I invited you to sit at a terminal, talk to an AI, then enter a VR dream shaped by what you'd said. Polylith simulated deep connection to natural environments through body tracking and spatial sound. Each installation asked: what is it like when a system reflects your hidden states back at you?</p>
+  </div>
+  <div class="section-meta">
+    <a href="polylith/">Polylith</a> (2022) &middot; <a href="atavic-forest/">Atavic Forest</a> (2022–23) &middot; <a href="ls1/">LS1</a> (2022–23) &middot; <a href="metamersion/">Metamersion</a>, Champalimaud Foundation
+  </div>
+</section>
+
+<!-- ── Section 4: Act III — Science in the wild (2023–) ── -->
+<section id="wild" class="section">
+  <figure class="hero-image">
+    <img src="assets/camp-1.jpg" alt="Latent States Camp welcome desk and experiment station at Waking Life 2025" loading="lazy">
+  </figure>
+  <div class="section-text">
+    <p>The Latent States Camp at Waking Life festival is a laboratory without walls. Not a lab outpost at a festival — a place where ideas transform into situated experience. We study perception where perception actually happens: 240 participants, experiments on seeing, hearing, tasting, time. How do psychedelics change what you see? Does the color of a cup change how things taste? Does the festival experience itself change you? Phenomenology — the careful description of lived experience — is our primary instrument. The question is not how perception works but what perception is, when you stop controlling the conditions.</p>
+  </div>
+  <div class="section-meta">
+    <a href="lsc/">Latent States Camp</a> (2023–) &middot; Waking Life Festival, Portugal
+  </div>
+</section>
+
+<!-- ── Section 5: Coda — The creature sees you back (2026) ── -->
+<section id="creature" class="section">
+  <!-- TODO: need image — LS9 cephalopod creature render or prototype -->
+  <figure class="image-placeholder">LS9 &middot; Cephalopod Brain 2026</figure>
+  <div class="section-text">
+    <p>LS9 is an autonomous alien creature with eight articulated arms, thirteen channels of spatial audio, and its own behavioral states — curiosity, tracking, withdrawal, alarm. It watches you with infrared sensors and neural networks. It decides whether to approach or retreat. The observer becomes the observed. A decade of asking what it is like to experience arrives at its inversion: what is it like to be experienced?</p>
+  </div>
+  <div class="section-meta">
+    <a href="ls9/">LS9: Cephalopod Brain</a> (2026)
+  </div>
+</section>
+
+<!-- ── Section 6: Footer / Archive ── -->
+<footer id="archive">
+  <div class="footer-inner">
+    <div class="footer-brand">LS</div>
+    <nav class="footer-columns">
+      <div class="footer-col">
+        <h3>Works</h3>
+        <ul>
+          <li><a href="psiloscope/">Psiloscope</a></li>
+          <li><a href="mindcrystal/">MindCrystal</a></li>
+          <li><a href="polylith/">Polylith</a></li>
+          <li><a href="atavic-forest/">Atavic Forest</a></li>
+          <li><a href="ls1/">LS1</a></li>
+          <li><a href="palimpsest/">Palimpsest</a></li>
+          <li><a href="ls9/">LS9</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>Programmes</h3>
+        <ul>
+          <li><a href="metamersion/">Metamersion</a></li>
+          <li><a href="lsc/">Latent States Camp</a></li>
+          <li><a href="waking-life/">Waking Life</a></li>
+          <li><a href="boom/">Boom</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h3>More</h3>
+        <ul>
+          <li><a href="people/">People</a></li>
+          <li><a href="talks/">Talks</a></li>
+          <li><a href="about/">About</a></li>
+        </ul>
+      </div>
+    </nav>
+    <p class="footer-attribution">Zachary Mainen &middot; Champalimaud Foundation &middot; Lisbon</p>
+    <p class="footer-contact"><a href="mailto:latentstates@gmail.com">latentstates@</a></p>
+    <p class="footer-closer">Identity &middot; Perception &middot; Reality</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var t=document.getElementById('theme-toggle'),r=document.documentElement;
+  var saved=localStorage.getItem('ls-theme');
+  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
+  t.addEventListener('click',function(){
+    var current=r.getAttribute('data-theme');
+    var next=current==='light'?'dark':'light';
+    r.setAttribute('data-theme',next);
+    localStorage.setItem('ls-theme',next);
+    t.textContent=next==='light'?'☾':'☀';
+  });
+})();
+</script>
+</body>
+</html>

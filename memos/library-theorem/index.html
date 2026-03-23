@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Library Theorem &mdash; HAAK</title>
+<meta name="description" content="A formal argument that externalized knowledge structures are necessary for institutional intelligence.">
+<meta property="og:title" content="The Library Theorem &mdash; HAAK">
+<meta property="og:description" content="A formal argument that externalized knowledge structures are necessary for institutional intelligence.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; The Library Theorem</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 02 &middot; March 2026</p>
+      <h1 class="article-title">The Library Theorem</h1>
+      <p class="article-subtitle">**Indexed retrieval from external memory costs O(log N) per access; sequential retrieval costs Ω(N). This exponential separation compounds with reasoning depth: O(T log N) vs. Θ(T²) over T steps. The…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-formal-result">The formal result</a>
+<ol>
+<li><a href="#key-results">Key results</a></li>
+</ol></li>
+<li><a href="#the-key-insight-reasoning-is-search">The key insight: reasoning is search</a></li>
+<li><a href="#what-it-does-and-does-not-say">What it does and does not say</a></li>
+<li><a href="#empirical-program">Empirical program</a></li>
+<li><a href="#connection-to-haak">Connection to HAAK</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>Indexed retrieval from external memory costs O(log N) per access; sequential retrieval costs Ω(N). This exponential separation compounds with reasoning depth: O(T log N) vs. Θ(T²) over T steps. The result is architectural — it holds for any bounded-capacity processor with a readable/writable external store.</strong></p>
+<h2 id="the-formal-result"><a class="heading-anchor" href="#the-formal-result">#</a>The formal result</h2>
+<p>The Library Theorem adapts the I/O complexity framework of Aggarwal &amp; Vitter (1988) to transformer-based reasoning systems. The core model:</p>
+<ul>
+<li>An <strong>agent</strong> with a fixed-size context window (the "page" in I/O complexity terms)</li>
+<li>An <strong>external store</strong> of N pages, each containing bounded information</li>
+<li><strong>Read</strong> and <strong>write</strong> operations that transfer one page between the store and the context window per step</li>
+<li>A <strong>data processing inequality</strong> bounding how much information each step can extract</li>
+</ul>
+<h3 id="key-results"><a class="heading-anchor" href="#key-results">#</a>Key results</h3>
+<p><strong>Theorem 0 (Capacity bound).</strong> Each read step extracts at most C log₂|Σ| bits from the store, where C is context window size and Σ is the token alphabet.</p>
+<p><strong>Theorem 1 (Sequential lower bound).</strong> Without indexing structure, retrieving a target item from N pages costs Ω(N) steps — essentially scanning.</p>
+<p><strong>Theorem 2 (Indexed upper bound).</strong> With a B-tree index of branching factor b = ⌊C/η⌋ (where η is the overhead per pointer), retrieval costs O(log_b N) steps.</p>
+<p><strong>Theorem 3 (The Library Theorem).</strong> The separation ratio between indexed and sequential retrieval is Ω(b^h / h) where h is tree height — exponential in the depth of the index hierarchy.</p>
+<p><strong>Theorem 4 (Reasoning cost).</strong> Over T reasoning steps involving both reads and writes to external memory, unindexed reasoning costs Θ(T²) while indexed reasoning costs O(T log_b(N₀ + T)) — the advantage compounds with reasoning depth.</p>
+<p><strong>Theorems 5–6 (In development).</strong> Recursive indexing: the Library Theorem applies to its own meta-index (a flat global index reintroduces Ω(N) at the organizational level). Separation requirement: mixing index and data degrades retrieval toward sequential.</p>
+<h2 id="the-key-insight-reasoning-is-search"><a class="heading-anchor" href="#the-key-insight-reasoning-is-search">#</a>The key insight: reasoning is search</h2>
+<p>The theorem rests on one conceptual move: identifying reasoning with search.</p>
+<p>Li &amp; Wang (2025) showed that a transformer's output at each step depends entirely on its context window — the WINDOW = SPACE result. This means finding the correct answer reduces to finding the correct input tokens in the external store. Reasoning <em>is</em> retrieval from organized external memory. Indexing that memory determines retrieval cost, therefore indexing determines reasoning cost.</p>
+<p>This is not a metaphor. It is a formal identity within the I/O complexity model. A transformer that reasons over an external store is computationally equivalent to a processor navigating a data structure. The B-tree analysis applies with full rigor.</p>
+<h2 id="what-it-does-and-does-not-say"><a class="heading-anchor" href="#what-it-does-and-does-not-say">#</a>What it does and does not say</h2>
+<p><strong>It says:</strong> Architectural organization of external memory provides a formal advantage that cannot be overcome by scaling model size, context length, or compute — the Ω(N) lower bound for sequential access is unconditional.</p>
+<p><strong>It does not say:</strong> Current LLMs actually exploit this advantage. The theorem characterizes the <em>capacity</em> of the model class (what the best algorithm in the class can achieve), not the <em>performance</em> of trained models. There is likely a large gap between theoretical capacity and empirical performance — mapping that gap is the experimental program's purpose.</p>
+<p><strong>It does not say:</strong> Larger context windows eliminate the need for external memory. The advantage is a <em>ratio</em> (N / log N) that grows with store size. For any fixed context window, sufficiently large stores make indexing essential.</p>
+<h2 id="empirical-program"><a class="heading-anchor" href="#empirical-program">#</a>Empirical program</h2>
+<p>Seven experiments designed to validate and extend the theorem:</p>
+<table>
+<tr><th>#</th><th>Test</th><th>Prediction</th><th>Status</th></tr>
+<tr><td>1</td><td>Structured vs. unstructured scratchpad (P3 core)</td><td>Structured outperforms at matched token budget</td><td>Critical path</td></tr>
+<tr><td>2</td><td>Reasoning depth curves (vary T at fixed N)</td><td>T² vs. T log N separation</td><td>Designed</td></tr>
+<tr><td>3</td><td>Degradation (corrupt index progressively)</td><td>Performance collapses toward O(N)</td><td>Designed</td></tr>
+<tr><td>4</td><td>RAG-for-reasoning (index self-generated reasoning)</td><td>Compounding gains from self-indexing</td><td>Designed</td></tr>
+<tr><td>5</td><td>Constitutional AI as IAR (flat vs. indexed constitution)</td><td>Indexed constitution improves alignment</td><td>Designed</td></tr>
+<tr><td>6</td><td>Scale invariance (same experiments across model sizes)</td><td>Smaller models have higher hallucination floor</td><td>Designed</td></tr>
+<tr><td>7</td><td>AI peer review as applied demo</td><td>Indexed review process outperforms sequential</td><td>Designed</td></tr>
+</table>
+<p>Publication targets: NeurIPS 2026 (Theorems 0–4 + experiments 1–3), Nature (full program), perspective piece (conceptual narrative).</p>
+<h2 id="connection-to-haak"><a class="heading-anchor" href="#connection-to-haak">#</a>Connection to HAAK</h2>
+<p>HAAK's file system is a concrete instantiation of the indexed external memory the theorem describes:</p>
+<table>
+<tr><th>Theorem concept</th><th>HAAK instantiation</th></tr>
+<tr><td>External store</td><td>The file system (patterns/, projects/, foundations/)</td></tr>
+<tr><td>Index</td><td><code>index.md</code> files, frontmatter cross-references, naming conventions</td></tr>
+<tr><td>B-tree branching</td><td>Directory hierarchy — each folder branches to children</td></tr>
+<tr><td>Read/write operations</td><td>Agent reads files for context, writes outputs to disk</td></tr>
+<tr><td>Degradation</td><td>Stale indexes, broken links, orphaned documents</td></tr>
+</table>
+<p>This is not coincidental. HAAK was designed to instantiate the theorem, and the theorem was formalized by observing what HAAK was already doing. The reflexive loop — system as both instance and test — is deliberate.</p>
+<h2 id="historical-development"><a class="heading-anchor" href="#historical-development">#</a>Historical development</h2>
+<ul>
+<li><strong>Feb 20 2026</strong>: Handwritten "Thinking Needs Writing" proposal names inscription-augmented reasoning</li>
+<li><strong>Feb 21 2026</strong>: Library Theorem v1 drafted; 7 HAAK review personas assess it</li>
+<li><strong>Feb 22 2026</strong>: Reframed as agent theory (v2); "reasoning is search" insight crystallizes</li>
+<li><strong>Feb 23 2026</strong>: v3 with formal I/O complexity framework and Theorems 0–4</li>
+<li><strong>Feb 24 2026</strong>: Model-persona comparison matrix (31 reviews across 4 models × 7 personas)</li>
+</ul>
+<h2 id="constitutional-implications"><a class="heading-anchor" href="#constitutional-implications">#</a>Constitutional implications</h2>
+<p>The Library Theorem grounds the constitutional requirement of <strong>externalization</strong> (§1) with formal precision: it is not merely good practice to write things down; it is the enabling condition for O(log N) reasoning. Systems that process internally — without inscribing intermediate state — are provably limited to O(N) retrieval over their accumulated reasoning.</p>
+<hr>
+<p><em>haak · foundation · 2026-02-24 · zach + claude</em></p>
+
+        <p class="endnote">Foundations 02 &mdash; The Library Theorem &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/core-thesis/">&larr; 01: The Core Thesis</a><a class="memo-nav-next" href="/memos/institutional-intelligence/">03: Institutional Intelligence &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-formal-result">The formal result</a>
+<ol>
+<li><a href="#key-results">Key results</a></li>
+</ol></li>
+<li><a href="#the-key-insight-reasoning-is-search">The key insight: reasoning is search</a></li>
+<li><a href="#what-it-does-and-does-not-say">What it does and does not say</a></li>
+<li><a href="#empirical-program">Empirical program</a></li>
+<li><a href="#connection-to-haak">Connection to HAAK</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

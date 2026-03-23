@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filix v1.0 — Architecture Plan &mdash; HAAK</title>
+<meta name="description" content="Filix v1.0 architecture plan: Rust core, platform-independent agent governance. Ship August 2026.">
+<meta property="og:title" content="Filix v1.0 — Architecture Plan &mdash; HAAK">
+<meta property="og:description" content="Filix v1.0 architecture plan: Rust core, platform-independent agent governance. Ship August 2026.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#strategy">strategy</a> &rsaquo; Filix v1.0 — Architecture Plan</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Strategy 19 &middot; March 2026</p>
+      <h1 class="article-title">Filix v1.0 — Architecture Plan</h1>
+      <p class="article-subtitle">Filix is the clean-start successor to HAAK. Same intellectual system — externalized reasoning workspace where everything is written to disk, indexed, auditable — but rebuilt from scratch with three…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-approach-clean-start">1. Approach: Clean Start</a></li>
+<li><a href="#2-architecture">2. Architecture</a>
+<ol>
+<li><a href="#the-system-layer-fully-portable">The system layer (fully portable)</a></li>
+<li><a href="#skill-definitions-vs-transport-adapters">Skill definitions vs. transport adapters</a></li>
+<li><a href="#platform-machinery-swappable">Platform machinery (swappable)</a></li>
+<li><a href="#platform-independence-tiers">Platform independence tiers</a></li>
+<li><a href="#the-bootstrap-chain">The bootstrap chain</a></li>
+<li><a href="#design-for-crypto">Design-for-crypto</a></li>
+</ol></li>
+<li><a href="#3-directory-structure">3. Directory Structure</a>
+<ol>
+<li><a href="#key-structural-decisions">Key structural decisions</a></li>
+</ol></li>
+<li><a href="#4-what-gets-copied-from-haak">4. What Gets Copied from HAAK</a>
+<ol>
+<li><a href="#copy-as-is-rename-haak-filix-throughout">Copy as-is (rename HAAK → Filix throughout)</a></li>
+<li><a href="#adapt-structural-changes-during-copy">Adapt (structural changes during copy)</a></li>
+<li><a href="#leave-in-haak-instance-data">Leave in HAAK (instance data)</a></li>
+</ol></li>
+<li><a href="#5-constitution">5. Constitution</a>
+<ol>
+<li><a href="#5a-constitutional-revision-v1-0">5a. Constitutional revision (v1.0)</a></li>
+<li><a href="#5b-machine-readable-assertions-v1-0">5b. Machine-readable assertions (v1.0)</a></li>
+<li><a href="#5c-inscription-proofs-v2-0">5c. Inscription proofs (v2.0)</a></li>
+</ol></li>
+<li><a href="#6-interfaces">6. Interfaces</a>
+<ol>
+<li><a href="#v1-0-signal-connector-phone-bridge">v1.0: Signal connector (phone bridge)</a></li>
+<li><a href="#v1-1-browser-workspace">v1.1: Browser workspace</a></li>
+<li><a href="#v1-2-3d-topology-mobile">v1.2: 3D topology + mobile</a></li>
+</ol></li>
+<li><a href="#7-project-model">7. Project Model</a>
+<ol>
+<li><a href="#internal-projects">Internal projects</a></li>
+<li><a href="#external-projects">External projects</a></li>
+</ol></li>
+<li><a href="#8-execution-sequence">8. Execution Sequence</a>
+<ol>
+<li><a href="#phase-1-scaffold">Phase 1: Scaffold</a></li>
+<li><a href="#phase-2-constitutional-layer">Phase 2: Constitutional layer</a></li>
+<li><a href="#phase-3-agent-skill-layer">Phase 3: Agent + skill layer</a></li>
+<li><a href="#phase-4-operational-layer">Phase 4: Operational layer</a></li>
+<li><a href="#phase-5-verification-review">Phase 5: Verification + review</a></li>
+<li><a href="#phase-6-polish-ship">Phase 6: Polish + ship</a></li>
+</ol></li>
+<li><a href="#9-name-replacement-table">9. Name Replacement Table</a></li>
+<li><a href="#10-timeline-and-release">10. Timeline and Release</a>
+<ol>
+<li><a href="#integrated-project-timeline">Integrated project timeline</a></li>
+<li><a href="#dependencies-and-blockers">Dependencies and blockers</a></li>
+<li><a href="#critical-path">Critical path</a></li>
+<li><a href="#post-august-the-engagement-phase">Post-August: the engagement phase</a></li>
+<li><a href="#version-roadmap">Version roadmap</a></li>
+</ol></li>
+<li><a href="#11-what-this-plan-does-not-cover">11. What This Plan Does NOT Cover</a></li>
+<li><a href="#12-success-criteria">12. Success Criteria</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p>Filix is the clean-start successor to HAAK. Same intellectual system — externalized reasoning workspace where everything is written to disk, indexed, auditable — but rebuilt from scratch with three design goals HAAK didn't have at birth:</p>
+<ol>
+<li><strong>Agent-agnostic</strong>: The constitutional layer works with any AI platform, not just Claude Code.</li>
+<li><strong>Platform-independent</strong>: Three-tier degradation — any agent can navigate (Tier 1), capable agents execute skills (Tier 2), Claude Code orchestrates multi-agent workflows (Tier 3). Signal connector for mobile. Browser workspace in v1.1.</li>
+<li><strong>Constitutionally grounded</strong>: The constitution is ontologically sound and designed for cryptographic verification (v2.0). Machine-readable assertions with audit scripts in v1.0.</li>
+</ol>
+<p>Named for filesystem + Unix suffix. Logo treatment: FiLiX.</p>
+<h2 id="1-approach-clean-start"><a class="heading-anchor" href="#1-approach-clean-start">#</a>1. Approach: Clean Start</h2>
+<p>New repository at <code>~/projects/filix/</code>. Not a fork. Reasons:</p>
+<ul>
+<li>HAAK's git history carries binary blobs (PDFs, PPTX, DOCX, iPhone backup refs) — hundreds of MB unreachable</li>
+<li>ZM-specific content woven into every commit — scrubbing is harder than copying</li>
+<li>The reorganization is substantial enough that cross-boundary diffs are meaningless</li>
+<li>Privacy: personal data deeply embedded in history</li>
+</ul>
+<p>HAAK becomes archival. Filix starts with a clean first commit containing the constitutional layer.</p>
+<h2 id="2-architecture"><a class="heading-anchor" href="#2-architecture">#</a>2. Architecture</h2>
+<h3 id="the-system-layer-fully-portable"><a class="heading-anchor" href="#the-system-layer-fully-portable">#</a>The system layer (fully portable)</h3>
+<p>Filix IS its directory tree. Pure markdown + indices. No platform dependency. Any agent that reads files can navigate, understand, and work within the system.</p>
+<table>
+<tr><th>Directory</th><th>What</th><th>Ontological axis</th></tr>
+<tr><td><code>foundations/</code></td><td>Why the system is shaped this way</td><td>— (meta: grounds the axes)</td></tr>
+<tr><td><code>ontology/</code></td><td>What exists and how things relate</td><td>— (meta: defines the axes)</td></tr>
+<tr><td><code>patterns/</code></td><td>How it works — architecture, policies, methods, <strong>skills</strong></td><td>Method axis</td></tr>
+<tr><td><code>personas/</code></td><td>Who speaks — profiles, <strong>agents</strong></td><td>Actor axis</td></tr>
+<tr><td><code>styles/</code></td><td>How prose is structured</td><td>Method axis (writing)</td></tr>
+<tr><td><code>projects/</code></td><td>Where work happens</td><td>Domain axis</td></tr>
+<tr><td><code>strategy/</code></td><td>What to do next</td><td>— (meta: directs attention)</td></tr>
+<tr><td><code>references/</code></td><td>Shared knowledge (attribution, guidelines)</td><td>— (materials)</td></tr>
+</table>
+<p>Agents nest under <code>personas/agents/</code> because agents are actor-types — executable capability profiles. Skills nest under <code>patterns/skills/</code> because skills are method-types at finest grain. This maintains axis integrity: everything Actor is under <code>personas/</code>, everything Method is under <code>patterns/</code>. The distinction between a persona profile and an agent definition is executability, not ontological kind.</p>
+<p><strong>Lifeline and strategy</strong>: <code>lifeline.md</code> is the session-level expression of the user's current state and intent — a situation-trace of the user at finest temporal grain. <code>strategy/</code> holds durable goal-directed plans — the user's engagements at coarser temporal grain. Both carry the "fourth axis" (why, <a class="cross-ref" href="/memos/foundation-zero/">Foundation 00</a>) at different resolutions.</p>
+<p><strong>Engagement state</strong>: The third externalization identified in <a class="cross-ref" href="/memos/coordination-topology/">Foundation 07</a> — tracking phase position, accumulated obligations, and goals of ongoing engagements — has no structural home yet. In v1.0, engagement state is carried informally in board entries and project directories. A formal convention (probably <code>engagement.md</code> files within project directories, alongside <code>board.md</code>) is deferred to post-v1.0 but designed for: the constitution's type system names engagements, and the project directory structure has room for them.</p>
+<h3 id="skill-definitions-vs-transport-adapters"><a class="heading-anchor" href="#skill-definitions-vs-transport-adapters">#</a>Skill definitions vs. transport adapters</h3>
+<p>A skill is a method-type defined in <code>SKILL.md</code> — portable, constitutional content. An MCP server wrapper (<code>server.py</code>) is a transport adapter that exposes the skill for remote invocation. These are ontologically distinct:</p>
+<ul>
+<li><code>SKILL.md</code> = what the method does (inputs, steps, constraints). Portable — any platform can read it.</li>
+<li><code>server.py</code> = how the method is invoked at runtime. Infrastructure — tied to MCP protocol.</li>
+</ul>
+<p>A fork that uses a different agent platform should be able to use every <code>SKILL.md</code> without any <code>server.py</code>. The skill definition is constitutional; the transport adapter is operational.</p>
+<p><strong>Two categories of skills</strong>:</p>
+<table>
+<tr><th>Category</th><th>Examples</th><th>MCP wrappable?</th><th>v1.0 scope</th></tr>
+<tr><td><strong>Mechanical</strong></td><td>commit, pdf-to-md, capture, hak-pdf, contacts</td><td>Yes — thin wrappers around shell commands</td><td>Wrap now (~10 skills)</td></tr>
+<tr><td><strong>Agentic</strong></td><td>review, write, read, engage, style, search</td><td>No — require agent loops, branching on content, persona loading</td><td>SKILL.md as system prompt only</td></tr>
+</table>
+<p>Agentic skills are irreducibly agent-loop dependent. An MCP server for <code>/review</code> would need to spawn an agent, which defeats the purpose. They remain <code>SKILL.md</code>-as-system-prompt, consumed by whatever agent platform is active.</p>
+<h3 id="platform-machinery-swappable"><a class="heading-anchor" href="#platform-machinery-swappable">#</a>Platform machinery (swappable)</h3>
+<p>Runtime configuration specific to each AI platform. Only one is active at a time.</p>
+<table>
+<tr><th>Directory</th><th>What</th><th>Platform</th></tr>
+<tr><td><code>.claude/</code></td><td>Settings, hooks, session state</td><td>Claude Code</td></tr>
+<tr><td><code>.cursor/</code></td><td>Rules, scoped configurations</td><td>Cursor</td></tr>
+<tr><td><code>.openai/</code></td><td>Codex configuration</td><td>OpenAI Codex</td></tr>
+</table>
+<p>Each platform directory is independent. Swapping platforms = activating a different directory. The system layer doesn't change.</p>
+<h3 id="platform-independence-tiers"><a class="heading-anchor" href="#platform-independence-tiers">#</a>Platform independence tiers</h3>
+<p>Not every agent platform can do everything. Filix degrades gracefully:</p>
+<table>
+<tr><th>Tier</th><th>Requirement</th><th>Capability</th><th>Who qualifies</th></tr>
+<tr><td><strong>Tier 1</strong></td><td>Reads files</td><td>Navigate indices, read content, understand structure</td><td>Any LLM with file access</td></tr>
+<tr><td><strong>Tier 2</strong></td><td>Reads files + executes tools</td><td>Run mechanical skills, update indices, write content</td><td>Claude Code, Cursor, Codex, Gemini CLI</td></tr>
+<tr><td><strong>Tier 3</strong></td><td>Reads files + executes tools + spawns agents</td><td>Run agentic skills, multi-agent orchestration, review panels</td><td>Claude Code (currently), potentially Cursor with agent support</td></tr>
+</table>
+<p>A system that works at Tier 1 is the floor. Everything above that is capability extension.</p>
+<h3 id="the-bootstrap-chain"><a class="heading-anchor" href="#the-bootstrap-chain">#</a>The bootstrap chain</h3>
+<pre><code>AGENTS.md          → Universal behavioral bootstrap (all platforms read this)
+  ↓ references
+CLAUDE.md          → Claude-specific extensions (model prefs, MCP config, hooks)
+  ↓ loads
+.claude/settings   → Runtime permissions and state</code></pre>
+<p><code>AGENTS.md</code> replaces the portable content currently in HAAK's <code>CLAUDE.md</code>: navigation instructions, document conventions, interaction protocols, coordination rules. <code>CLAUDE.md</code> starts with "Read AGENTS.md first" and retains only Claude-specific content: conda paths, MCP server configs, session hooks, model preferences.</p>
+<h3 id="design-for-crypto"><a class="heading-anchor" href="#design-for-crypto">#</a>Design-for-crypto</h3>
+<p>Filix v1.0 designs for cryptographic verification without implementing it. The constitutional format includes a <code>proof:</code> field (null in v1.0). Skill traces follow a convention that future SCMP integration can verify. Remote board transport is designed as pluggable. Specifically:</p>
+<ul>
+<li>Constitution frontmatter carries <code>requirements:</code> blocks with <code>check:</code> (human-readable) and <code>audit:</code> (script path) and <code>proof:</code> (null) fields</li>
+<li>Every skill trace includes: skill name, inputs hash, outputs hash, timestamp, actor — fields that a future cryptographic commitment scheme can sign</li>
+<li>Board entries carry a <code>transport:</code> field (default: <code>local</code>) that a future remote sync protocol can use</li>
+<li>The Signal connector (v1.0) is the first non-local transport — boards and files move between devices via encrypted channel</li>
+</ul>
+<h2 id="3-directory-structure"><a class="heading-anchor" href="#3-directory-structure">#</a>3. Directory Structure</h2>
+<pre><code>filix/
+├── AGENTS.md                  # Universal bootstrap (all platforms)
+├── CLAUDE.md                  # Claude-specific extensions
+├── index.md                   # Root navigation
+├── lifeline.md                # User trajectory (template)
+├── board.md                   # Coordination bus (template)
+│
+├── foundations/                # Why (8 docs from HAAK, renamed)
+│   ├── 00-why.md
+│   ├── 01-core-thesis.md
+│   ├── 02-library-theorem.md
+│   ├── 03-institutional-intelligence.md
+│   ├── 04-science-ecosystem.md
+│   ├── 05-externalization.md
+│   ├── 06-three-axis-model.md
+│   ├── 07-coordination-topology.md
+│   └── index.md
+│
+├── ontology/                  # What exists (copy from HAAK)
+│   ├── 01-objects.md
+│   ├── 04-correspondence_v1-2.md
+│   ├── 05-perception-memory.md
+│   ├── 06-ai-writing-scenario.md
+│   ├── 07-correspondence-filix.md    # Adapted: HAAK → Filix mapping
+│   ├── 08-relational-ground.md
+│   └── index.md
+│
+├── patterns/                  # Method axis
+│   ├── architecture/          # ~20 docs (adapted from HAAK)
+│   ├── policies/              # Constitution + 5 policies (adapted)
+│   ├── methods/               # ~16 method docs (adapted)
+│   ├── skills/                # FLAT — all skills, categorized by index.md
+│   │   ├── read/              #   Core
+│   │   ├── write/             #   Core
+│   │   ├── commit/            #   Core
+│   │   ├── review/            #   Core
+│   │   ├── style/             #   Core
+│   │   ├── search/            #   Core
+│   │   ├── capture/           #   Core
+│   │   ├── engage/            #   Core
+│   │   ├── board/             #   Core
+│   │   ├── todo/              #   Core
+│   │   ├── signal/            #   Connector (v1.0)
+│   │   ├── email/             #   Connector
+│   │   ├── calendar/          #   Connector
+│   │   ├── contacts/          #   Connector
+│   │   ├── whatsapp/          #   Connector
+│   │   ├── papers/            #   Connector
+│   │   ├── lit-search/        #   Connector
+│   │   ├── pdf/               #   Format
+│   │   ├── pdf-to-md/         #   Format
+│   │   ├── pptx/              #   Format
+│   │   ├── docx/              #   Format
+│   │   └── index.md           # Categorized: Core / Connectors / Formats
+│   ├── features/              # Development records
+│   └── index.md
+│
+├── personas/                  # Actor axis
+│   ├── profiles/              # Voice, expertise (pure markdown)
+│   │   ├── _template.md       # Example persona showing format
+│   │   └── index.md
+│   ├── agents/                # Executable role definitions
+│   │   ├── editor.md
+│   │   ├── reviewer.md
+│   │   ├── reviewer-noinscription.md
+│   │   ├── writer.md
+│   │   ├── architect.md
+│   │   ├── copy-editor.md
+│   │   ├── auditor.md
+│   │   ├── librarian.md
+│   │   └── index.md
+│   └── index.md
+│
+├── styles/                    # Writing style definitions
+│   ├── axiomatic.md
+│   ├── advisory.md
+│   ├── formal-review.md
+│   ├── window-themes.yaml
+│   └── index.md
+│
+├── projects/                  # Domain axis — users populate
+│   ├── _template/             # Example project scaffold
+│   │   ├── index.md
+│   │   ├── board.md
+│   │   └── sources/
+│   └── index.md
+│
+├── strategy/                  # Meta — directs attention
+│   └── index.md
+│
+├── references/                # Shared knowledge (materials)
+│   ├── ai-attribution.md
+│   ├── skill-guidelines.md
+│   ├── agent-guidelines.md
+│   └── index.md
+│
+├── console/                   # v1.1 — browser workspace
+│   └── README.md              # Scaffold only in v1.0
+│
+├── ops/                       # Operational infrastructure
+│   ├── daemons/               # Background services (signal-bot, etc.)
+│   ├── scripts/               # Utility scripts (init.sh, audit-*.py)
+│   ├── launchd/               # macOS launchd plist templates
+│   └── index.md
+│
+├── .claude/                   # Platform: Claude Code runtime
+│   ├── settings.json          # Points skills_dir, agents_dir at promoted paths
+│   ├── hooks/
+│   └── scripts/
+│
+├── data/                      # Instance data (gitignored except schema)
+│   ├── .gitkeep
+│   └── schema/                # Database schemas (tracked)
+│       ├── contacts.sql
+│       ├── papers.sql
+│       ├── files.sql
+│       └── ...
+│
+└── downloads/                 # Transit area (gitignored)</code></pre>
+<h3 id="key-structural-decisions"><a class="heading-anchor" href="#key-structural-decisions">#</a>Key structural decisions</h3>
+<p><strong>Skills flat under <code>patterns/skills/</code></strong> — no <code>core/connectors/formats/</code> subdirectories. Categorization lives in <code>skills/index.md</code> section headers, not path structure. This avoids baking a mutable classification into paths that dozens of cross-references depend on. If a skill moves from "connector" to "core," only the index changes — not every file that references it.</p>
+<p><strong>Agents under <code>personas/agents/</code></strong> — agent definitions are actor-types (executable capability profiles). Keeping them on the Actor axis alongside persona profiles maintains axis integrity. The distinction between a profile (voice, expertise, bibliography) and an agent (tools, delegation rules, system prompt) is executability, not ontological kind.</p>
+<p><strong><code>data/schema/</code> tracked, <code>data/</code> gitignored</strong> — database schemas are constitutional (they define what the system can store). Actual data is instance-specific. A fresh clone creates empty databases from the schema files via <code>ops/scripts/init.sh</code>.</p>
+<p><strong><code>.claude/settings.json</code> points at promoted paths</strong> — Claude Code discovers skills from <code>.claude/skills/</code> and agents from <code>.claude/agents/</code> by default. After promotion, <code>settings.json</code> must set <code>skills<em>dir: "patterns/skills"</code> and <code>agents</em>dir: "personas/agents"</code>. Without this, Claude Code won't find them.</p>
+<p><strong><code>ops/</code> carries <code>last-verified:</code> convention</strong> — every file in <code>ops/</code> includes a <code>last-verified:</code> date in its header comment. During <code>/audit</code>, anything unverified for &gt;90 days gets flagged. Prevents accumulation of dead scripts.</p>
+<p><strong><code>console/</code> is scaffolded in v1.0, built in v1.1</strong> — v1.0 ships a README describing the planned architecture. The console is a filesystem <em>viewer</em> that coexists with Claude Code, not a replacement. Claude Code remains the primary agent runtime. The console watches the filesystem and reflects changes in the browser.</p>
+<p><strong>Project registry with local overrides</strong> — <code>projects/registry.yaml</code> (tracked) holds internal projects. <code>projects/registry.local.yaml</code> (gitignored) holds machine-specific external paths. Skills that traverse projects read both.</p>
+<h2 id="4-what-gets-copied-from-haak"><a class="heading-anchor" href="#4-what-gets-copied-from-haak">#</a>4. What Gets Copied from HAAK</h2>
+<h3 id="copy-as-is-rename-haak-filix-throughout"><a class="heading-anchor" href="#copy-as-is-rename-haak-filix-throughout">#</a>Copy as-is (rename HAAK → Filix throughout)</h3>
+<ul>
+<li><code>foundations/</code> — all 8 docs</li>
+<li><code><a class="cross-ref" href="/memos/ontology-objects/">ontology-objects</a></code>, <code>04-correspondence_v1-2.md</code>, <code>05-perception-memory.md</code>, <code>06-ai-writing-scenario.md</code>, <code>08-relational-ground.md</code></li>
+<li><code><a class="cross-ref" href="/memos/design-principles/">design-principles</a></code>, <code>08-encapsulation.md</code>, <code>09-recursive-index.md</code>, <code>10-readwrite.md</code></li>
+<li><code>styles/</code> — all 3 style definitions + themes</li>
+<li><code>references/</code> — ai-attribution, skill-guidelines, agent-guidelines</li>
+</ul>
+<h3 id="adapt-structural-changes-during-copy"><a class="heading-anchor" href="#adapt-structural-changes-during-copy">#</a>Adapt (structural changes during copy)</h3>
+<ul>
+<li><code><a class="cross-ref" href="/memos/ontology-correspondence-haak/">ontology-correspondence-haak</a></code> → <code>07-correspondence-filix.md</code> — rebuild mapping against new structure</li>
+<li><code>patterns/policies/01-constitution.md</code> — revise type system to align with ontology (see Section 5 sub-steps)</li>
+<li><code><a class="cross-ref" href="/memos/forkability/">forkability</a></code> — rewrite for Filix's architecture</li>
+<li><code><a class="cross-ref" href="/memos/context-transport/">context-transport</a></code> — remove references to unbuilt HAAK components</li>
+<li>All <code>~46 SKILL.md</code> files — rename HAAK → Filix, update paths (move from <code>.claude/skills/</code> → <code>patterns/skills/</code>)</li>
+<li>All <code>9 agent definitions</code> — rename, update paths (move from <code>.claude/agents/</code> → <code>personas/agents/</code>)</li>
+<li><code>CLAUDE.md</code> → split into <code>AGENTS.md</code> (portable) + <code>CLAUDE.md</code> (Claude-specific, starts with "Read AGENTS.md first")</li>
+</ul>
+<h3 id="leave-in-haak-instance-data"><a class="heading-anchor" href="#leave-in-haak-instance-data">#</a>Leave in HAAK (instance data)</h3>
+<ul>
+<li><code>mainen-lab/</code> — all lab science</li>
+<li><code>projects/</code> contents — all active projects (can be imported later as external repos)</li>
+<li><code>strategy/</code> contents — ZM's strategic plans</li>
+<li><code>data/</code> — all databases, media, backups</li>
+<li><code>downloads/</code>, <code>transcripts/</code></li>
+<li><code>personas/</code> — all 65+ personas (keep template only)</li>
+<li><code>web/</code>, <code>site/</code> — HAAK-specific web presence</li>
+<li>Board entries, lifeline content</li>
+</ul>
+<h2 id="5-constitution"><a class="heading-anchor" href="#5-constitution">#</a>5. Constitution</h2>
+<p>The constitution is the most ontologically consequential artifact in the system. v1.0 ships the <em>document</em> — well-written, ontologically grounded, structurally sound. v2.0 adds <em>programmatic verification</em> (SCMP, inscription proofs).</p>
+<h3 id="5a-constitutional-revision-v1-0"><a class="heading-anchor" href="#5a-constitutional-revision-v1-0">#</a>5a. Constitutional revision (v1.0)</h3>
+<p>The current HAAK constitution's type system diverges from the ontology in five ways identified by the correspondence document. The revision addresses each:</p>
+<ol>
+<li><strong>Ground terms in the ontology</strong> — every type in the constitution maps to a definition in <code><a class="cross-ref" href="/memos/ontology-objects/">ontology-objects</a></code>. The constitution references the ontology explicitly.</li>
+<li><strong>Unify skills under method-types</strong> — skills are method-types at finest grain, not a separate ontological kind. The constitution's type system reflects this.</li>
+<li><strong>Reclassify foundations as materials</strong> — foundations are materials carrying policy-grounds (ontology Def. 5), with a separate directory for pragmatic reasons. The constitution names this.</li>
+<li><strong>Add patterns to the type system</strong> — "Patterns = descriptive type-compounds — observed regularities in how situations of a given kind tend to unfold. Patterns are promoted to policies through the maturity gradient (observed → stable → enforced)."</li>
+<li><strong>Make the domain forest explicit</strong> — the directory hierarchy IS the domain hierarchy; policies accumulate through subsumption. The constitution declares this.</li>
+</ol>
+<h3 id="5b-machine-readable-assertions-v1-0"><a class="heading-anchor" href="#5b-machine-readable-assertions-v1-0">#</a>5b. Machine-readable assertions (v1.0)</h3>
+<p>The constitution carries <code>requirements:</code> blocks in frontmatter with machine-readable assertions:</p>
+<pre><code>requirements:
+  externalization:
+    check: &quot;every skill writes output to disk before returning&quot;
+    audit: &quot;ops/scripts/audit-externalization.py&quot;
+    proof: null  # v2.0: cryptographic commitment
+  human_authority:
+    check: &quot;no skill modifies policy without human approval&quot;
+    audit: &quot;ops/scripts/audit-authority.py&quot;
+    proof: null
+  ai_attribution:
+    check: &quot;every AI-generated document has attribution frontmatter&quot;
+    audit: &quot;ops/scripts/audit-attribution.py&quot;
+    proof: null</code></pre>
+<p>v1.0 ships 2-3 concrete audit scripts for the simplest requirements (attribution check, index completeness check). More complex checks (externalization verification, authority verification) ship as documented requirements with <code>audit: TODO</code> markers. Partial verification is better than no verification or fake verification.</p>
+<h3 id="5c-inscription-proofs-v2-0"><a class="heading-anchor" href="#5c-inscription-proofs-v2-0">#</a>5c. Inscription proofs (v2.0)</h3>
+<p>The full inscription architecture from SCMP: constitutional compliance proofs using cryptographic commitments. Each method step produces a trace. The trace is verifiable against the constitution's requirements. This is the Paper 2 contribution. The <code>proof: null</code> fields in the v1.0 constitution are the designed insertion points.</p>
+<h2 id="6-interfaces"><a class="heading-anchor" href="#6-interfaces">#</a>6. Interfaces</h2>
+<h3 id="v1-0-signal-connector-phone-bridge"><a class="heading-anchor" href="#v1-0-signal-connector-phone-bridge">#</a>v1.0: Signal connector (phone bridge)</h3>
+<p>The first non-local transport. A Signal bot daemon (<code>ops/daemons/signal-bot/</code>) running <code>signal-cli</code> bridges Filix to any phone. This is the v1.0 mobile solution — no browser workspace, no native app, just encrypted messaging to a running Filix instance.</p>
+<p><strong>What it does</strong>:</p>
+<ul>
+<li>Send files to Filix (PDFs, photos, voice memos → routed by <code>/capture</code>)</li>
+<li>Receive board updates and agent output</li>
+<li>Send quick text that routes to appropriate skill (capture, todo, search)</li>
+<li>File send/receive works both directions</li>
+</ul>
+<p><strong>Architecture</strong>:</p>
+<pre><code>Phone (Signal app) ←→ signal-cli daemon ←→ Filix filesystem
+                                          ├── downloads/ (incoming)
+                                          ├── board.md (push updates)
+                                          └── patterns/skills/signal/ (skill def)</code></pre>
+<p><strong>Why Signal, not a custom app</strong>: Signal protocol gives end-to-end encryption for free. The bot is a ~200-line Python daemon. No app store, no React Native, no authentication system. The user already has Signal on their phone. This is the minimum viable mobile bridge.</p>
+<p>The skill at <code>patterns/skills/signal/</code> handles the Filix side. The daemon at <code>ops/daemons/signal-bot/</code> handles the transport. The <code>launchd</code> template at <code>ops/launchd/</code> keeps it running.</p>
+<h3 id="v1-1-browser-workspace"><a class="heading-anchor" href="#v1-1-browser-workspace">#</a>v1.1: Browser workspace</h3>
+<p>Custom React application. Not a chat window — a knowledge navigation and coordination surface. A filesystem <em>viewer</em> that coexists with Claude Code, not a replacement. Claude Code remains the primary agent runtime. The console watches the filesystem and reflects changes in the browser.</p>
+<p><strong>Stack</strong>: FastAPI (Python) + React/Vite/Tailwind + WebSocket for real-time updates. Filesystem watcher with 100ms debouncing (a git operation touching 50 files pushes one batch update, not 50 events).</p>
+<p><strong>Views</strong>: Navigator (index trees), Board (coordination timelines), Document (markdown with frontmatter + backlinks), Chat (lightweight agent interaction — delegates to Claude Code for heavy lifting).</p>
+<h3 id="v1-2-3d-topology-mobile"><a class="heading-anchor" href="#v1-2-3d-topology-mobile">#</a>v1.2: 3D topology + mobile</h3>
+<p><strong>3D topology</strong> (React Three Fiber): Renders the inter-axis topology — agents as trajectories through Actor × Method × Domain space, situations glowing at intersections, time slider for history. This is a <em>projection</em> of the ontology, not a lossless rendering: it captures the between-axis structure (how actor, method, and domain combine in situations) but compresses within-axis structure (domain trees, method graphs, actor hierarchies). Those require the other views — Navigator for trees, Thread Graph for dependencies, Board for timelines. Together, all views render the ontology. The 3D topology alone renders the situational cross-section.</p>
+<p><strong>Mobile PWA</strong>: Same React app, responsive layout. PWA manifest + service worker for offline caching. Use cases: read boards, navigate indices, review agent output, quick capture.</p>
+<h2 id="7-project-model"><a class="heading-anchor" href="#7-project-model">#</a>7. Project Model</h2>
+<p>Two modes, both fully supported:</p>
+<h3 id="internal-projects"><a class="heading-anchor" href="#internal-projects">#</a>Internal projects</h3>
+<p>Directories inside <code>projects/</code> in the Filix repo. Indexed, board-tracked, governed by the constitution. If the repo is private, this is fine.</p>
+<h3 id="external-projects"><a class="heading-anchor" href="#external-projects">#</a>External projects</h3>
+<p>Separate repos or directories that follow Filix conventions (<code>index.md</code>, <code>board.md</code>, standard structure). Referenced via a project registry:</p>
+<pre><code># projects/registry.yaml (tracked — internal projects only)
+internal:
+  - path: projects/my-paper
+    type: manuscript</code></pre>
+<pre><code># projects/registry.local.yaml (gitignored — machine-specific external paths)
+external:
+  - name: mainen-lab
+    path: ~/projects/haak/mainen-lab
+    type: lab
+  - name: inscription-agents
+    repo: git@github.com:zmainen/inscription-agents.git
+    type: research</code></pre>
+<p>The registry is the cross-boundary equivalent of the root index — it extends the domain forest across repository boundaries. Skills that traverse projects read both files. <code>/read</code> and <code>/write</code> work on both internal and external projects. External projects can be private repos, submodules, or symlinked directories.</p>
+<h2 id="8-execution-sequence"><a class="heading-anchor" href="#8-execution-sequence">#</a>8. Execution Sequence</h2>
+<h3 id="phase-1-scaffold"><a class="heading-anchor" href="#phase-1-scaffold">#</a>Phase 1: Scaffold</h3>
+<ol>
+<li>Create <code>~/projects/filix/</code> — <code>git init</code></li>
+<li>Write <code>AGENTS.md</code> — split from current <code>CLAUDE.md</code> (portable content)</li>
+<li>Write <code>CLAUDE.md</code> — Claude-specific extensions only, starts with "Read AGENTS.md first"</li>
+<li>Write <code>index.md</code> — root navigation</li>
+<li>Create template files: <code>lifeline.md</code>, <code>board.md</code></li>
+<li>Create full directory structure (empty <code>index.md</code> in each directory)</li>
+</ol>
+<h3 id="phase-2-constitutional-layer"><a class="heading-anchor" href="#phase-2-constitutional-layer">#</a>Phase 2: Constitutional layer</h3>
+<ol>
+<li>Copy <code>foundations/</code> — rename HAAK → Filix throughout</li>
+<li>Copy <code>ontology/</code> — adapt <code>07-correspondence</code> for new structure</li>
+<li>Copy <code>patterns/architecture/</code>, <code>patterns/methods/</code> — adapt for new paths</li>
+<li>Copy <code>styles/</code></li>
+<li>Copy <code>references/</code></li>
+<li>Write constitution v2 — the most consequential step. Sub-steps:</li>
+</ol>
+<ul>
+<li>12a. Ground terms in <code><a class="cross-ref" href="/memos/ontology-objects/">ontology-objects</a></code></li>
+<li>12b. Revise type system (unify skills under method-types, reclassify foundations as materials, add patterns as descriptive type-compounds)</li>
+<li>12c. Add domain-forest declaration (directory hierarchy = domain hierarchy, policy subsumption)</li>
+<li>12d. Add machine-readable assertions with <code>proof: null</code> fields</li>
+<li>12e. Write 2-3 audit scripts for simplest requirements (attribution check, index completeness)</li>
+</ul>
+<h3 id="phase-3-agent-skill-layer"><a class="heading-anchor" href="#phase-3-agent-skill-layer">#</a>Phase 3: Agent + skill layer</h3>
+<ol>
+<li><strong>Create HAAK-to-Filix migration inventory</strong> — every HAAK skill, agent, architecture doc, and method, with a disposition column (copy / adapt / skip / defer). Archive the inventory in <code>strategy/</code>.</li>
+<li>Copy agents → <code>personas/agents/</code> — update all role definitions, paths</li>
+<li>Copy skills → <code>patterns/skills/</code> (flat) — update <code>patterns/skills/index.md</code> with Core / Connectors / Formats section headers</li>
+<li>Update all ~46 SKILL.md files — rename HAAK → Filix, update paths</li>
+<li>Create MCP server wrappers for mechanical skills only (~10: commit, pdf-to-md, capture, contacts, calendar, etc.)</li>
+<li><strong>Build Signal connector</strong> — <code>patterns/skills/signal/SKILL.md</code> + <code>ops/daemons/signal-bot/</code> + launchd template</li>
+<li>Configure <code>.claude/settings.json</code> — set <code>skills<em>dir: "patterns/skills"</code> and <code>agents</em>dir: "personas/agents"</code></li>
+<li><strong>Verification</strong>: grep entire repo for residual <code>haak</code> references (excluding <code>.git/</code> and expected historical references in foundations). Fix any incomplete renames.</li>
+</ol>
+<h3 id="phase-4-operational-layer"><a class="heading-anchor" href="#phase-4-operational-layer">#</a>Phase 4: Operational layer</h3>
+<ol>
+<li>Set up <code>.claude/</code> — settings, hooks, scripts</li>
+<li>Set up <code>ops/</code> — daemons, scripts, launchd templates (with <code>last-verified:</code> convention)</li>
+<li>Set up <code>data/schema/</code> — database schemas (tracked)</li>
+<li>Write <code>ops/scripts/init.sh</code> — bootstrapping script that creates databases from <code>data/schema/</code> files</li>
+<li>Configure <code>.gitignore</code> for data/, downloads/, transcripts/, registry.local.yaml</li>
+</ol>
+<h3 id="phase-5-verification-review"><a class="heading-anchor" href="#phase-5-verification-review">#</a>Phase 5: Verification + review</h3>
+<ol>
+<li>Run <code>/audit constitution</code> against the new repo</li>
+<li>Run ontology review — check all structural decisions against <code>01-objects.md</code></li>
+<li>Run architecture review — check encapsulation, drift resistance, forkability</li>
+<li>First real project import — bring one HAAK project into Filix as external</li>
+<li>Test Signal connector end-to-end (send file from phone → arrives in Filix)</li>
+</ol>
+<h3 id="phase-6-polish-ship"><a class="heading-anchor" href="#phase-6-polish-ship">#</a>Phase 6: Polish + ship</h3>
+<ol>
+<li>README.md — external-facing description</li>
+<li>First commit message: "Filix v1.0 — externalized reasoning workspace"</li>
+<li>Tag v1.0</li>
+</ol>
+<h2 id="9-name-replacement-table"><a class="heading-anchor" href="#9-name-replacement-table">#</a>9. Name Replacement Table</h2>
+<table>
+<tr><th>Pattern</th><th>Replacement</th></tr>
+<tr><td><code>HAAK</code></td><td><code>Filix</code> (prose)</td></tr>
+<tr><td><code>haak</code></td><td><code>filix</code> (paths, identifiers)</td></tr>
+<tr><td><code>hak-pdf</code></td><td><code>filix-pdf</code></td></tr>
+<tr><td><code>hak-site</code></td><td><code>filix-site</code></td></tr>
+<tr><td><code>com.haak.*</code></td><td><code>com.filix.*</code></td></tr>
+<tr><td><code>haak.code-workspace</code></td><td><code>filix.code-workspace</code></td></tr>
+<tr><td>Theodore Haak</td><td>Historical footnote in <a class="cross-ref" href="/memos/self-modification/">Foundation 09</a> (origins)</td></tr>
+</table>
+<h2 id="10-timeline-and-release"><a class="heading-anchor" href="#10-timeline-and-release">#</a>10. Timeline and Release</h2>
+<p><strong>Target: August 2026.</strong> FiLiX 1.0 releases alongside <em>The Shape of Incompleteness</em>. Same event. The system demonstrates the theory; the book explains it.</p>
+<p><strong>Business model</strong>: Open source. Fully off-grid, secure, constitutionally managed, vendor invariant. No financial incentives to sell the system. Income from books, courses, and engagements — not software. The open-source philosophy is constitutive: the system cannot be sold because selling it would contradict its own argument about organizational intelligence.</p>
+<p><strong>What ships together (August 2026)</strong>:</p>
+<ul>
+<li>FiLiX 1.0 (the system)</li>
+<li><em>The Shape of Incompleteness</em> (the book)</li>
+<li>Library Theorem paper (the proof)</li>
+<li>Indexed Inconsistency Theorem paper (the meta-proof)</li>
+</ul>
+<h3 id="integrated-project-timeline"><a class="heading-anchor" href="#integrated-project-timeline">#</a>Integrated project timeline</h3>
+<p>All projects converge on August 2026. Each both uses and develops Filix. Blockers flow downward — anything that blocks Filix blocks everything downstream.</p>
+<pre><code>MAR  APR  MAY  JUN  JUL  AUG  SEP  OCT  NOV
+ |    |    |    |    |    |    |    |    |
+ ├─── FILIX V1.0 ──────────────┤ SHIP
+ │ scaffold│ constitution │skills│ test│
+ │         │ + ontology   │migr  │     │
+ │         │              │signal│     │
+ │                                     │
+ ├─── THE BOOK ────────────────┤ PUBLISH
+ │ KB build│ writing      │ edit│     │
+ │ TTT+NB  │              │     │     │
+ │                                     │
+ ├── LIBRARY THEOREM PAPER ────┤ SUBMIT (pre-book)
+ │ proof   │ write        │     │     │
+ │                                     │
+ ├── INDEXED INCONSISTENCY ────┤ SUBMIT (w/ book)
+ │ experiment│ write       │     │     │
+ │                                     │
+ ├── LAB PAPERS ───────────────────────│
+ │ Solène R2 │ Felix │ Guido │ face-dec│
+ │ (accept?) │  R2?  │       │ CurrOpin│
+ │                                     │
+ ├── BEOWOLFF ─────────────────┤ DEMO
+ │ white paper = book          │     │
+ │                                     │
+ ├── STORY TRAINS ─────────────────────│
+ │ ECD conf │ advisory    │ ongoing   │
+ │                                     │
+ ├── NO BLACK BOXES ───────────────────│
+ │ London Apr│             │          │
+ │                                     │
+ ├── TEACHOUT / GOVERNANCE ────│──────────────│
+ │          │ first piece │   │ after book   │
+ │          │ (summer)    │   │ MIDTERMS NOV │
+ └──────────┴─────────────┴───┴──────────────┘
+                                  LOW PROFILE → ENGAGE</code></pre>
+<h3 id="dependencies-and-blockers"><a class="heading-anchor" href="#dependencies-and-blockers">#</a>Dependencies and blockers</h3>
+<table>
+<tr><th>Project</th><th>Depends on Filix</th><th>Contributes to Filix</th><th>Blocker risk</th></tr>
+<tr><td><strong>The Book</strong></td><td>Uses Filix for research, writing, KB management</td><td>The book IS the ontology white paper; drives constitution revision</td><td>High — competes for ZM's time. Book writing is the hardest single task.</td></tr>
+<tr><td><strong>Library Theorem</strong></td><td>Written and reviewed in Filix</td><td><a class="cross-ref" href="/memos/library-theorem/">Foundation 02</a>; validates the indexing architecture</td><td>Low — proof mostly done; writing is bounded.</td></tr>
+<tr><td><strong>Indexed Inconsistency</strong></td><td>Experiment runs in Filix</td><td><a class="cross-ref" href="/memos/library-theorem/">Foundation 02</a> extension; validates the system empirically</td><td>Medium — experiment still running; results shape the paper.</td></tr>
+<tr><td><strong>Lab papers</strong></td><td>All reviewed/edited in Filix (HAAK currently)</td><td>Stress-test review, editorial, write skills</td><td>Medium — hard deadlines can preempt Filix work. Solène's paper is closest to acceptance.</td></tr>
+<tr><td><strong>Beowolff</strong></td><td>Pitch deck done; white paper subsumed by book</td><td>Validates the "give it away free" strategy</td><td>Low — Andrew waits for the book/system.</td></tr>
+<tr><td><strong>Story Trains</strong></td><td>Uses Filix for neuroscience advisory work</td><td>Tests Filix in a non-academic domain</td><td>Low — advisory role, not engineering dependency.</td></tr>
+<tr><td><strong>No Black Boxes</strong></td><td>April London meeting uses Filix as demo</td><td>Tests externalization principles with Gonçalo's community</td><td>Low — meeting happens regardless of Filix state.</td></tr>
+<tr><td><strong>Teachout/governance</strong></td><td>First piece uses Filix research capabilities</td><td>Paper 6 validates the institutional intelligence argument</td><td>Low until summer — deferred by design.</td></tr>
+</table>
+<h3 id="critical-path"><a class="heading-anchor" href="#critical-path">#</a>Critical path</h3>
+<p>The critical path runs through two items: <strong>Filix scaffold + constitution</strong> (Phases 1-2, March-April) and <strong>the book</strong> (March-August). Everything else can absorb delays. If Filix v1.0 slips, the book launch still happens — the system is already running as HAAK. If the book slips, Filix ships without it (the system doesn't need the book to function).</p>
+<p>The one hard dependency: <strong>lab papers have external deadlines</strong>. Journal review timelines don't wait. When a revision request arrives, it preempts everything. Budget ~2 weeks per paper for revision work. With 4-5 active papers, expect 8-10 weeks of preemption across the March-August window.</p>
+<h3 id="post-august-the-engagement-phase"><a class="heading-anchor" href="#post-august-the-engagement-phase">#</a>Post-August: the engagement phase</h3>
+<p><strong>Low profile until the book ships.</strong> Work through practical applications (lab papers, Story Trains, Beowolff). Don't promote the vision publicly. Let results accumulate.</p>
+<p><strong>After August</strong>: engage wider audiences. The book provides the intellectual credential. The system provides the demonstration. The papers provide the formal validation.</p>
+<p><strong>November 2026 — US midterm elections</strong>: The governance conversation (Paper 6, Teachout collaboration) enters its energy window. Regardless of outcome, the midterms produce instability that opens space for institutional alternatives. The message — intelligence is organizational, not technological — lands differently when institutions are visibly failing or visibly succeeding. Either way, the question "how should institutions work?" becomes urgent. FiLiX and the book are the answer.</p>
+<h3 id="version-roadmap"><a class="heading-anchor" href="#version-roadmap">#</a>Version roadmap</h3>
+<table>
+<tr><th>Version</th><th>Target</th><th>Scope</th></tr>
+<tr><td><strong>1.0</strong></td><td>Aug 2026</td><td>Constitutional layer, skills migration, Signal connector, AGENTS.md, design-for-crypto</td></tr>
+<tr><td><strong>1.1</strong></td><td>Oct 2026</td><td>Browser workspace (Navigator, Board, Document views), mechanical MCP wrappers</td></tr>
+<tr><td><strong>1.2</strong></td><td>Dec 2026</td><td>Mobile PWA, 3D topology visualization, additional connectors</td></tr>
+<tr><td><strong>2.0</strong></td><td>2027</td><td>Constitutional verification (SCMP), inscription proofs, engagement state, multi-platform testing</td></tr>
+</table>
+<h2 id="11-what-this-plan-does-not-cover"><a class="heading-anchor" href="#11-what-this-plan-does-not-cover">#</a>11. What This Plan Does NOT Cover</h2>
+<ul>
+<li>Migrating all HAAK projects to Filix (post-v1.0 — project by project)</li>
+<li>SCMP inscription proofs (2.0 scope)</li>
+<li>Full constitutional programmatic verification (2.0 scope)</li>
+<li>Multi-platform testing (Cursor, Codex adapters — future work)</li>
+<li>Browser workspace (1.1 scope)</li>
+<li>3D topology visualization (1.2 scope)</li>
+<li>Native mobile app (1.2+ scope)</li>
+</ul>
+<h2 id="12-success-criteria"><a class="heading-anchor" href="#12-success-criteria">#</a>12. Success Criteria</h2>
+<p>Filix v1.0 is done when:</p>
+<ol>
+<li>A fresh <code>git clone</code> + <code>ops/scripts/init.sh</code> produces a working system with no HAAK dependencies</li>
+<li><code>AGENTS.md</code> boots any MCP-capable agent into the constitutional layer</li>
+<li>Core skills work via Claude Code (and could work via MCP from other platforms)</li>
+<li>The constitution document is ontologically grounded and structurally sound (all 5 revision sub-steps complete)</li>
+<li>Signal connector enables file send/receive and board monitoring from phone</li>
+<li>At least one external project (from HAAK) is importable and navigable</li>
+<li>The ontology correspondence table (<code>07-correspondence-filix.md</code>) is accurate against the new structure</li>
+<li>Design-for-crypto annotations present (proof fields, trace format) even if not implemented</li>
+<li>No residual <code>haak</code> references in paths or identifiers (prose historical references are fine)</li>
+</ol>
+<hr>
+<p><em>filix · strategy · 2026-03-04 · zach + claude</em></p>
+
+        <p class="endnote">Strategy 19 &mdash; Filix v1.0 — Architecture Plan &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><span></span><a class="memo-nav-next" href="/memos/situation-mapping-engines/">22: Situation Mapping Engines &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-approach-clean-start">1. Approach: Clean Start</a></li>
+<li><a href="#2-architecture">2. Architecture</a>
+<ol>
+<li><a href="#the-system-layer-fully-portable">The system layer (fully portable)</a></li>
+<li><a href="#skill-definitions-vs-transport-adapters">Skill definitions vs. transport adapters</a></li>
+<li><a href="#platform-machinery-swappable">Platform machinery (swappable)</a></li>
+<li><a href="#platform-independence-tiers">Platform independence tiers</a></li>
+<li><a href="#the-bootstrap-chain">The bootstrap chain</a></li>
+<li><a href="#design-for-crypto">Design-for-crypto</a></li>
+</ol></li>
+<li><a href="#3-directory-structure">3. Directory Structure</a>
+<ol>
+<li><a href="#key-structural-decisions">Key structural decisions</a></li>
+</ol></li>
+<li><a href="#4-what-gets-copied-from-haak">4. What Gets Copied from HAAK</a>
+<ol>
+<li><a href="#copy-as-is-rename-haak-filix-throughout">Copy as-is (rename HAAK → Filix throughout)</a></li>
+<li><a href="#adapt-structural-changes-during-copy">Adapt (structural changes during copy)</a></li>
+<li><a href="#leave-in-haak-instance-data">Leave in HAAK (instance data)</a></li>
+</ol></li>
+<li><a href="#5-constitution">5. Constitution</a>
+<ol>
+<li><a href="#5a-constitutional-revision-v1-0">5a. Constitutional revision (v1.0)</a></li>
+<li><a href="#5b-machine-readable-assertions-v1-0">5b. Machine-readable assertions (v1.0)</a></li>
+<li><a href="#5c-inscription-proofs-v2-0">5c. Inscription proofs (v2.0)</a></li>
+</ol></li>
+<li><a href="#6-interfaces">6. Interfaces</a>
+<ol>
+<li><a href="#v1-0-signal-connector-phone-bridge">v1.0: Signal connector (phone bridge)</a></li>
+<li><a href="#v1-1-browser-workspace">v1.1: Browser workspace</a></li>
+<li><a href="#v1-2-3d-topology-mobile">v1.2: 3D topology + mobile</a></li>
+</ol></li>
+<li><a href="#7-project-model">7. Project Model</a>
+<ol>
+<li><a href="#internal-projects">Internal projects</a></li>
+<li><a href="#external-projects">External projects</a></li>
+</ol></li>
+<li><a href="#8-execution-sequence">8. Execution Sequence</a>
+<ol>
+<li><a href="#phase-1-scaffold">Phase 1: Scaffold</a></li>
+<li><a href="#phase-2-constitutional-layer">Phase 2: Constitutional layer</a></li>
+<li><a href="#phase-3-agent-skill-layer">Phase 3: Agent + skill layer</a></li>
+<li><a href="#phase-4-operational-layer">Phase 4: Operational layer</a></li>
+<li><a href="#phase-5-verification-review">Phase 5: Verification + review</a></li>
+<li><a href="#phase-6-polish-ship">Phase 6: Polish + ship</a></li>
+</ol></li>
+<li><a href="#9-name-replacement-table">9. Name Replacement Table</a></li>
+<li><a href="#10-timeline-and-release">10. Timeline and Release</a>
+<ol>
+<li><a href="#integrated-project-timeline">Integrated project timeline</a></li>
+<li><a href="#dependencies-and-blockers">Dependencies and blockers</a></li>
+<li><a href="#critical-path">Critical path</a></li>
+<li><a href="#post-august-the-engagement-phase">Post-August: the engagement phase</a></li>
+<li><a href="#version-roadmap">Version roadmap</a></li>
+</ol></li>
+<li><a href="#11-what-this-plan-does-not-cover">11. What This Plan Does NOT Cover</a></li>
+<li><a href="#12-success-criteria">12. Success Criteria</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

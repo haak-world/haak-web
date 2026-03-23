@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notebooks — HAAK</title>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<style>
+/* ── Theme ── */
+:root {
+  --bg: #1a1a1a; --bg2: #232323; --bg3: #2a2a2a;
+  --text: #f5f0e8; --accent: #c9a96e; --muted: #999;
+  --border: #333; --card-bg: #1f1f1f;
+  font-size: 16px;
+}
+.light {
+  --bg: #faf8f4; --bg2: #f0ede6; --bg3: #e8e4dc;
+  --text: #2a2a2a; --accent: #8b6914; --muted: #666;
+  --border: #d0c8b8; --card-bg: #fff;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Crimson Pro', serif; line-height: 1.5; }
+h1, h2, h3 { font-family: 'Gloock', serif; font-weight: 400; }
+.mono { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; }
+.italic-accent { font-family: 'Instrument Serif', serif; font-style: italic; }
+a { color: var(--accent); text-decoration: none; }
+button, select { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; background: var(--bg2); color: var(--text); border: 1px solid var(--border); padding: 4px 10px; border-radius: 3px; cursor: pointer; }
+button:hover, select:hover { border-color: var(--accent); }
+input[type="text"] { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; background: var(--bg2); color: var(--text); border: 1px solid var(--border); padding: 6px 10px; border-radius: 3px; width: 100%; }
+
+/* ── Nav ── */
+nav { display: flex; align-items: center; justify-content: space-between; padding: 10px 24px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 100; }
+nav .left { font-family: 'IBM Plex Mono', monospace; font-size: 0.9rem; letter-spacing: 2px; }
+nav .right { display: flex; gap: 8px; align-items: center; }
+
+/* ── Tabs ── */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); padding: 0 24px; background: var(--bg); }
+.tab { padding: 8px 20px; cursor: pointer; color: var(--muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; border-bottom: 2px solid transparent; transition: all 0.15s; }
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── Timeline ── */
+.timeline-wrap { display: flex; height: calc(100vh - 90px); }
+.sidebar { width: 260px; min-width: 200px; border-right: 1px solid var(--border); padding: 12px; overflow-y: auto; flex-shrink: 0; }
+.sidebar h3 { font-size: 0.85rem; color: var(--muted); margin: 12px 0 6px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+.sidebar label { display: block; font-size: 0.82rem; padding: 2px 0; cursor: pointer; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sidebar label input { margin-right: 6px; }
+.timeline-main { flex: 1; overflow-y: auto; padding: 16px 24px; }
+.search-bar { margin-bottom: 16px; }
+.cards { display: flex; flex-direction: column; gap: 10px; }
+.card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px 18px; cursor: pointer; transition: border-color 0.15s; }
+.card:hover { border-color: var(--accent); }
+.card .date { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+.card .title { font-family: 'Gloock', serif; font-size: 1.1rem; margin: 4px 0; }
+.card .badge { display: inline-block; font-family: 'IBM Plex Mono', monospace; font-size: 0.7rem; padding: 1px 8px; border-radius: 10px; margin-right: 6px; color: #fff; }
+.card .summary { font-size: 0.9rem; color: var(--muted); margin: 6px 0; }
+.card .tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.card .tag { font-family: 'IBM Plex Mono', monospace; font-size: 0.68rem; background: var(--bg3); padding: 1px 7px; border-radius: 8px; color: var(--muted); }
+
+/* ── Reader ── */
+.reader { display: flex; height: calc(100vh - 90px); }
+.reader-img { flex: 1; display: flex; align-items: center; justify-content: center; background: var(--bg2); overflow: hidden; position: relative; }
+.reader-img img { max-height: 100%; max-width: 100%; object-fit: contain; transition: transform 0.2s; cursor: zoom-in; }
+.reader-img img.zoomed { transform: scale(2); cursor: zoom-out; }
+.reader-text { flex: 1; overflow-y: auto; padding: 20px 24px; font-size: 1rem; line-height: 1.7; border-left: 1px solid var(--border); }
+.reader-text .page-note { font-family: 'IBM Plex Mono', monospace; font-size: 0.75rem; color: var(--muted); margin-bottom: 12px; }
+.reader-bar { display: flex; align-items: center; gap: 10px; padding: 8px 24px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.reader-bar .page-info { font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: var(--muted); }
+
+/* ── Flipbook ── */
+.flipbook { display: flex; flex-direction: column; height: calc(100vh - 90px); background: var(--bg2); }
+.flip-main { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.flip-main img { max-height: 90vh; max-width: 95vw; object-fit: contain; }
+.flip-overlay { position: absolute; bottom: 0; left: 0; right: 0; max-height: 33%; background: rgba(0,0,0,0.82); color: #f5f0e8; padding: 16px 24px; overflow-y: auto; font-size: 0.9rem; line-height: 1.6; display: none; }
+.flip-overlay.visible { display: block; }
+.flip-bar { display: flex; align-items: center; gap: 10px; padding: 8px 24px; border-top: 1px solid var(--border); background: var(--bg); }
+.flip-thumbs { display: flex; gap: 4px; padding: 6px 24px; background: var(--bg); overflow-x: auto; border-top: 1px solid var(--border); }
+.flip-thumbs img { height: 60px; opacity: 0.5; cursor: pointer; border: 2px solid transparent; border-radius: 2px; transition: all 0.15s; }
+.flip-thumbs img.active { opacity: 1; border-color: var(--accent); }
+
+/* ── Views ── */
+.view { display: none; }
+.view.active { display: flex; flex-direction: column; }
+.timeline-wrap.active, .reader.active { display: flex; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .reader { flex-direction: column; }
+  .reader-img, .reader-text { flex: none; height: 50%; width: 100%; }
+  .reader-text { border-left: none; border-top: 1px solid var(--border); }
+  .flip-thumbs { display: none; }
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="left"><a href="/">HAAK</a></div>
+  <div class="right">
+    <span class="mono" style="color:var(--muted)">notebooks 1999–2019</span>
+    <button id="themeBtn" onclick="toggleTheme()">day</button>
+  </div>
+</nav>
+<div class="tabs">
+  <div class="tab active" data-view="timeline">Timeline</div>
+  <div class="tab" data-view="reader">Reader</div>
+  <div class="tab" data-view="flipbook">Flipbook</div>
+</div>
+
+<!-- Timeline -->
+<div id="timeline" class="view timeline-wrap active">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="timeline-main">
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="search sections…"></div>
+    <div class="cards" id="cardList"></div>
+  </div>
+</div>
+
+<!-- Reader -->
+<div id="reader" class="view">
+  <div class="reader-bar">
+    <select id="readerBookSel"></select>
+    <button onclick="pageNav(-1)">←</button>
+    <span class="page-info" id="readerPageInfo">p.1</span>
+    <button onclick="pageNav(1)">→</button>
+  </div>
+  <div class="reader" style="flex:1;display:flex">
+    <div class="reader-img"><img id="readerImg" src="" alt="page"></div>
+    <div class="reader-text" id="readerText"></div>
+  </div>
+</div>
+
+<!-- Flipbook -->
+<div id="flipbook" class="view">
+  <div class="flip-main">
+    <img id="flipImg" src="" alt="page">
+    <div class="flip-overlay" id="flipOverlay"></div>
+  </div>
+  <div class="flip-thumbs" id="flipThumbs"></div>
+  <div class="flip-bar">
+    <select id="flipBookSel"></select>
+    <button onclick="flipNav(-1)">←</button>
+    <span class="mono" id="flipPageInfo">p.1</span>
+    <button onclick="flipNav(1)">→</button>
+    <button id="flipOverlayBtn" onclick="toggleOverlay()">transcript</button>
+  </div>
+</div>
+
+<script>
+/* ── State ── */
+let notebooks = [], transcriptions = {}, allSections = [];
+let currentView = 'timeline';
+let readerBook = null, readerPage = 1;
+let flipBook = null, flipPage = 1;
+
+/* ── Theme ── */
+function toggleTheme() {
+  document.body.classList.toggle('light');
+  document.getElementById('themeBtn').textContent = document.body.classList.contains('light') ? 'night' : 'day';
+}
+
+/* ── Tabs ── */
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  t.classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  currentView = t.dataset.view;
+  document.getElementById(currentView).classList.add('active');
+}));
+
+/* ── Color ── */
+function bookColor(idx, alpha) {
+  const h = (idx / 28) * 360;
+  return alpha ? `hsla(${h},55%,55%,${alpha})` : `hsl(${h},55%,55%)`;
+}
+
+/* ── Init ── */
+async function init() {
+  notebooks = await (await fetch('/api/notebooks')).json();
+  buildSections();
+  buildSidebar();
+  renderTimeline();
+  populateSelectors();
+  if (notebooks.length) { setReaderBook(0, 1); setFlipBook(0, 1); }
+}
+
+function buildSections() {
+  allSections = [];
+  notebooks.forEach((nb, bi) => {
+    (nb.sections || []).forEach(s => {
+      allSections.push({ ...s, bookIdx: bi, dirName: nb.dir_name, bookTitle: nb.notebook_title });
+    });
+  });
+  allSections.sort((a, b) => {
+    const da = parseDate(a.date), db = parseDate(b.date);
+    if (!da && !db) return 0;
+    if (!da) return 1;
+    if (!db) return -1;
+    return da - db;
+  });
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  return isNaN(d) ? null : d;
+}
+
+function formatDate(s) {
+  if (!s) return 'undated';
+  const d = parseDate(s);
+  return d ? d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : s;
+}
+
+/* ── Sidebar ── */
+let filterBooks = new Set(), filterThemes = new Set();
+function buildSidebar() {
+  const sb = document.getElementById('sidebar');
+  let html = '<h3>Notebooks</h3>';
+  notebooks.forEach((nb, i) => {
+    const short = nb.dir_name.replace(/^\d+_/, '');
+    html += `<label><input type="checkbox" data-filter="book" value="${i}" checked> <span style="color:${bookColor(i)}">&bull;</span> ${short}</label>`;
+  });
+  const themes = [...new Set(notebooks.flatMap(n => n.primary_themes || []))].sort();
+  html += '<h3>Themes</h3>';
+  themes.forEach(t => {
+    html += `<label><input type="checkbox" data-filter="theme" value="${t}" checked> ${t}</label>`;
+  });
+  sb.innerHTML = html;
+  sb.addEventListener('change', e => {
+    if (e.target.dataset.filter) renderTimeline();
+  });
+}
+
+/* ── Timeline ── */
+function renderTimeline() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const checkedBooks = new Set([...document.querySelectorAll('[data-filter="book"]:checked')].map(c => +c.value));
+  const checkedThemes = new Set([...document.querySelectorAll('[data-filter="theme"]:checked')].map(c => c.value));
+  const list = document.getElementById('cardList');
+  list.innerHTML = allSections
+    .filter(s => {
+      if (!checkedBooks.has(s.bookIdx)) return false;
+      const nb = notebooks[s.bookIdx];
+      if (!(nb.primary_themes || []).some(t => checkedThemes.has(t))) return false;
+      if (search && !(s.title + ' ' + (s.summary || '')).toLowerCase().includes(search)) return false;
+      return true;
+    })
+    .map(s => {
+      const tags = (s.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      const short = s.dirName.replace(/^\d+_/, '');
+      return `<div class="card" onclick="openReader(${s.bookIdx}, ${s.pages?.[0] || 1})">
+        <div class="date">${formatDate(s.date)}</div>
+        <div class="title">${s.title}</div>
+        <span class="badge" style="background:${bookColor(s.bookIdx, 0.8)}">${short}</span>
+        <span class="mono" style="color:var(--muted)">p.${s.pages?.[0] || '?'}–${s.pages?.[1] || '?'}</span>
+        <div class="summary">${s.summary || ''}</div>
+        <div class="tags">${tags}</div>
+      </div>`;
+    }).join('');
+}
+document.getElementById('searchInput').addEventListener('input', renderTimeline);
+
+/* ── Reader ── */
+function populateSelectors() {
+  const opts = notebooks.map((nb, i) => `<option value="${i}">${nb.dir_name.replace(/^\d+_/, '')} — ${nb.date_range || ''}</option>`).join('');
+  document.getElementById('readerBookSel').innerHTML = opts;
+  document.getElementById('flipBookSel').innerHTML = opts;
+  document.getElementById('readerBookSel').addEventListener('change', e => setReaderBook(+e.target.value, 1));
+  document.getElementById('flipBookSel').addEventListener('change', e => setFlipBook(+e.target.value, 1));
+}
+
+function openReader(bookIdx, page) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('[data-view="reader"]').classList.add('active');
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('reader').classList.add('active');
+  currentView = 'reader';
+  document.getElementById('readerBookSel').value = bookIdx;
+  setReaderBook(bookIdx, page);
+}
+
+async function setReaderBook(idx, page) {
+  readerBook = idx;
+  readerPage = page || 1;
+  const nb = notebooks[idx];
+  const dn = nb.dir_name;
+  if (!transcriptions[dn]) {
+    try {
+      transcriptions[dn] = await (await fetch(`/api/notebook/${encodeURIComponent(dn)}/transcription`)).text();
+    } catch { transcriptions[dn] = ''; }
+  }
+  renderReader();
+}
+
+function renderReader() {
+  if (readerBook === null) return;
+  const nb = notebooks[readerBook];
+  const dn = nb.dir_name;
+  document.getElementById('readerImg').src = `/api/notebook/${encodeURIComponent(dn)}/page/${readerPage}`;
+  document.getElementById('readerImg').classList.remove('zoomed');
+  document.getElementById('readerPageInfo').textContent = `p.${readerPage} of ${nb.page_count}`;
+  const text = transcriptions[dn] || '';
+  const excerpt = extractPageText(text, readerPage);
+  document.getElementById('readerText').innerHTML = `<div class="page-note">Page ${readerPage}</div>` + markdownToHtml(excerpt);
+}
+
+function extractPageText(md, page) {
+  const marker = `<!-- page ${String(page).padStart(3, '0')} -->`;
+  const idx = md.indexOf(marker);
+  if (idx === -1) {
+    const alt = `<!-- page ${page} -->`;
+    const idx2 = md.indexOf(alt);
+    if (idx2 === -1) return `*(No transcription found for page ${page})*`;
+    return extractFrom(md, idx2);
+  }
+  return extractFrom(md, idx);
+}
+
+function extractFrom(md, start) {
+  const nextPage = md.indexOf('<!-- page ', start + 10);
+  return nextPage === -1 ? md.slice(start) : md.slice(start, nextPage);
+}
+
+function markdownToHtml(text) {
+  return text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/^---$/gm, '<hr>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+}
+
+function pageNav(d) {
+  if (readerBook === null) return;
+  const nb = notebooks[readerBook];
+  readerPage = Math.max(1, Math.min(nb.page_count, readerPage + d));
+  renderReader();
+}
+
+/* zoom */
+document.getElementById('readerImg').addEventListener('click', e => e.target.classList.toggle('zoomed'));
+
+/* ── Flipbook ── */
+async function setFlipBook(idx, page) {
+  flipBook = idx;
+  flipPage = page || 1;
+  const nb = notebooks[idx];
+  const dn = nb.dir_name;
+  if (!transcriptions[dn]) {
+    try {
+      transcriptions[dn] = await (await fetch(`/api/notebook/${encodeURIComponent(dn)}/transcription`)).text();
+    } catch { transcriptions[dn] = ''; }
+  }
+  renderFlip();
+}
+
+function renderFlip() {
+  if (flipBook === null) return;
+  const nb = notebooks[flipBook];
+  const dn = nb.dir_name;
+  document.getElementById('flipImg').src = `/api/notebook/${encodeURIComponent(dn)}/page/${flipPage}`;
+  document.getElementById('flipPageInfo').textContent = `p.${flipPage} of ${nb.page_count}`;
+  const text = transcriptions[dn] || '';
+  document.getElementById('flipOverlay').innerHTML = markdownToHtml(extractPageText(text, flipPage));
+  renderThumbs();
+}
+
+function renderThumbs() {
+  const nb = notebooks[flipBook];
+  const dn = nb.dir_name;
+  const start = Math.max(1, flipPage - 5);
+  const end = Math.min(nb.page_count, start + 9);
+  const el = document.getElementById('flipThumbs');
+  el.innerHTML = '';
+  for (let i = start; i <= end; i++) {
+    const img = document.createElement('img');
+    img.src = `/api/notebook/${encodeURIComponent(dn)}/page/${i}`;
+    img.className = i === flipPage ? 'active' : '';
+    img.onclick = () => { flipPage = i; renderFlip(); };
+    el.appendChild(img);
+  }
+}
+
+function flipNav(d) {
+  if (flipBook === null) return;
+  const nb = notebooks[flipBook];
+  flipPage = Math.max(1, Math.min(nb.page_count, flipPage + d));
+  renderFlip();
+}
+
+function toggleOverlay() {
+  document.getElementById('flipOverlay').classList.toggle('visible');
+}
+
+/* ── Keyboard ── */
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowLeft') { currentView === 'reader' ? pageNav(-1) : flipNav(-1); }
+  if (e.key === 'ArrowRight') { currentView === 'reader' ? pageNav(1) : flipNav(1); }
+});
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entities and Belongings &mdash; HAAK</title>
+<meta name="description" content="Agent lifecycle: birth, operation, consolidation, death. Context window as lifespan.">
+<meta property="og:title" content="Entities and Belongings &mdash; HAAK">
+<meta property="og:description" content="Agent lifecycle: birth, operation, consolidation, death. Context window as lifespan.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Entities and Belongings</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 22 &middot; March 2026</p>
+      <h1 class="article-title">Entities and Belongings</h1>
+      <p class="article-subtitle">| Section | What it covers | |:--------|:---------------| | Ontology | What an entity is, what a belonging is | | Locality | Assert direct belongings only | | Schema | Two tables, nothing else | |…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#ontology">Ontology</a></li>
+<li><a href="#locality">Locality</a></li>
+<li><a href="#schema">Schema</a>
+<ol>
+<li><a href="#examples">Examples</a></li>
+</ol></li>
+<li><a href="#sources-and-schema-mappings">Sources and schema mappings</a></li>
+<li><a href="#lifecycle">Lifecycle</a></li>
+<li><a href="#queries">Queries</a></li>
+<li><a href="#build">Build</a></li>
+<li><a href="#portability">Portability</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<table>
+<tr><th>Section</th><th>What it covers</th></tr>
+<tr><td>Ontology</td><td>What an entity is, what a belonging is</td></tr>
+<tr><td>Locality</td><td>Assert direct belongings only</td></tr>
+<tr><td>Schema</td><td>Two tables, nothing else</td></tr>
+<tr><td>Sources and mappings</td><td>How external data becomes entities</td></tr>
+<tr><td>Lifecycle</td><td>Birth and death as belonging</td></tr>
+<tr><td>Queries</td><td>SQL patterns</td></tr>
+<tr><td>Build</td><td>How the index is derived</td></tr>
+</table>
+<h2 id="ontology"><a class="heading-anchor" href="#ontology">#</a>Ontology</h2>
+<p>An <strong>entity</strong> is a thing with an identity. It has an <code>id</code>, a <code>type</code>, and a <code>name</code>. That is all it <em>is</em>. Everything you know <em>about</em> it — its affiliations, its location, its genre, its authors — is a belonging.</p>
+<p>A <strong>belonging</strong> is a directed arrow from an entity to something it belongs to, with optional temporal bounds. The direction is always: from the entity to what it belongs to. Every belonging is temporal — it has a start, and it can end. A belonging without dates is one where the dates are unknown or irrelevant, not one that is atemporal by nature.</p>
+<pre><code>track      → person         (belongs to its artist)
+track      → Psytrance      (belongs to a genre)
+person     → mainenlab      (belongs to a lab)
+lab        → programme      (belongs to a programme)
+paper      → doi:10.1038/x  (belongs to its DOI)
+paper      → person         (belongs to its author)
+paper      → journal        (belongs to its journal)
+doi        → CrossRef       (belongs to its registrar)
+file       → filesystem     (belongs to its container)
+project    → active         (belongs to a lifecycle stage)
+cell       → body           (belongs to an organism)
+memory     → person         (belongs to a mind)
+branch     → parent-branch  (belongs to its parent)</code></pre>
+<p>This is the only mechanism. Every relationship — hierarchy, affiliation, classification, lifecycle, provenance, authorship, location — is a belonging. There are no relation types, no role labels, no special columns. Just: this entity belongs to that target, starting when, ending when, according to whom.</p>
+<h2 id="locality"><a class="heading-anchor" href="#locality">#</a>Locality</h2>
+<p><strong>Assert only direct belongings. Derive everything else by traversal.</strong></p>
+<p>A track belongs to an artist. The artist belongs to a record label. Do not also tag the track with the label — that relationship is a query, not an assertion. A person belongs to mainenlab. Mainenlab belongs to the Neuroscience Programme. Do not tag the person with the programme.</p>
+<p>The builder does not propagate belongings. Queries traverse them.</p>
+<h2 id="schema"><a class="heading-anchor" href="#schema">#</a>Schema</h2>
+<p>Two tables in <code>data/entities.db</code>:</p>
+<p><strong>entities</strong> — things that exist.</p>
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td>id</td><td><code>type:slug</code> (e.g., <code>person:davide-crombie</code>, <code>doi:10.1038/x</code>)</td></tr>
+<tr><td>type</td><td>the entity class</td></tr>
+<tr><td>name</td><td>display name</td></tr>
+</table>
+<p><strong>belongings</strong> — every relation.</p>
+<table>
+<tr><th>Column</th><th>Purpose</th></tr>
+<tr><td>entity_id</td><td>FK to entities — the thing that belongs</td></tr>
+<tr><td>target</td><td>what it belongs to (an entity id, a name, a path)</td></tr>
+<tr><td>start_date</td><td>when the belonging began (NULL = unknown)</td></tr>
+<tr><td>end_date</td><td>when it ended (NULL = ongoing or unknown)</td></tr>
+<tr><td>source</td><td>who asserted this (the scanner, the user, the API)</td></tr>
+</table>
+<h3 id="examples"><a class="heading-anchor" href="#examples">#</a>Examples</h3>
+<pre><code>entity: person:davide-crombie
+  → mainenlab             (2020, NULL, frontmatter)
+  → phd-student           (2020, NULL, frontmatter)
+  → project:inscription   (2026, NULL, frontmatter)
+
+entity: org:mainen
+  → org:neuroscience       (NULL, NULL, frontmatter)
+
+entity: paper:f040022b
+  → doi:10.1038/nrn1933   (NULL, NULL, papers.db)
+  → person:Z. Mainen      (NULL, NULL, papers.db)
+  → journal:Nature Reviews (2006, NULL, papers.db)
+  → published             (2006, NULL, papers.db)
+  → papers.db             (NULL, NULL, scan)
+
+entity: track:abc123
+  → person:Some Artist    (NULL, NULL, music.db)
+  → Psytrance             (NULL, NULL, music.db)
+  → music.db              (NULL, NULL, scan)</code></pre>
+<p>No <code>role_type</code> column. The target's identity tells you the nature of the relationship. A belonging to a person is authorship or artistry. A belonging to a genre name is classification. A belonging to "active" is lifecycle. The semantics are in the entities, not in labels on the arrows.</p>
+<h2 id="sources-and-schema-mappings"><a class="heading-anchor" href="#sources-and-schema-mappings">#</a>Sources and schema mappings</h2>
+<p>A <strong>source</strong> is an entity that emits other entities and belongings. <code>music.db</code> is a source. <code>papers.db</code> is a source. A directory of markdown files is a source. Discogs is a source. iNaturalist is a source. Sources are not special — they're entities like anything else, and other entities belong to them.</p>
+<p>A <strong>schema mapping</strong> is an operator (Definition 2) that transforms a source into entities and belongings. It is a method (Definition 3) — a repeatable procedure. Given a source, the mapping knows:</p>
+<ul>
+<li>What in this source counts as an entity</li>
+<li>What the entity's type and name are</li>
+<li>What counts as a belonging</li>
+<li>What the belonging's target and dates are</li>
+</ul>
+<p>Currently, schema mappings are Python functions in <code>build_entities.py</code> (one per source). The target architecture: mappings as declarative data (YAML), applied by a generic builder. Adding a new source means writing a mapping, not writing code.</p>
+<pre><code># Example: schema mapping for papers.db
+source: data/papers.db
+format: sqlite
+entity:
+  table: papers
+  id: &quot;paper:{id}&quot;
+  type: paper
+  name: &quot;{title}&quot;
+belongings:
+  - column: doi
+    target: &quot;doi:{value}&quot;
+    ensure_target: {type: doi}
+  - column: authors
+    parse: json_array
+    target: &quot;person:{value}&quot;
+    ensure_target: {type: person}
+  - column: journal
+    target: &quot;journal:{value}&quot;
+    ensure_target: {type: journal}
+  - column: year
+    as: start_date
+    target_from: article_type
+    map: {posted-content: preprint, journal-article: published}</code></pre>
+<p>Schema mappings are themselves entities. They belong to the source they map and to the ontology they map into. A change to a mapping is an ontological decision — it goes through the PR process like any other change.</p>
+<p><strong>No privileged source of truth.</strong> The system does not prescribe where truth lives. If two sources disagree about an entity's belongings, both assertions coexist. Conflict resolution is a policy question, resolved through the same PR mechanism as any other conflict (see <code>24-branch-visibility.md</code>).</p>
+<h2 id="lifecycle"><a class="heading-anchor" href="#lifecycle">#</a>Lifecycle</h2>
+<p>Lifecycle is a belonging with dates. An entity belongs to a lifecycle stage, and that belonging has a <code>start<em>date</code> and possibly an <code>end</em>date</code>. Birth is the start of a belonging. Death is the end. Joining is the start. Leaving is the end.</p>
+<p>Common lifecycle stages (these are target names, not special values):</p>
+<table>
+<tr><th>Context</th><th>Stages</th></tr>
+<tr><td>Methods, foundations</td><td>draft → active → superseded</td></tr>
+<tr><td>Skills</td><td>active → deprecated</td></tr>
+<tr><td>Projects</td><td>active → paused → completed → archived</td></tr>
+<tr><td>Organizations</td><td>active → inactive → dissolved</td></tr>
+<tr><td>Branches</td><td>active → merged</td></tr>
+</table>
+<h2 id="queries"><a class="heading-anchor" href="#queries">#</a>Queries</h2>
+<p>What does entity X belong to?</p>
+<pre><code>SELECT target, start_date, end_date, source FROM belongings
+WHERE entity_id = &#x27;person:davide-crombie&#x27;</code></pre>
+<p>What belongs to entity Y?</p>
+<pre><code>SELECT e.id, e.type, e.name FROM entities e
+JOIN belongings b ON e.id = b.entity_id
+WHERE b.target = &#x27;org:mainen&#x27;</code></pre>
+<p>Walk the chain upward from a person:</p>
+<pre><code>-- Davide → mainenlab → neuroscience → champalimaud-research
+-- Each step: SELECT target FROM belongings WHERE entity_id = ?</code></pre>
+<p>Everything that belongs to "active":</p>
+<pre><code>SELECT e.type, e.name FROM entities e
+JOIN belongings b ON e.id = b.entity_id
+WHERE b.target = &#x27;active&#x27; AND b.end_date IS NULL</code></pre>
+<h2 id="build"><a class="heading-anchor" href="#build">#</a>Build</h2>
+<p><code>python3 scripts/build_entities.py [--verbose]</code> rebuilds <code>data/entities.db</code> from scratch. The DB is disposable — delete it, scan again, same result. The builder applies schema mappings (currently hardcoded as functions) to each source.</p>
+<h2 id="portability"><a class="heading-anchor" href="#portability">#</a>Portability</h2>
+<p>Two tables, one relation. The entity/belonging model is independent of storage backend, source format, or domain. It indexes SQLite, frontmatter, and external APIs equally. This is what Filix inherits from HAAK.</p>
+
+        <p class="endnote">Architecture 22 &mdash; Entities and Belongings &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/context-transport/">&larr; 20: 20 — Context Transport</a><a class="memo-nav-next" href="/memos/data-infrastructure/">23: Data Infrastructure &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#ontology">Ontology</a></li>
+<li><a href="#locality">Locality</a></li>
+<li><a href="#schema">Schema</a>
+<ol>
+<li><a href="#examples">Examples</a></li>
+</ol></li>
+<li><a href="#sources-and-schema-mappings">Sources and schema mappings</a></li>
+<li><a href="#lifecycle">Lifecycle</a></li>
+<li><a href="#queries">Queries</a></li>
+<li><a href="#build">Build</a></li>
+<li><a href="#portability">Portability</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

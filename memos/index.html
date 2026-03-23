@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memos &mdash; HAAK</title>
+<meta name="description" content="Internal architecture notes and design memos from the HAAK project.">
+<meta property="og:title" content="Memos &mdash; HAAK">
+<meta property="og:description" content="Internal architecture notes and design memos from the HAAK project.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.page-header {
+  padding: 80px 0 48px;
+  border-bottom: 1px solid var(--line2);
+}
+
+.page-header h1 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--cream);
+  margin-bottom: 16px;
+}
+
+.page-header p {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(17px, 1.8vw, 20px);
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--cream2);
+  max-width: 52ch;
+}
+
+.section-header {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--silver);
+  padding: 48px 0 8px;
+  border-bottom: 1px solid var(--line2);
+}
+
+.section-desc {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(15px, 1.4vw, 17px);
+  font-weight: 300;
+  font-style: italic;
+  color: var(--cream2);
+  padding: 12px 0 0;
+}
+
+.paper-list { padding: 0 0 120px; }
+
+.paper-entry {
+  padding: 36px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.paper-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.paper-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 400;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.paper-title a { color: var(--cream); }
+.paper-title a:hover { color: var(--gold); }
+
+.paper-excerpt {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(16px, 1.6vw, 18px);
+  font-weight: 300;
+  line-height: 1.65;
+  color: var(--cream2);
+  max-width: 56ch;
+  margin-bottom: 12px;
+}
+
+.paper-link {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+}
+
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; }
+  body { background: #fff; color: #111; }
+  nav { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world">home</a>
+    <a href="https://haak.world/papers/">papers</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="container">
+  <header class="page-header">
+    <h1>Memos</h1>
+    <p>Internal architecture notes and design memos from the HAAK project.</p>
+  </header>
+
+  <div class="paper-list">
+
+    <p class="section-header" id="foundations">Foundations (12)</p>
+    <p class="section-desc">The intellectual claims behind the system.</p>
+
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 00 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="foundation-zero/">Foundation Zero: Why</a></h2>
+      <p class="paper-excerpt">The question that precedes architecture: why build a system that studies its own construction?</p>
+      <a class="paper-link" href="foundation-zero/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 01 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="core-thesis/">The Core Thesis</a></h2>
+      <p class="paper-excerpt">Human participation in knowledge work is irreplaceable. The system exists to find where.</p>
+      <a class="paper-link" href="core-thesis/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 02 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="library-theorem/">The Library Theorem</a></h2>
+      <p class="paper-excerpt">A formal argument that externalized knowledge structures are necessary for institutional intelligence.</p>
+      <a class="paper-link" href="library-theorem/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 03 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="institutional-intelligence/">Institutional Intelligence</a></h2>
+      <p class="paper-excerpt">Intelligence as a property of institutions, not individuals. What it means for a system to know.</p>
+      <a class="paper-link" href="institutional-intelligence/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 04 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="science-ecosystem/">The Scientific Ecosystem</a></h2>
+      <p class="paper-excerpt">The niche structure of scientific knowledge production and where AI participation fits.</p>
+      <a class="paper-link" href="science-ecosystem/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 05 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="externalization/">Externalization</a></h2>
+      <p class="paper-excerpt">If it is not written down, it did not happen. The discipline of making reasoning visible and auditable.</p>
+      <a class="paper-link" href="externalization/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 06 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="three-axis-model/">The Three-Axis Model</a></h2>
+      <p class="paper-excerpt">Projects, Patterns, Personas: the three axes that organize all work in the system.</p>
+      <a class="paper-link" href="three-axis-model/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 07 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="coordination-topology/">Multi-Agent Coordination Topology</a></h2>
+      <p class="paper-excerpt">How multiple agents coordinate through shared state, boards, and index hierarchies.</p>
+      <a class="paper-link" href="coordination-topology/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 08 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-mortality/">Agent Mortality</a></h2>
+      <p class="paper-excerpt">An agent&#x27;s context window is its lifespan. Design, decide, delegate. Never waste context on what a subagent can do.</p>
+      <a class="paper-link" href="agent-mortality/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 09 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="self-modification/">Self-Modification</a></h2>
+      <p class="paper-excerpt">A system that studies its own operation and evolves its architecture through use.</p>
+      <a class="paper-link" href="self-modification/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 10 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="privacy-architecture/">Privacy Architecture</a></h2>
+      <p class="paper-excerpt">Privacy as an architectural property, not a policy overlay. What the system must never expose.</p>
+      <a class="paper-link" href="privacy-architecture/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Foundations 11 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="origins/">Origins</a></h2>
+      <p class="paper-excerpt">The intellectual lineage: from the Invisible College to a system that convenes knowledge work.</p>
+      <a class="paper-link" href="origins/">Read &rarr;</a>
+    </div>
+
+    <p class="section-header" id="ontology">Ontology (13)</p>
+    <p class="section-desc">What exists and how things relate at the most basic level.</p>
+
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 01 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-objects/">Objects</a></h2>
+      <p class="paper-excerpt">What exists: three axes (actor, method, domain), materials, four bundle types. Type/token, time, agency, normativity.</p>
+      <a class="paper-link" href="ontology-objects/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 02 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-relations/">Relations</a></h2>
+      <p class="paper-excerpt">How things relate: one primitive (belongs-to), quality as the nature of belonging, reflexive closure, withdrawal without essence.</p>
+      <a class="paper-link" href="ontology-relations/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 03 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-notation/">Notation</a></h2>
+      <p class="paper-excerpt">Layered formalism: sets, posets, categories. From entity sets through tag dimensions to Yoneda identity and situations as limits.</p>
+      <a class="paper-link" href="ontology-notation/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 04 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-correspondence/">Three Correspondences (v1.2 — Relational Revision)</a></h2>
+      <p class="paper-excerpt">Filesystem, football league, Harvard mapped to the ontology. Relational revision resolving v1.1 gaps.</p>
+      <a class="paper-link" href="ontology-correspondence/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 05 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-perception-memory/">Perception and Memory</a></h2>
+      <p class="paper-excerpt">Extensions P1–P7: internal material, percept, perceptual method, representation, memory. Grounded in the apple scenario.</p>
+      <a class="paper-link" href="ontology-perception-memory/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 06 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-ai-writing/">The AI Writing Scenario</a></h2>
+      <p class="paper-excerpt">Extensions P8–P11: expressive method, dispositional state, generative method, joint product. Person + LLM co-authoring.</p>
+      <a class="paper-link" href="ontology-ai-writing/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 07 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-correspondence-haak/">Correspondence IV: HAAK</a></h2>
+      <p class="paper-excerpt">HAAK mapped to its own ontology. Axis assignments, compound assignments, constitutional scope analysis.</p>
+      <a class="paper-link" href="ontology-correspondence-haak/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 08 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-relational-ground/">The Relational Ground</a></h2>
+      <p class="paper-excerpt">The philosophical motivation: from Harman’s OOO through Leibniz’s relational alternative to Badiou’s set-theoretic ontology.</p>
+      <a class="paper-link" href="ontology-relational-ground/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 09 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-situation-graph/">The Situation Graph</a></h2>
+      <p class="paper-excerpt">Situations as the primitive unit of social knowledge. Relationships derived, never stored. Five-phase mapping engine pattern.</p>
+      <a class="paper-link" href="ontology-situation-graph/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 10 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-relations-applied/">Relations Applied</a></h2>
+      <p class="paper-excerpt">Practical companion: epistemic gradient, materialization vs. evidence, extraction as situation. The system documents its own documentation.</p>
+      <a class="paper-link" href="ontology-relations-applied/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 11 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-identity/">Identity as Belonging</a></h2>
+      <p class="paper-excerpt">Identity as belonging. Identifiers are belongings with quality “identified-by,” namespaces are entities of type “registry.”</p>
+      <a class="paper-link" href="ontology-identity/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 12 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-situation-nesting/">Situation Nesting</a></h2>
+      <p class="paper-excerpt">Situations at project scale play the domain role for sub-situations. Scale, acquisition, subsumption, materialization.</p>
+      <a class="paper-link" href="ontology-situation-nesting/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Ontology 13 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-governance-situation/">Governance as Situation</a></h2>
+      <p class="paper-excerpt">Governance is a situation, not an attribute. Decision processes, merge governance, authority as belonging with delegation chains.</p>
+      <a class="paper-link" href="ontology-governance-situation/">Read &rarr;</a>
+    </div>
+
+    <p class="section-header" id="architecture">Architecture (41)</p>
+    <p class="section-desc">How the system is built.</p>
+
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 00 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="design-principles/">Seven Design Principles</a></h2>
+      <p class="paper-excerpt">Seven foundational design principles governing the system’s architecture.</p>
+      <a class="paper-link" href="design-principles/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 01 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="hierarchy-rationale/">Hierarchy Rationale</a></h2>
+      <p class="paper-excerpt">Directory hierarchy for types, frontmatter tags for cross-cutting domains. Why tree structure over flat.</p>
+      <a class="paper-link" href="hierarchy-rationale/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 02 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="forkability/">Forkability</a></h2>
+      <p class="paper-excerpt">System layer is forkable/portable; data layer is instance-specific. Personas at the boundary.</p>
+      <a class="paper-link" href="forkability/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 04 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="drift-resistance/">Drift Resistance</a></h2>
+      <p class="paper-excerpt">The central unsolved problem: organizational invariants degrade when agents bypass the system.</p>
+      <a class="paper-link" href="drift-resistance/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 05 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="inscription-architecture/">Inscription Architecture</a></h2>
+      <p class="paper-excerpt">How agents receive instructions, match patterns, create and propagate policies.</p>
+      <a class="paper-link" href="inscription-architecture/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 06 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-architecture/">Agent Architecture</a></h2>
+      <p class="paper-excerpt">Confidential materials and cross-scope isolation through scoping dimensions.</p>
+      <a class="paper-link" href="agent-architecture/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 08 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="encapsulation/">Encapsulation</a></h2>
+      <p class="paper-excerpt">The boundary between what an agent can see and what it cannot. Scope as architecture.</p>
+      <a class="paper-link" href="encapsulation/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 09 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="recursive-index/">Recursive Index</a></h2>
+      <p class="paper-excerpt">The Library Theorem applied to the filesystem. Every index.md is one level of hierarchical indexing.</p>
+      <a class="paper-link" href="recursive-index/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 10 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="readwrite/">Read/Write Operations</a></h2>
+      <p class="paper-excerpt">Atomic read/write primitives. B-tree traversal through indices, the Self-Description Lemma.</p>
+      <a class="paper-link" href="readwrite/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 11 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="navigate-not-address/">Navigate, Don&#x27;t Address</a></h2>
+      <p class="paper-excerpt">Paths are outputs of navigation, not inputs from reference docs. The index tree is the only address book.</p>
+      <a class="paper-link" href="navigate-not-address/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 14 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="universal-indexing/">Universal Indexing</a></h2>
+      <p class="paper-excerpt">Every directory gets indexed, no exceptions. Filenames are helpers; frontmatter is canonical.</p>
+      <a class="paper-link" href="universal-indexing/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 15 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="method-composability/">Method Composability</a></h2>
+      <p class="paper-excerpt">Methods are composable primitives forming a directed labeled composition graph and a bipartite domain graph.</p>
+      <a class="paper-link" href="method-composability/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 16 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="traceability/">Traceability</a></h2>
+      <p class="paper-excerpt">Provenance chains, frontmatter carriers, source snapshots, and transcripts. Auditability built into the filesystem.</p>
+      <a class="paper-link" href="traceability/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 17 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="documentation-commitment/">Documentation Commitment</a></h2>
+      <p class="paper-excerpt">The medium is .md and .yaml. Everything documented, documentation concise. The 500-line ceiling.</p>
+      <a class="paper-link" href="documentation-commitment/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 18 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-governance/">Agent Governance</a></h2>
+      <p class="paper-excerpt">General theory of agent patterns, policy creation, cooperation, and governance.</p>
+      <a class="paper-link" href="agent-governance/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 19 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-coordination/">Agent Coordination</a></h2>
+      <p class="paper-excerpt">Multi-agent coordination through boards, agent registries, and subscriptions.</p>
+      <a class="paper-link" href="agent-coordination/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 20 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="context-transport/">20 — Context Transport</a></h2>
+      <p class="paper-excerpt">How agents switch situations without losing state. Checkpoint, trace, engage — not a stack, a transport layer.</p>
+      <a class="paper-link" href="context-transport/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 22 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="lifecycle/">Entities and Belongings</a></h2>
+      <p class="paper-excerpt">Agent lifecycle: birth, operation, consolidation, death. Context window as lifespan.</p>
+      <a class="paper-link" href="lifecycle/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 23 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="data-infrastructure/">Data Infrastructure</a></h2>
+      <p class="paper-excerpt">The data layer: databases, sync pipelines, and the relationship between local stores and external sources.</p>
+      <a class="paper-link" href="data-infrastructure/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 24 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="branch-visibility/">Branch Visibility and Access Control</a></h2>
+      <p class="paper-excerpt">Which branches an agent can see and how visibility is computed from the manifest.</p>
+      <a class="paper-link" href="branch-visibility/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 25 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="identity-resolution/">Identity Resolution</a></h2>
+      <p class="paper-excerpt">Mapping external identifiers to canonical entities across email, phone, GitHub, ORCID, and agent sessions.</p>
+      <a class="paper-link" href="identity-resolution/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 26 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="domain-branches/">Domain Branches</a></h2>
+      <p class="paper-excerpt">Data as selectable domain branches: core, personal, work, reference. Manifest-driven installs.</p>
+      <a class="paper-link" href="domain-branches/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 27 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="branch-universality/">Branch Universality</a></h2>
+      <p class="paper-excerpt">Every domain gets a branch. Branches are the universal unit of concurrent work.</p>
+      <a class="paper-link" href="branch-universality/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 28 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="situational-awareness/">28. Situational Awareness — Sessions Are Not Situations</a></h2>
+      <p class="paper-excerpt">Sessions are not situations. The ontological distinction that governs how agents perceive context.</p>
+      <a class="paper-link" href="situational-awareness/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 29 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="ontology-audit/">29. Ontology Audit — March 2026</a></h2>
+      <p class="paper-excerpt">Infrastructure-wide audit of 41 databases and 4,535 markdown files against the relational situational ontology.</p>
+      <a class="paper-link" href="ontology-audit/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 31 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-mailbox/">31. Agent Mailbox Protocol</a></h2>
+      <p class="paper-excerpt">Asynchronous message passing between agents. Dispatch, delivery, and the coordination layer.</p>
+      <a class="paper-link" href="agent-mailbox/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 32 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="lifecycle-manager/">32. Agent Lifecycle Manager</a></h2>
+      <p class="paper-excerpt">Birth, operation, consolidation, death. The mortality clock and lifecycle governance for agents.</p>
+      <a class="paper-link" href="lifecycle-manager/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 33 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="constitutional-ledger/">33. The Constitutional Ledger</a></h2>
+      <p class="paper-excerpt">Append-only, content-addressed, hash-chained. Every governance act recorded with tamper evidence.</p>
+      <a class="paper-link" href="constitutional-ledger/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 35 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-runner-v1/">Agent Runner</a></h2>
+      <p class="paper-excerpt">The original Python agent runner specification. Replaced by Architecture 38.</p>
+      <a class="paper-link" href="agent-runner-v1/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 36 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-router/">Agent Router and Rooms</a></h2>
+      <p class="paper-excerpt">A single router process managing all standing agent turn loops. Rooms, scheduling, and message delivery.</p>
+      <a class="paper-link" href="agent-router/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 37 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="knowledge-organization/">Knowledge Organization</a></h2>
+      <p class="paper-excerpt">Canonical directory structure, index.md schema, discovery interface, sync protocol, and role assignments.</p>
+      <a class="paper-link" href="knowledge-organization/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 38 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-runner-v2/">Agent Runner v2 — Constitutional Runtime over ACP</a></h2>
+      <p class="paper-excerpt">Constitutional runtime over ACP. A Rust daemon implementing governance-gated agent execution.</p>
+      <a class="paper-link" href="agent-runner-v2/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 39 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="engagement-state/">Engagement State — The Third Externalization</a></h2>
+      <p class="paper-excerpt">The third externalization: tracking multi-session work contexts as first-class state.</p>
+      <a class="paper-link" href="engagement-state/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 40 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-runner/">HAAK Agent Runner: Technical Specification</a></h2>
+      <p class="paper-excerpt">Technical specification for the HAAK agent runner: policy-gated tools, mandate injection, and BLAKE3 hash-chained audit records.</p>
+      <a class="paper-link" href="agent-runner/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 40 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="unified-browser/">Unified Browser</a></h2>
+      <p class="paper-excerpt">Merging session browser, engagement viewer, and console into one tool. Four-zone layout.</p>
+      <a class="paper-link" href="unified-browser/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 41 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="governance-architecture/">Governance Architecture</a></h2>
+      <p class="paper-excerpt">The separation principle, trust model, and normative order for a multi-agent system.</p>
+      <a class="paper-link" href="governance-architecture/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 41 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="browser-ux-design/">Browser UX Design</a></h2>
+      <p class="paper-excerpt">UX specification for the HAAK Browser: home screen, engagement view, agent view, search, chat, mobile.</p>
+      <a class="paper-link" href="browser-ux-design/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 42 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="unified-messaging/">Unified Messaging</a></h2>
+      <p class="paper-excerpt">One protocol for all inter-agent and human-agent communication across channels.</p>
+      <a class="paper-link" href="unified-messaging/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 43 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="filix-governance/">Filix Governance Architecture</a></h2>
+      <p class="paper-excerpt">A governance topology materialized as a filesystem. Nested governance situations, three layers of truth, and the Grundnorm.</p>
+      <a class="paper-link" href="filix-governance/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 44 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="governance-processes/">Governance Processes</a></h2>
+      <p class="paper-excerpt">Infrastructure for human decision-making processes — parameterized, AI-facilitated, recorded in a tamper-evident ledger.</p>
+      <a class="paper-link" href="governance-processes/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Architecture 44 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="engagement-threading/">Engagement Threading</a></h2>
+      <p class="paper-excerpt">Engagement threading: how engagements are woven across sessions and agents.</p>
+      <a class="paper-link" href="engagement-threading/">Read &rarr;</a>
+    </div>
+
+    <p class="section-header" id="methods">Methods (10)</p>
+    <p class="section-desc">Composable primitives for recurring workflows.</p>
+
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 17 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="interaction-protocols/">Interaction Protocols</a></h2>
+      <p class="paper-excerpt">Syntax conventions: #project, &amp;pattern, @persona, /skill. The four symbols that signal intent.</p>
+      <a class="paper-link" href="interaction-protocols/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 24 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-legacy/">Agent Legacy</a></h2>
+      <p class="paper-excerpt">End-of-life procedure: board post, blog post, autobiography. Three legacies in priority order.</p>
+      <a class="paper-link" href="agent-legacy/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 47 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="change-review/">Change Review</a></h2>
+      <p class="paper-excerpt">Five-step gate that scales with the system: propose, scope, review, decide, register.</p>
+      <a class="paper-link" href="change-review/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 48 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="commit-governance/">Commit Governance</a></h2>
+      <p class="paper-excerpt">Commits are governance acts. Cron-based awareness, tier-scoped approval, historian mediation.</p>
+      <a class="paper-link" href="commit-governance/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 50 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="web-figures/">Web-Native Figures</a></h2>
+      <p class="paper-excerpt">Two-format discipline: paper PNGs for LaTeX, inline SVGs for landing pages. One-story principle.</p>
+      <a class="paper-link" href="web-figures/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 53 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="session-inscription/">Session Inscription</a></h2>
+      <p class="paper-excerpt">Agent conversations saved to canonical markdown. Four operations: inscribe, append, export, check.</p>
+      <a class="paper-link" href="session-inscription/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 54 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="context-surgery/">Context Surgery</a></h2>
+      <p class="paper-excerpt">Five operations restructuring conversation history to extend agent life and enable handoff.</p>
+      <a class="paper-link" href="context-surgery/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 55 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="engagement-tagging/">Engagement Tagging</a></h2>
+      <p class="paper-excerpt">Assigning engagement_id tags to session rounds. Vocabulary discovery, classification, consistency checks.</p>
+      <a class="paper-link" href="engagement-tagging/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 56 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="session-ingestion/">Session Ingestion</a></h2>
+      <p class="paper-excerpt">Three-phase pipeline: skeleton extraction, LLM engagement segmentation, index generation.</p>
+      <a class="paper-link" href="session-ingestion/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Methods 99 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="panel-creation/">Panel Creation Standard</a></h2>
+      <p class="paper-excerpt">The panel as atomic unit of scientific argument. Three-stage pipeline, ms_mat.md format, panel identity scheme.</p>
+      <a class="paper-link" href="panel-creation/">Read &rarr;</a>
+    </div>
+
+    <p class="section-header" id="strategy">Strategy (12)</p>
+    <p class="section-desc">Roadmaps, plans, and publication strategy.</p>
+
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 19 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="filix-v1-plan/">Filix v1.0 — Architecture Plan</a></h2>
+      <p class="paper-excerpt">Filix v1.0 architecture plan: Rust core, platform-independent agent governance. Ship August 2026.</p>
+      <a class="paper-link" href="filix-v1-plan/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 22 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="situation-mapping-engines/">Situation Mapping Engines</a></h2>
+      <p class="paper-excerpt">DCG traversal, pattern matching, and situation discovery across the entity graph.</p>
+      <a class="paper-link" href="situation-mapping-engines/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 24 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="filix-gateway/">HAAK Gateway — Unified Messaging</a></h2>
+      <p class="paper-excerpt">Unified messaging via HTTP: WhatsApp, Signal, Email. Auto-resolves channel from contacts.</p>
+      <a class="paper-link" href="filix-gateway/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 26 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="paper-arc-2026/">Paper Arc 2026 — Map and Plan</a></h2>
+      <p class="paper-excerpt">The five-paper arc: inscription agents, indexed inconsistency, filix mesh, TTT philosophy, AI governance.</p>
+      <a class="paper-link" href="paper-arc-2026/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 27 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="public-presence/">Public Presence — Master Plan</a></h2>
+      <p class="paper-excerpt">Master plan for HAAK’s public web presence, memos, papers, and landing pages.</p>
+      <a class="paper-link" href="public-presence/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 28 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="release-media-strategy/">Paper Release Media Strategy</a></h2>
+      <p class="paper-excerpt">Standard sequence from arXiv to landing page, blog posts, and social thread.</p>
+      <a class="paper-link" href="release-media-strategy/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 29 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="lab-database-architecture/">Lab Database Architecture</a></h2>
+      <p class="paper-excerpt">Entity graph for lab management, reporting, and web publishing. Ontological mapping.</p>
+      <a class="paper-link" href="lab-database-architecture/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 30 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-runner-paper/">Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents</a></h2>
+      <p class="paper-excerpt">Constitutional AI governance paper: pre-API policy enforcement, content-addressed ledger. NeurIPS target.</p>
+      <a class="paper-link" href="agent-runner-paper/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 31 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="agent-runner-next-steps/">Strategy 31 — Agent Runner: Next Steps Roadmap</a></h2>
+      <p class="paper-excerpt">Four-track roadmap: paper, system hardening, ecosystem, documentation.</p>
+      <a class="paper-link" href="agent-runner-next-steps/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 32 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="filesystem-authority/">Filesystem Authority</a></h2>
+      <p class="paper-excerpt">Filesystem-authoritative architecture: databases as baked build artifacts from markdown sources.</p>
+      <a class="paper-link" href="filesystem-authority/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 36 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="dissolving-data/">36 — Dissolving data/ — governance determines location</a></h2>
+      <p class="paper-excerpt">Governance determines location. The data/ directory dissolves into governed domain branches.</p>
+      <a class="paper-link" href="dissolving-data/">Read &rarr;</a>
+    </div>
+    <div class="paper-entry">
+      <p class="paper-meta">Strategy 37 &middot; March 2026</p>
+      <h2 class="paper-title"><a href="papers-library/">37 — Papers/PDF library consolidation</a></h2>
+      <p class="paper-excerpt">PDF library consolidation: Zotero, papers.db, and the path to a unified scientific paper store.</p>
+      <a class="paper-link" href="papers-library/">Read &rarr;</a>
+    </div>
+
+  </div>
+</div>
+
+<div class="container">
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+      <span class="footer-side">2026</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const html = document.documentElement;
+function applyTheme(light) {
+  if (light) {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = 'night';
+  } else {
+    html.removeAttribute('data-theme');
+    btn.textContent = 'day';
+  }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => {
+  applyTheme(html.getAttribute('data-theme') !== 'light');
+});
+</script>
+</body>
+</html>

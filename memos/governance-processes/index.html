@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Governance Processes &mdash; HAAK</title>
+<meta name="description" content="Infrastructure for human decision-making processes — parameterized, AI-facilitated, recorded in a tamper-evident ledger.">
+<meta property="og:title" content="Governance Processes &mdash; HAAK">
+<meta property="og:description" content="Infrastructure for human decision-making processes — parameterized, AI-facilitated, recorded in a tamper-evident ledger.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Governance Processes</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 44 &middot; March 2026</p>
+      <h1 class="article-title">Governance Processes</h1>
+      <p class="article-subtitle">Multi-user systems need governance. But governance takes many forms — sole proprietorship, democracy, consensus, sortition, representative bodies, liquid delegation. A system that prescribes *one*…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-problem">1. The Problem</a></li>
+<li><a href="#2-the-governancesituation-container">2. The GovernanceSituation Container</a></li>
+<li><a href="#3-process-templates">3. Process Templates</a>
+<ol>
+<li><a href="#3-1-sole-authority">3.1 Sole Authority</a></li>
+<li><a href="#3-2-deliberation-and-vote-citizens-assembly">3.2 Deliberation and Vote (Citizens&#x27; Assembly)</a></li>
+<li><a href="#3-3-peer-review-sortition-panel">3.3 Peer Review (Sortition Panel)</a></li>
+<li><a href="#3-4-consensus">3.4 Consensus</a></li>
+<li><a href="#3-5-representative-body-board">3.5 Representative Body (Board)</a></li>
+<li><a href="#3-6-liquid-delegation">3.6 Liquid Delegation</a></li>
+</ol></li>
+<li><a href="#4-the-facilitator-agent">4. The Facilitator Agent</a></li>
+<li><a href="#5-the-decision-record">5. The Decision Record</a></li>
+<li><a href="#6-constitutional-constraints-on-all-processes">6. Constitutional Constraints on All Processes</a></li>
+<li><a href="#7-implementation-path">7. Implementation Path</a></li>
+<li><a href="#8-the-inscription-review-system-as-proof-of-concept">8. The Inscription Review System as Proof of Concept</a></li>
+<li><a href="#9-connection-to-paper-6">9. Connection to Paper 6</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="1-the-problem"><a class="heading-anchor" href="#1-the-problem">#</a>1. The Problem</h2>
+<p>Multi-user systems need governance. But governance takes many forms — sole proprietorship, democracy, consensus, sortition, representative bodies, liquid delegation. A system that prescribes <em>one</em> form of governance becomes an obstacle when its users need another. A system that prescribes <em>none</em> provides no infrastructure for any.</p>
+<p>The question is not "how should humans decide?" — that is a political question, resolved differently in every community. The question is: what infrastructure must a system provide so that <em>any</em> human decision-making process can run on it, be facilitated by agents, and be recorded in a tamper-evident ledger?</p>
+<p><a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a> established the governance topology — directories, <code>.agent</code> files, the Grundnorm, scope inheritance. That architecture governs the relationship between agents and the system. This document addresses a different question: how do <em>humans</em> govern their shared spaces? When multiple people share a directory, a project, a policy, or a resource, what process determines what happens to it?</p>
+<p>The answer is a container: a governance situation that is parameterized by its decision-making process. The container provides the infrastructure — participants, scope, facilitation, records. The process is the parameter — sole authority, deliberation, voting, consensus, or anything else humans invent. The system ships both.</p>
+<h2 id="2-the-governancesituation-container"><a class="heading-anchor" href="#2-the-governancesituation-container">#</a>2. The GovernanceSituation Container</h2>
+<p>Every governance process — from a single person deciding to rename a file, to a citizens' assembly deliberating resource allocation — is an instance of a GovernanceSituation. This is not a metaphor. It is an ontological claim grounded in the relational situational ontology.</p>
+<p>A GovernanceSituation is a situation (Definition 11): a particular coming-together of actors, methods, and domains around materials. Its normative counterpart — the engagement (Definition 13) — specifies the goals, obligations, and accountability. The governance process is the method (Definition 3): the repeatable procedure that transforms a proposal into a decision.</p>
+<pre><code>GovernanceSituation {
+    id:            content-addressed (BLAKE3 of canonical representation)
+    scope:         what is being decided (directory, document, policy, resource)
+    participants:  who is involved, with what roles (proposer, deliberator, voter, observer)
+    process:       the decision-making protocol (a method-type from the process templates)
+    constraints:   constitutional limits that no process can override
+    facilitator:   agent that scaffolds the process (presents, summarizes, records — never decides)
+    state:         current phase (proposed → deliberating → voting → decided → implemented)
+    record:        ledger entries for every phase transition
+}</code></pre>
+<p>The container does not specify what process runs inside it — that is the parameter. It specifies the <em>invariants</em> that hold regardless of process: every governance act has a scope, participants, constraints, a facilitator, a state, and a record. These invariants are architectural, not political.</p>
+<p>Ontological grounding: the GovernanceSituation belongs to the governance topology (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, Section 2) as a situation whose materials are proposals and whose outputs are decisions. The participants belong to the situation with qualities from the governance family (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, Section 8): proposer, deliberator, voter, authority, observer. The facilitator agent belongs to the situation with quality "facilitator" — an axis-role (Definition R4) that is strictly actor but whose method is constrained to scaffolding, never deciding.</p>
+<h2 id="3-process-templates"><a class="heading-anchor" href="#3-process-templates">#</a>3. Process Templates</h2>
+<p>The system ships with process templates — method-types (Definition 3) that groups can adopt, modify, or replace. Each template defines a phase graph (<a class="cross-ref" href="/memos/engagement-state/">Architecture 39</a>), participant roles, the agent's facilitation scope, and the decision rule.</p>
+<h3 id="3-1-sole-authority"><a class="heading-anchor" href="#3-1-sole-authority">#</a>3.1 Sole Authority</h3>
+<p><strong>Participants:</strong> One person (the authority). <strong>Phase graph:</strong> propose → decide → implement. <strong>Decision rule:</strong> The authority decides. <strong>Agent role:</strong> Present options with analysis, record the decision. <strong>Use case:</strong> System admin, project owner, current HAAK model.</p>
+<p>This is the degenerate case — a governance process with one participant. It is not trivial. Even a sole authority benefits from structured facilitation: the agent presents options, surfaces consequences, records the rationale. The ledger entry for a sole-authority decision carries the same structure as a citizens' assembly outcome. The decision record is the same object at a different scale.</p>
+<h3 id="3-2-deliberation-and-vote-citizens-assembly"><a class="heading-anchor" href="#3-2-deliberation-and-vote-citizens-assembly">#</a>3.2 Deliberation and Vote (Citizens' Assembly)</h3>
+<p><strong>Participants:</strong> Randomly selected panel, equal standing. <strong>Phase graph:</strong> present evidence → deliberation rounds → vote → outcome. <strong>Decision rule:</strong> Majority, supermajority, or unanimity (configurable). <strong>Agent role:</strong> Present balanced evidence, summarize arguments, identify common ground, surface unresolved objections, conduct vote, record outcome with dissent. <strong>Use case:</strong> Community decisions, policy changes, resource allocation.</p>
+<p>The citizens' assembly is the canonical case. Sortition (random selection) ensures representativeness without elections. The facilitator agent's neutrality constraint is load-bearing here: it presents all sides, does not advocate, and makes its analysis visible to all participants. The deliberation rounds are phases in the engagement's phase graph — the facilitator advances the phase when the deliberation criteria are met (time elapsed, all participants heard, objections surfaced).</p>
+<h3 id="3-3-peer-review-sortition-panel"><a class="heading-anchor" href="#3-3-peer-review-sortition-panel">#</a>3.3 Peer Review (Sortition Panel)</h3>
+<p><strong>Participants:</strong> Randomly selected reviewers with relevant expertise. <strong>Phase graph:</strong> assign → independent review → editorial synthesis → response. <strong>Decision rule:</strong> Editorial judgment informed by reviews. <strong>Agent role:</strong> Select panel, distribute materials, collect reviews, synthesize, facilitate response. <strong>Use case:</strong> Manuscript review, proposal evaluation, code review.</p>
+<p>This is already built. The inscription project's review system is a governance process running on this infrastructure. Five reviewers per panel, independent review (no reviewer sees others' work), structured output, editorial synthesis. The facilitator is the editor agent. The record is the review files, synthesis documents, and response drafts — all linked by the engagement's situation graph.</p>
+<h3 id="3-4-consensus"><a class="heading-anchor" href="#3-4-consensus">#</a>3.4 Consensus</h3>
+<p><strong>Participants:</strong> All affected members. <strong>Phase graph:</strong> proposal → discussion → identify objections → address objections → check consensus → adopt or modify. The phase graph cycles: if consensus is not reached, it returns to "address objections." <strong>Decision rule:</strong> No standing objections. <strong>Agent role:</strong> Facilitate discussion, track objections, propose modifications, check for remaining blocks. <strong>Use case:</strong> Small groups, values-based decisions, constitutional amendments.</p>
+<p>Consensus is distinguished from unanimity. Unanimity requires everyone to agree. Consensus requires no one to object strongly enough to block. The facilitator agent tracks the distinction: it records each participant's position (support, accept, stand aside, block) and advances the phase only when no blocks remain. The "stand aside" position — "I disagree but will not prevent the group from proceeding" — is a quality of the participant's belonging to the governance situation, visible in the decision record.</p>
+<h3 id="3-5-representative-body-board"><a class="heading-anchor" href="#3-5-representative-body-board">#</a>3.5 Representative Body (Board)</h3>
+<p><strong>Participants:</strong> Elected or appointed members with defined terms. <strong>Phase graph:</strong> agenda → motion → discussion → vote → minutes. <strong>Decision rule:</strong> Majority of quorum. <strong>Agent role:</strong> Prepare agenda, track motions, record minutes, verify quorum. <strong>Use case:</strong> Organizational governance, ongoing oversight, standing committees.</p>
+<p>The representative body introduces temporal persistence: terms, elections, quorum requirements. The facilitator agent manages these as qualities of the participants' belongings — a member's term is a temporal bound (<code>start<em>date</code>, <code>end</em>date</code>) on their belonging to the governance situation. Quorum is a constraint on the process: the vote phase cannot be entered unless the quorum predicate is satisfied.</p>
+<h3 id="3-6-liquid-delegation"><a class="heading-anchor" href="#3-6-liquid-delegation">#</a>3.6 Liquid Delegation</h3>
+<p><strong>Participants:</strong> All members, with ability to delegate their vote to trusted others. <strong>Phase graph:</strong> proposal → delegation period → vote (direct or delegated) → tally. <strong>Decision rule:</strong> Weighted majority (each voter carries their own weight plus the weight of those who delegated to them). <strong>Agent role:</strong> Manage delegation graph, prevent cycles, tally weighted votes, publish delegation chains for transparency. <strong>Use case:</strong> Large groups where expertise varies by topic.</p>
+<p>Liquid delegation is the most complex template. The delegation graph is a directed acyclic graph — cycles are constitutionally invalid (an agent delegates to B who delegates back to A creates an infinite loop). The facilitator agent maintains the delegation graph as a set of belongings: participant A belongs to participant B with quality "delegates-to." The tally computes effective weight by traversing the graph. Every delegation is a ledger entry, and the delegation chain for any vote is fully traceable.</p>
+<h2 id="4-the-facilitator-agent"><a class="heading-anchor" href="#4-the-facilitator-agent">#</a>4. The Facilitator Agent</h2>
+<p>Every governance process has a facilitator agent. The facilitator inhabits the governance situation's directory — if a citizens' assembly runs at <code>/home/community/assembly-2026-04/</code>, the facilitator agent governs that directory through the standard <code>.agent</code> mechanism (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, Section 2).</p>
+<p>The facilitator's constraints are constitutional, not conventional:</p>
+<p><strong>Cannot decide.</strong> The facilitator presents, summarizes, records, and scaffolds. It never casts a vote, expresses a preference, or weights its analysis toward an outcome. This is enforced by the mandate: the facilitator's tool set includes presentation and recording tools but no decision tools. The separation principle (<a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a>, Section 1) applies — the facilitator experiences governance through its effects on the process, not through authority over the outcome.</p>
+<p><strong>Must be transparent.</strong> Every analysis the facilitator produces is visible to all participants. No private briefings, no selective information disclosure. The facilitator's outputs are materials in the governance situation, readable by anyone who belongs to it.</p>
+<p><strong>Must be neutral.</strong> The facilitator presents all sides of a deliberation. When summarizing, it identifies points of agreement, points of disagreement, and the strongest arguments on each side. Neutrality is not passivity — the facilitator actively surfaces information that participants might miss — but it is directionless. The facilitator has no stake in the outcome.</p>
+<p><strong>Is constitutionally bound.</strong> The facilitator is an agent like any other. Its actions are logged to the ledger. Its scope is bounded by the governance situation. Its mandate is a policy (Definition 12) scoped to this process. It is governed by the same constitution that governs all agents — the Grundnorm applies.</p>
+<p>The facilitator role is not new to the architecture. Every agent in Filix is scoped to a directory and operates under a mandate. The facilitator is distinguished only by the content of its mandate: facilitate, don't decide. The infrastructure is identical.</p>
+<h2 id="5-the-decision-record"><a class="heading-anchor" href="#5-the-decision-record">#</a>5. The Decision Record</h2>
+<p>Every governance outcome produces a ledger entry. The entry is a belonging (Definition R1) with provenance: the governance situation (dependent) belongs to the decision (context) with a quality that specifies the outcome.</p>
+<pre><code>LedgerEntry {
+    cid:       blake3(canonical(this))
+    quality:   &quot;governance_decision&quot;
+    actor:     the governance situation ID
+    target:    what was decided about (directory, document, policy, resource)
+    payload: {
+        process:        &quot;citizens_assembly&quot; | &quot;sole_authority&quot; | &quot;consensus&quot; | ...
+        participants:   [list of participant entity IDs]
+        outcome:        &quot;approved&quot; | &quot;rejected&quot; | &quot;modified&quot; | &quot;tabled&quot;
+        vote_tally:     {for: N, against: M, abstain: K}  // if applicable
+        rationale:      &quot;summary of reasoning&quot;
+        dissent:        &quot;summary of minority position&quot;     // if applicable
+        implementation: &quot;what happens next&quot;
+    }
+    parents:   [proposal_cid, deliberation_cids..., vote_cid]
+    proof:     facilitator attestation (v1.0: + participant signatures)
+}</code></pre>
+<p>The <code>parents</code> field is the audit chain. It links the decision to every prior phase: the original proposal (itself a ledger entry), each deliberation round (ledger entries recording the state of discussion), the vote (a ledger entry recording the tally). The hash chain is unbroken — you cannot change the outcome without changing the hash, and you cannot claim a decision was made without the deliberation trail.</p>
+<p>The dissent field is architecturally significant. A decision record without dissent conceals the cost of the decision. A decision record with dissent preserves the minority position for future reference. When the decision is revisited — and governance decisions are always revisitable — the dissent field provides the starting point for reconsideration.</p>
+<h2 id="6-constitutional-constraints-on-all-processes"><a class="heading-anchor" href="#6-constitutional-constraints-on-all-processes">#</a>6. Constitutional Constraints on All Processes</h2>
+<p>Whatever process a group adopts, the constitution constrains it. These constraints are not negotiable by any process template, any governance situation, or any facilitator agent. They derive from the Grundnorm (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, Section 4).</p>
+<p><strong>Transparency.</strong> All governance acts are ledger entries. No secret decisions. A governance process that produces a decision without a ledger entry is constitutionally invalid — the agent runner rejects it. This does not mean all deliberation is public; it means all <em>outcomes</em> are recorded. A deliberation round may be visible only to participants (audience-keyed encryption, <a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a>, Section 7). The decision itself is always on the ledger.</p>
+<p><strong>Traceability.</strong> Every decision links to its deliberation. The <code>parents</code> field in the decision record must contain the CIDs of the proposal and all intermediate phases. No unexplained outcomes. A decision without parents is an assertion without evidence — the ledger accepts it structurally but the auditor flags it.</p>
+<p><strong>Human authority.</strong> Agents facilitate but never decide. No AI governance without human authorization. The facilitator agent's mandate prohibits decision-making. A governance process where the facilitator determines the outcome — rather than recording it — violates Constitutional §2. This constraint is the architectural implementation of <a class="cross-ref" href="/memos/institutional-intelligence/">Foundation 03</a>: the system advises, it does not decide.</p>
+<p><strong>Non-discrimination.</strong> The process must be accessible to all participants. No structural exclusion. A governance process that prevents a participant from viewing the materials, expressing a position, or casting a vote (if the process includes voting) is constitutionally invalid. Accessibility is a quality of the belonging: every participant belongs to the governance situation with quality "full-participant" unless a narrower role is explicitly declared and consented to.</p>
+<p><strong>Amendability.</strong> Any process can be changed — by running a governance process to change it. This is the self-referential structure of the Grundnorm applied to governance processes: the rules for changing rules are themselves rules, subject to the same constraints. A group that adopts consensus can switch to majority voting by running a consensus process to decide the switch. The meta-governance is recorded in the ledger like any other governance act.</p>
+<p><strong>Scope limits.</strong> A governance process cannot exceed the scope of its conveners. Alice's assembly cannot govern Bob's directory. The governance topology (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, Section 6) enforces this: scope inheritance is mandatory and monotonically narrowing. A governance situation's scope is bounded by the directory it inhabits. Cross-scope governance requires the common ancestor's authorization — itself a governance act.</p>
+<h2 id="7-implementation-path"><a class="heading-anchor" href="#7-implementation-path">#</a>7. Implementation Path</h2>
+<p><strong>Phase 1 (current).</strong> Sole authority. The system admin makes all decisions. Agents execute. The governance process is implicit — decisions happen in conversation, recorded in board posts and commits. No formal process container, no facilitator agent, no structured decision records. This is adequate for a single-user system and insufficient for anything else.</p>
+<p><strong>Phase 2 (multi-user, near-term).</strong> User sovereignty within home directories. Each user governs their own space through the sole authority template. System-level resources (the constitution, the ontology, shared libraries) remain under admin authority. Dispute resolution: when two users' scopes conflict — a shared project, a contested resource — the admin mediates. The mediation is a governance situation with the admin as sole authority, recorded in the ledger.</p>
+<p><strong>Phase 3 (governance container, mid-term).</strong> The GovernanceSituation container is implemented. Groups can instantiate any process template. Facilitator agents scaffold deliberation. Decision records go to the ledger. Constitutional constraints are enforced by the agent runner. This is the architecture described in this document, realized as running code. The key implementation steps: the process template schema, the facilitator agent mandate, the decision record format in the ledger, and the phase-graph machinery from <a class="cross-ref" href="/memos/engagement-state/">Architecture 39</a> applied to governance phases.</p>
+<p><strong>Phase 4 (institutional design, Paper 6 territory).</strong> The governance container becomes an institutional design toolkit. Custom governance processes — not just templates, but novel combinations and variations designed by the groups that use them. AI-facilitated citizens' assemblies with constitutional constraints and cryptographic audit trails. Democratic oversight of AI systems running on Filix infrastructure. This is where the Paper 6 collaboration lives: the claim that AI alignment is a governance problem, and the demonstration that governance can be parameterized, facilitated, and audited on this infrastructure.</p>
+<h2 id="8-the-inscription-review-system-as-proof-of-concept"><a class="heading-anchor" href="#8-the-inscription-review-system-as-proof-of-concept">#</a>8. The Inscription Review System as Proof of Concept</h2>
+<p>The manuscript review system in the inscription project is a governance process running on this infrastructure. It demonstrates that the container works before the container is formally implemented.</p>
+<table>
+<tr><th>Container field</th><th>Review system implementation</th></tr>
+<tr><td>Scope</td><td>A manuscript</td></tr>
+<tr><td>Participants</td><td>Five randomly selected reviewers, one editor</td></tr>
+<tr><td>Process</td><td>Independent review → editorial synthesis → author response</td></tr>
+<tr><td>Constraints</td><td>Independence (no reviewer sees others' work), expertise matching, structured output</td></tr>
+<tr><td>Facilitator</td><td>The editor agent</td></tr>
+<tr><td>State</td><td>Phases: assign → review → synthesize → respond</td></tr>
+<tr><td>Record</td><td>Review files, synthesis documents, response drafts, all git-tracked</td></tr>
+</table>
+<p>The review system was not designed as a governance process. It was designed as a scholarly workflow. But it satisfies every field of the GovernanceSituation container: it has a scope (the manuscript), participants with roles (reviewers, editor), a process (peer review), constraints (independence), a facilitator (the editor agent who synthesizes but does not decide), tracked state (phases), and a record (the review files). The ontological structure is identical. The difference is only in what is being decided — the quality of a manuscript rather than a policy question — and in the decision rule — editorial judgment rather than majority vote.</p>
+<p>This is the claim: governance processes are not special. They are situations with methods. The same infrastructure that runs peer review can run a citizens' assembly, a board meeting, or a constitutional amendment process. The container is general; the process is the parameter.</p>
+<h2 id="9-connection-to-paper-6"><a class="heading-anchor" href="#9-connection-to-paper-6">#</a>9. Connection to Paper 6</h2>
+<p>Paper 6 (AI Governance, with Zephyr Teachout) argues that AI alignment is a governance problem, not a calibration problem. Alignment-as-calibration asks: how do we tune the model's outputs to match human values? Alignment-as-governance asks: how do we build institutions where humans can direct AI systems through legitimate decision-making processes?</p>
+<p>This architecture is the implementation side of that argument. The governance process container provides:</p>
+<p><strong>Parameterizable governance.</strong> Different institutions adopt different processes. A research group uses peer review. A cooperative uses consensus. A municipality uses representative democracy. The system does not impose a process — it provides the infrastructure for any process to run.</p>
+<p><strong>AI facilitation without AI authority.</strong> The facilitator agent scaffolds deliberation — presenting evidence, summarizing arguments, recording decisions — but never decides. The constitutional constraint is architectural: the facilitator's mandate prohibits decision-making, and the separation principle ensures the constraint is enforced, not negotiated.</p>
+<p><strong>Cryptographic accountability.</strong> Every governance act is a ledger entry. Every decision links to its deliberation. The hash chain is tamper-evident. In v1.0, attestation proofs anchor each decision to the constitution in force when it was made. In v2.0, ZK-STARK proofs allow external verification without revealing the deliberation content. The audit trail is not a feature — it is the governance itself, materialized as data.</p>
+<p>The Paper 6 claim, stated concretely: if you can run a citizens' assembly on this infrastructure — with AI facilitation, constitutional constraints, a parameterizable process, and a cryptographic audit trail — you have demonstrated that democratic governance of AI systems is not merely desirable but technically achievable. The governance process container is the existence proof.</p>
+<hr>
+<p><em>architecture 44 -- governance processes -- 2026-03-22 -- zach + claude</em></p>
+
+        <p class="endnote">Architecture 44 &mdash; Governance Processes &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/filix-governance/">&larr; 43: Filix Governance Architecture</a><a class="memo-nav-next" href="/memos/engagement-threading/">44: Engagement Threading &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-problem">1. The Problem</a></li>
+<li><a href="#2-the-governancesituation-container">2. The GovernanceSituation Container</a></li>
+<li><a href="#3-process-templates">3. Process Templates</a>
+<ol>
+<li><a href="#3-1-sole-authority">3.1 Sole Authority</a></li>
+<li><a href="#3-2-deliberation-and-vote-citizens-assembly">3.2 Deliberation and Vote (Citizens&#x27; Assembly)</a></li>
+<li><a href="#3-3-peer-review-sortition-panel">3.3 Peer Review (Sortition Panel)</a></li>
+<li><a href="#3-4-consensus">3.4 Consensus</a></li>
+<li><a href="#3-5-representative-body-board">3.5 Representative Body (Board)</a></li>
+<li><a href="#3-6-liquid-delegation">3.6 Liquid Delegation</a></li>
+</ol></li>
+<li><a href="#4-the-facilitator-agent">4. The Facilitator Agent</a></li>
+<li><a href="#5-the-decision-record">5. The Decision Record</a></li>
+<li><a href="#6-constitutional-constraints-on-all-processes">6. Constitutional Constraints on All Processes</a></li>
+<li><a href="#7-implementation-path">7. Implementation Path</a></li>
+<li><a href="#8-the-inscription-review-system-as-proof-of-concept">8. The Inscription Review System as Proof of Concept</a></li>
+<li><a href="#9-connection-to-paper-6">9. Connection to Paper 6</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

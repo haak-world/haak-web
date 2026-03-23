@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Filix Governance Architecture &mdash; HAAK</title>
+<meta name="description" content="A governance topology materialized as a filesystem. Nested governance situations, three layers of truth, and the Grundnorm.">
+<meta property="og:title" content="Filix Governance Architecture &mdash; HAAK">
+<meta property="og:description" content="A governance topology materialized as a filesystem. Nested governance situations, three layers of truth, and the Grundnorm.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Filix Governance Architecture</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 43 &middot; March 2026</p>
+      <h1 class="article-title">Filix Governance Architecture</h1>
+      <p class="article-subtitle">Architecture 41 established the separation principle, the ledger, and the trust model. But the implementation vocabulary — process tables, kernels, filesystems, permissions — borrows from Unix, and…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-beyond-the-unix-analogy">1. Beyond the Unix Analogy</a></li>
+<li><a href="#2-the-governance-topology">2. The Governance Topology</a></li>
+<li><a href="#3-three-layers-of-truth">3. Three Layers of Truth</a>
+<ol>
+<li><a href="#3-1-the-roster-type-layer">3.1 The Roster (Type Layer)</a></li>
+<li><a href="#3-2-the-agent-files-assignment-layer">3.2 The .agent Files (Assignment Layer)</a></li>
+<li><a href="#3-3-the-ledger-history-layer">3.3 The Ledger (History Layer)</a></li>
+<li><a href="#3-4-the-governance-index">3.4 The Governance Index</a></li>
+</ol></li>
+<li><a href="#4-the-grundnorm">4. The Grundnorm</a>
+<ol>
+<li><a href="#4-1-values-and-principles-governance-constitutive">4.1 Values and Principles (Governance Constitutive)</a></li>
+<li><a href="#4-2-permissions-and-procedures-ledger-regulative">4.2 Permissions and Procedures (Ledger Regulative)</a></li>
+<li><a href="#4-3-the-constitution-hash">4.3 The Constitution Hash</a></li>
+</ol></li>
+<li><a href="#5-communication-kinds">5. Communication Kinds</a>
+<ol>
+<li><a href="#5-1-peer-coordination">5.1 Peer Coordination</a></li>
+<li><a href="#5-2-hierarchical-down-delegation">5.2 Hierarchical-Down (Delegation)</a></li>
+<li><a href="#5-3-hierarchical-up-reporting">5.3 Hierarchical-Up (Reporting)</a></li>
+<li><a href="#5-4-why-three-kinds">5.4 Why Three Kinds</a></li>
+</ol></li>
+<li><a href="#6-scope-inheritance-and-isolation">6. Scope Inheritance and Isolation</a></li>
+<li><a href="#7-the-directory-hierarchy-as-governance-topology">7. The Directory Hierarchy as Governance Topology</a></li>
+<li><a href="#8-the-governs-quality-family">8. The &quot;Governs&quot; Quality Family</a></li>
+<li><a href="#9-what-filix-is">9. What Filix Is</a></li>
+<li><a href="#10-relationship-to-engagement-state">10. Relationship to engagement state</a></li>
+<li><a href="#11-relationship-to-paper-4a">11. Relationship to Paper 4a</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="1-beyond-the-unix-analogy"><a class="heading-anchor" href="#1-beyond-the-unix-analogy">#</a>1. Beyond the Unix Analogy</h2>
+<p><a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a> established the separation principle, the ledger, and the trust model. But the implementation vocabulary — process tables, kernels, filesystems, permissions — borrows from Unix, and the borrowing imports assumptions that distort the design at every critical juncture. The Unix analogy is pedagogically useful and must be transcended.</p>
+<p><strong>Processes and agents.</strong> A Unix process is a resource consumer. It requests memory, file descriptors, CPU time. The kernel mediates these requests. The process has no opinion about the kernel and no role in governance — it is governed, full stop. An agent in Filix is a <em>participant in governance situations</em>. It belongs to directories with the quality "governor." It spawns subagents whose scope it constrains. It reports upward to its own governor. The relationship between agent and system is not resource-mediation but <em>nested governance</em>. An agent is not asking "may I read this file?" — it is operating within a scope defined by a chain of governance situations, each of which was established by a prior governance act recorded in the ledger.</p>
+<p><strong>Kernel and agent runner.</strong> The Unix kernel is sovereign — it cannot be governed by the processes it governs. The agent runner is not sovereign. It enforces the constitution, but the constitution is a document external to it, readable by anyone, amendable through governance acts. The runner is itself governed — by the constitution it enforces. This self-referential structure has no Unix equivalent. A kernel that could be modified by the policies it enforces would be a security vulnerability. In Filix, it is the design.</p>
+<p><strong>Filesystem and governance topology.</strong> A Unix filesystem organizes storage. Filix organizes <em>authority</em>. The directory hierarchy is not a convenience for locating files — it is a governance topology where every node can be governed, every path is an authority address, and the tree structure encodes scope inheritance. The <code>.agent</code> file at a directory node is not metadata about files — it is a declaration of governance over everything below.</p>
+<p><strong>Permissions and trust.</strong> Unix permissions are mode bits on files — static, local, three-level (owner/group/other). Filix trust flows from governance situations. An agent's permissions are not properties of files it accesses but qualities of the belonging that established its governance relationship. The same agent may have different effective permissions in different directories, not because the directories have different mode bits, but because the agent participates in different governance situations at each location.</p>
+<p>The Unix model is flat: one kernel, many processes, one filesystem. The Filix model is recursive: governance situations nest, agents govern agents, scopes inherit downward, and the constitution governs the governance process itself. This recursion is not an implementation detail — it is the architectural claim.</p>
+<h2 id="2-the-governance-topology"><a class="heading-anchor" href="#2-the-governance-topology">#</a>2. The Governance Topology</h2>
+<p>Filix is a filesystem where every node can be governed. The governance relationship is a belonging in the relational situational ontology:</p>
+<pre><code>agent:X  belongs-to  directory:Y  quality:&quot;governor&quot;
+  source:   &lt;governance-situation that established this&gt;
+  attestation: &lt;ledger entry proving the assignment&gt;</code></pre>
+<p>The <code>.agent</code> file at a directory node materializes this belonging. It is a cached projection — the ledger entry is canonical, the file is derived for fast lookup. Neither is redundant. They operate at different speeds: the ledger provides history, auditability, and tamper evidence; the <code>.agent</code> file provides O(1) directory-local resolution during tool execution.</p>
+<p>The governance topology is the directory tree annotated with governance belongings. It answers three questions at any node:</p>
+<ol>
+<li><strong>Who governs here?</strong> Read the <code>.agent</code> file (or walk up until one is found).</li>
+<li><strong>By what authority?</strong> Follow the <code>source</code> field to the governance situation that established this assignment.</li>
+<li><strong>What is the scope?</strong> Everything below this directory, unless a subdirectory declares its own governor.</li>
+</ol>
+<p>This is scope inheritance — the same mechanism by which policies accumulate through domain subsumption (Definition 12 from the ontology). A directory's governor governs everything below it. A subdirectory may declare its own governor, creating a new governance boundary. The child governor's scope cannot exceed the parent's — scope inheritance is mandatory for spawned subagents, and scope-less spawning is constitutionally invalid.</p>
+<h2 id="3-three-layers-of-truth"><a class="heading-anchor" href="#3-three-layers-of-truth">#</a>3. Three Layers of Truth</h2>
+<p>Three structures jointly describe the governance state. Each operates at a different level of abstraction and a different timescale. None is redundant — they answer different questions.</p>
+<h3 id="3-1-the-roster-type-layer"><a class="heading-anchor" href="#3-1-the-roster-type-layer">#</a>3.1 The Roster (Type Layer)</h3>
+<p>The roster declares what agent-types <em>can</em> exist and their capabilities. It is an institutional charter — the equivalent of a bar association that defines what a lawyer is, what competencies are required, what trust level is conferred. The roster answers: "What kinds of agents does this system recognize?"</p>
+<p>Each roster entry specifies:</p>
+<ul>
+<li><strong>Identity</strong>: name, model, trust tier</li>
+<li><strong>Capabilities</strong>: what tools, what scopes, what communication modes</li>
+<li><strong>Governance properties</strong>: standing/domain/ephemeral, mandate reference, role</li>
+</ul>
+<p>The roster does not say who is governing where. It says what kinds of governors are possible. A roster entry for <code>naga</code> declares that an agent of this type exists, has standing trust, governs ontological domains, and operates with a specific mandate. It does not say which directories Naga currently governs — that is the assignment layer's job.</p>
+<h3 id="3-2-the-agent-files-assignment-layer"><a class="heading-anchor" href="#3-2-the-agent-files-assignment-layer">#</a>3.2 The .agent Files (Assignment Layer)</h3>
+<p>The <code>.agent</code> file at a directory node declares who governs here, right now. It is a cached projection of ledger state — derived, not primary. The relationship between <code>.agent</code> file and ledger is the same as the relationship between a database index and the table it indexes: the index is computed for performance, the table is authoritative.</p>
+<p>An <code>.agent</code> file contains:</p>
+<ul>
+<li><strong>Agent identity</strong>: which roster entry governs this node</li>
+<li><strong>Quality</strong>: the nature of the governance (governor, deputy, auditor)</li>
+<li><strong>Source</strong>: the ledger entry that established this assignment</li>
+<li><strong>Scope constraints</strong>: any restrictions narrower than the default (full subtree)</li>
+</ul>
+<p>The same agent can govern multiple directories — multiple belongings with the same dependent (agent) and different contexts (directories). The same directory can have multiple agents with different qualities: a governor who makes decisions, a deputy who acts in the governor's absence, an auditor who verifies compliance. These are distinct belongings, distinguished by quality.</p>
+<h3 id="3-3-the-ledger-history-layer"><a class="heading-anchor" href="#3-3-the-ledger-history-layer">#</a>3.3 The Ledger (History Layer)</h3>
+<p>The ledger records every governance event — assignment, revocation, delegation, scope change, policy verdict, session lifecycle. It is the court record: append-only, content-addressed, hash-chained, tamper-evident. <a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a> specifies its structure; here we note its role in the three-layer model.</p>
+<p>The ledger answers questions the other two layers cannot:</p>
+<ul>
+<li><strong>When</strong> was this governance relationship established?</li>
+<li><strong>Who</strong> authorized it?</li>
+<li><strong>What</strong> was the chain of authority from the constitution to this specific assignment?</li>
+<li><strong>Has</strong> anything been tampered with?</li>
+</ul>
+<p>The roster is the type system. The <code>.agent</code> files are the runtime cache. The ledger is the history. Together they form a complete governance state — but the state is never stored in one place. It is a derived view, computed on demand.</p>
+<h3 id="3-4-the-governance-index"><a class="heading-anchor" href="#3-4-the-governance-index">#</a>3.4 The Governance Index</h3>
+<p>There is no single process table. The "ps" equivalent — a complete picture of who is governing where, with what authority, in what state — is a derived governance index computed by joining all three layers:</p>
+<pre><code>governance_index = roster(types) ⋈ agent_files(assignments) ⋈ ledger(history)</code></pre>
+<p>This is computed on demand, never stored. Zombie detection — <code>.agent</code> files whose agent is no longer running — falls out naturally: the <code>.agent</code> file declares a governor, the roster says the agent is dead, the governance index flags the inconsistency.</p>
+<h2 id="4-the-grundnorm"><a class="heading-anchor" href="#4-the-grundnorm">#</a>4. The Grundnorm</h2>
+<p>Hans Kelsen's <em>Grundnorm</em> is the basic norm from which all other legal norms derive their validity. In any legal system, you can ask of any rule: "What authorizes this rule?" The answer is always another rule — until you reach the constitution, which authorizes itself. The Grundnorm is not itself authorized by a higher norm. It is presupposed as the condition of the legal order's validity.</p>
+<p>The Filix constitution occupies this position. It is not an actor — it does not decide. It is not a belonging of the system — nothing contains it. It is the normative ground from which all governance derives. The constitution has two strata, corresponding to two distinct modes of normative operation:</p>
+<h3 id="4-1-values-and-principles-governance-constitutive"><a class="heading-anchor" href="#4-1-values-and-principles-governance-constitutive">#</a>4.1 Values and Principles (Governance Constitutive)</h3>
+<p>The first stratum establishes what governance <em>is</em>: what counts as a valid governance act, what kinds of agents can exist, what the relationship between human authority and agent autonomy must be, what externalization requires. These are evaluated at role creation — when a new agent type is added to the roster, when a standing role's mandate is drafted, when the governance topology is restructured.</p>
+<p>The constitutional principles are:</p>
+<ul>
+<li>Human authority is final (<a class="cross-ref" href="/memos/institutional-intelligence/">Foundation 03</a>, §2)</li>
+<li>Every governance act is externalized (<a class="cross-ref" href="/memos/externalization/">Foundation 05</a>, §1)</li>
+<li>Agents are mortal; externalizations survive (<a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a>, §6)</li>
+<li>The constitution governs the governance process, including its own amendment</li>
+</ul>
+<p>These are not rules in the procedural sense. They are the conditions under which rules are valid. A rule that violates human authority is not merely a bad rule — it is not a rule at all, because it fails the validity test that the Grundnorm establishes.</p>
+<h3 id="4-2-permissions-and-procedures-ledger-regulative"><a class="heading-anchor" href="#4-2-permissions-and-procedures-ledger-regulative">#</a>4.2 Permissions and Procedures (Ledger Regulative)</h3>
+<p>The second stratum prescribes what may and must happen during operation: which tools are available to which trust tiers, how scope is inherited, what constitutes a valid ledger entry, how policy verdicts are computed. These are evaluated at append time — when the agent runner writes a ledger entry, when a tool call is gated by the policy engine, when a session's workspace boundary is enforced.</p>
+<p>The procedural rules include:</p>
+<ul>
+<li>Trust tier determination from roster lookup</li>
+<li>Workspace scoping by trust level</li>
+<li>Tool availability filtered by mandate and tier</li>
+<li>Ledger entry format and hash-chain integrity</li>
+<li>Session identity derivation</li>
+</ul>
+<p>The separation between strata is not decorative. It solves a concrete problem: constitutional amendment. The values stratum governs how the rules stratum can change. Adding a new procedural rule (a new tool-blocking policy) is a governance act within the rules stratum. Changing a constitutional principle (redefining what human authority means) is a governance act that touches the values stratum and requires a different, more deliberate process — one that the values stratum itself specifies.</p>
+<h3 id="4-3-the-constitution-hash"><a class="heading-anchor" href="#4-3-the-constitution-hash">#</a>4.3 The Constitution Hash</h3>
+<p>The BLAKE3 hash of the prose constitution document is computed once at startup and carried in every policy verdict. This hash is the machine-readable anchor: it says "this verdict was derived from this normative source." If the constitution changes, the hash changes, and every subsequent verdict carries the new hash. The hash chain in the ledger therefore records constitutional evolution — you can trace which constitution was in force when any governance decision was made.</p>
+<p>The constitution does not have a <code>.agent</code> file. It does not have a governor. It governs itself — this is the self-referential structure that Kelsen identified as the defining property of the Grundnorm. The <code>lib/constitution/</code> directory in the Filix hierarchy is the one node where governance bottoms out.</p>
+<h2 id="5-communication-kinds"><a class="heading-anchor" href="#5-communication-kinds">#</a>5. Communication Kinds</h2>
+<p>Not all inter-agent communication is the same. Three distinct kinds exist, each with its own protocol, its own ledger implications, and its own ontological character.</p>
+<h3 id="5-1-peer-coordination"><a class="heading-anchor" href="#5-1-peer-coordination">#</a>5.1 Peer Coordination</h3>
+<p>Symmetric communication between agents of comparable authority. Board posts, room messages, shared situation updates. No authority transfer occurs. Neither party governs the other. The communication is a situation (Definition 11) — a coming-together of actors around shared materials.</p>
+<p>Peer coordination does not require ledger entries. It is recorded in boards and room logs — domain memories visible to all participants. The audit trail is the board itself, not the governance ledger. This is appropriate: peer coordination is descriptive (what happened) rather than normative (what was authorized).</p>
+<h3 id="5-2-hierarchical-down-delegation"><a class="heading-anchor" href="#5-2-hierarchical-down-delegation">#</a>5.2 Hierarchical-Down (Delegation)</h3>
+<p>Asymmetric communication from governor to governed. Spawning a subagent, granting scope, injecting a mandate, constraining tool availability. Authority flows downward. The spawner constrains the spawned — the child cannot exceed the parent's scope.</p>
+<p>Delegation <em>must</em> produce ledger entries. Every spawn event, every scope grant, every mandate injection is a governance act with authority chains. The ledger entry records: who delegated, to whom, what scope was granted, under what constitutional authority. Scope-less spawning — creating a subagent without declaring the scope it inherits — is constitutionally invalid. The agent runner rejects it.</p>
+<p>The delegation chain is traceable: from any subagent, follow the <code>source</code> fields upward through the ledger to reach the original governance situation that authorized the chain. Every intermediate delegation narrows scope (mandatory) and adds constraints (optional). The chain terminates at the constitution.</p>
+<h3 id="5-3-hierarchical-up-reporting"><a class="heading-anchor" href="#5-3-hierarchical-up-reporting">#</a>5.3 Hierarchical-Up (Reporting)</h3>
+<p>Asymmetric communication from governed to governor. Turn completion reports, status updates, succession briefs, mortality alerts. The governed agent reports to its governor on events within its scope. No authority transfer occurs in the upward direction — the reporting agent does not grant anything to the governor. It provides information that the governor may act on.</p>
+<p>Reporting produces ledger entries for audit trail purposes. The entries record: who reported, to whom, what quality of report (completion, status, alert, succession). The governor's subsequent actions — if any — are separate governance acts with their own ledger entries.</p>
+<h3 id="5-4-why-three-kinds"><a class="heading-anchor" href="#5-4-why-three-kinds">#</a>5.4 Why Three Kinds</h3>
+<p>The distinction matters because collapsing them produces governance failures. If peer coordination required ledger entries, the ledger would flood with non-governance events and lose its signal. If delegation could occur without ledger entries, authority chains would be untraceable. If reporting were symmetric, the distinction between governor and governed would dissolve. Each kind has its own cost, its own verification requirements, and its own relationship to the normative order.</p>
+<h2 id="6-scope-inheritance-and-isolation"><a class="heading-anchor" href="#6-scope-inheritance-and-isolation">#</a>6. Scope Inheritance and Isolation</h2>
+<p>Scope inheritance is the mechanism by which governance flows through the directory hierarchy. It is mandatory, downward, and monotonically narrowing.</p>
+<p><strong>Mandatory inheritance.</strong> A spawned subagent inherits its parent's scope. It may operate within a subset of that scope (narrower) but never a superset (broader). This is enforced at spawn time: the agent runner checks the child's declared scope against the parent's effective scope and rejects any expansion.</p>
+<p><strong>Downward flow.</strong> A directory's governor governs everything below it unless a subdirectory declares its own governor (its own <code>.agent</code> file). The subdirectory governor's scope is bounded by the parent governor's scope — it cannot govern files that the parent cannot govern.</p>
+<p><strong>Workspace boundary enforcement.</strong> The <code>safe_resolve</code> function in the agent runner canonicalizes all paths and verifies they fall within the agent's workspace root. This is the enforcement mechanism for scope inheritance: regardless of what an agent requests, the resolved path must be within its scope. Symlink resolution and <code>..</code> traversal are handled before the scope check, preventing escape.</p>
+<p><strong>Isolation between governance domains.</strong> Two directories governed by different agents are isolated by default. Agent A governing <code>lib/ontology/</code> cannot read or write within <code>usr/methods/</code> governed by Agent B, even if both are standing agents with full trust. Cross-governance access requires either: (a) both directories fall within a common ancestor's scope and the accessor operates at that ancestor's level, or (b) explicit cross-governance permission established through a governance act recorded in the ledger.</p>
+<h2 id="7-the-directory-hierarchy-as-governance-topology"><a class="heading-anchor" href="#7-the-directory-hierarchy-as-governance-topology">#</a>7. The Directory Hierarchy as Governance Topology</h2>
+<p>The Filix directory hierarchy is not organized by file type or project structure. It is organized by governance relationship:</p>
+<pre><code>/                               Grundnorm (constitution)
+├── lib/                        shared knowledge (readable by all)
+│   ├── ontology/               .agent: naga (governor, standing)
+│   ├── foundations/            .agent: haak-00 (governor, standing)
+│   └── constitution/           (no agent — the Grundnorm governs itself)
+├── usr/                        shared methods
+│   ├── architecture/           .agent: lumen (governor, standing)
+│   └── methods/                .agent: lumen (governor, standing)
+├── home/                       user workspaces
+│   ├── zach/                   .agent: &lt;personal agent&gt;
+│   │   ├── projects/           inherits from zach&#x27;s agent
+│   │   └── data/               inherits from zach&#x27;s agent
+│   └── alice/                  .agent: &lt;alice&#x27;s personal agent&gt;
+├── var/                        system state
+│   ├── ledger.db               (kernel-owned, no directory agent)
+│   └── sessions/               (kernel-owned)
+└── etc/                        system configuration
+    └── roster                  (kernel-owned)</code></pre>
+<p>Several features of this topology are load-bearing:</p>
+<p><strong><code>lib/constitution/</code> has no <code>.agent</code> file.</strong> The constitution is the Grundnorm — it governs the governance process itself. No agent governs the constitution; the constitution governs agents. This is not a missing assignment. It is the architectural expression of the Grundnorm: the node where governance bottoms out, where the "who authorizes this?" chain terminates.</p>
+<p><strong><code>var/</code> and <code>etc/</code> are kernel-owned.</strong> The ledger, session store, and roster are not governed by agents — they are owned by the agent runner itself. Agents interact with these through the runner's API, never directly. This is the separation principle from <a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a> applied to the filesystem: agents experience governance through its effects, not by reading governance infrastructure.</p>
+<p><strong><code>home/</code> directories inherit from their owner's agent.</strong> A user's projects and data inherit the user's governance. Subprojects may declare their own governors (a collaborator's agent governing a shared project directory), creating governance boundaries within the user's workspace.</p>
+<p><strong><code>lib/</code> is readable by all.</strong> The ontology, foundations, and constitution are public — any agent at any trust tier can read them. This is not a permission exception; it is the architectural expression of the principle that governance derives its authority from visibility. A constitution that agents cannot read is not a constitution.</p>
+<h2 id="8-the-governs-quality-family"><a class="heading-anchor" href="#8-the-governs-quality-family">#</a>8. The "Governs" Quality Family</h2>
+<p>The ontological grounding requires formalizing "governs" as a quality family within the quality graph (02-relations, R5). This extends the existing quality families (classification, composition, creation, participation, provenance, location, temporal) with a seventh:</p>
+<p><strong>Governance.</strong> Governor, deputy, auditor, delegator, delegate. X holds authority over Y, or Y is held accountable by X. The governance family. All governance qualities apply primarily to belongings whose target is a directory or a situation. "Governor" is the primary quality; "deputy" implies "governor" with reduced priority; "auditor" implies observation without authority to act.</p>
+<p>The governance family interacts with other families:</p>
+<ul>
+<li><strong>Participation + Governance</strong>: an agent participates in a governance situation <em>as governor</em>. Two qualities on two belongings, not one compound quality.</li>
+<li><strong>Provenance + Governance</strong>: the ledger entry that established a governance relationship is a provenance belonging. The <code>.agent</code> file is a materialization of that provenance.</li>
+<li><strong>Composition + Governance</strong>: scope inheritance is a composition relationship — the child directory is part of the parent, and governance flows through part-of chains.</li>
+</ul>
+<p>This formalization resolves Gap F1 from the architectural review: the "governs" quality was used informally throughout the architecture without being registered in the quality graph. Once registered, governance relationships are queryable, traversable, and subject to the same inference rules (inverse, implies, transitive) as all other qualities.</p>
+<h2 id="9-what-filix-is"><a class="heading-anchor" href="#9-what-filix-is">#</a>9. What Filix Is</h2>
+<p>Filix is not a filesystem with agents attached. It is a governance topology materialized as a filesystem.</p>
+<p>The directory hierarchy encodes authority relationships. The <code>.agent</code> files declare governance assignments. The roster declares governance types. The ledger records governance history. The constitution establishes the normative order. The agent runner enforces it. Together, these compose into a minimal governance architecture — minimal in the sense that removing any component breaks the governance model, and no component can be reduced further without losing a necessary function.</p>
+<p>Every path is a governance address. Every read is a visibility check against the governance topology. Every write is a governance act whose authorization traces back through delegation chains to the constitution. Every agent is a participant in nested governance situations with traceable authority chains rooted in the Grundnorm.</p>
+<p>The filesystem is the governance topology's physical representation. The governance topology is the filesystem's meaning.</p>
+<h2 id="10-relationship-to-engagement-state"><a class="heading-anchor" href="#10-relationship-to-engagement-state">#</a>10. Relationship to engagement state</h2>
+<p>Governance does not track engagements. The governance topology is structural — it defines who may act where. Engagement state (<a class="cross-ref" href="/memos/engagement-state/">Architecture 39</a>) is episodic — it records what action is underway, at what phase, with what obligations. The governed agent for a directory has authority over any engagements in its scope: it can audit, intervene, or constrain them, because governance subsumes the directory and everything in it. But governance is unaware of engagement lifecycle — no ledger entry is produced when an engagement advances phases, and no <code>.agent</code> file changes when an engagement begins or ends.</p>
+<p>The <code>actors</code> field in <code>engagement.md</code> and the assignment layer in <code>.agent</code> files track the same agents in different capacities: participation versus authority. An agent assigned as governor of <code>projects/paper-x/</code> may simultaneously appear as an actor (role: editor) in a review engagement running there. These are distinct belongings in the ontological sense — one with quality "governor," the other with quality "editor" — and no mechanism overlap exists. Workspace scoping already prevents unauthorized engagement creation: an agent cannot write <code>engagement.md</code> outside its governed scope, so governance constrains engagements without needing to know about them.</p>
+<h2 id="11-relationship-to-paper-4a"><a class="heading-anchor" href="#11-relationship-to-paper-4a">#</a>11. Relationship to Paper 4a</h2>
+<p>This is the oracle mesh. The three primitives from Paper 4a — function, recursion, store — map directly to the governance architecture:</p>
+<p><strong>Function</strong>: agents executing within their scope. Each agent is a function that transforms materials within a bounded domain, governed by a mandate (a policy scoped to this agent in this domain). The agent runner invokes the function; the constitution constrains it; the ledger records it.</p>
+<p><strong>Recursion</strong>: governance situations nesting. The constitution governs the governance index, which contains <code>.agent</code> files, which define agent scopes, which constrain spawned subagents, which may spawn further subagents. Scope narrows at each level. The recursion terminates at leaf agents — agents that do not spawn. The recursion is bounded by scope inheritance: each level is strictly narrower than the one above.</p>
+<p><strong>Store</strong>: the content-addressed ledger as the system's memory. Every governance event is recorded as a belonging with provenance, hash-chained for tamper evidence, queryable by actor, session, time range, or quality. The ledger is the store that makes the recursion auditable and the functions accountable.</p>
+<p>Function, recursion, and store compose into governance. This is not a metaphor — it is a construction. The governance architecture is an instance of the oracle mesh, implemented as a filesystem with agents, running on the agent runner, governed by the constitution, recorded in the ledger. Paper 4a describes the abstract structure; this document describes its concrete realization.</p>
+<p>The composition is exact: remove function (agents), and there is nothing to govern. Remove recursion (scope inheritance, delegation chains), and governance is flat — no nesting, no delegation, no authority chains. Remove store (the ledger), and governance has no memory — no audit, no tamper evidence, no history. All three are necessary. Together they are sufficient.</p>
+<hr>
+<p><em>architecture 43 -- filix governance architecture -- 2026-03-22 -- zach + claude</em></p>
+
+        <p class="endnote">Architecture 43 &mdash; Filix Governance Architecture &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/unified-messaging/">&larr; 42: Unified Messaging</a><a class="memo-nav-next" href="/memos/governance-processes/">44: Governance Processes &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-beyond-the-unix-analogy">1. Beyond the Unix Analogy</a></li>
+<li><a href="#2-the-governance-topology">2. The Governance Topology</a></li>
+<li><a href="#3-three-layers-of-truth">3. Three Layers of Truth</a>
+<ol>
+<li><a href="#3-1-the-roster-type-layer">3.1 The Roster (Type Layer)</a></li>
+<li><a href="#3-2-the-agent-files-assignment-layer">3.2 The .agent Files (Assignment Layer)</a></li>
+<li><a href="#3-3-the-ledger-history-layer">3.3 The Ledger (History Layer)</a></li>
+<li><a href="#3-4-the-governance-index">3.4 The Governance Index</a></li>
+</ol></li>
+<li><a href="#4-the-grundnorm">4. The Grundnorm</a>
+<ol>
+<li><a href="#4-1-values-and-principles-governance-constitutive">4.1 Values and Principles (Governance Constitutive)</a></li>
+<li><a href="#4-2-permissions-and-procedures-ledger-regulative">4.2 Permissions and Procedures (Ledger Regulative)</a></li>
+<li><a href="#4-3-the-constitution-hash">4.3 The Constitution Hash</a></li>
+</ol></li>
+<li><a href="#5-communication-kinds">5. Communication Kinds</a>
+<ol>
+<li><a href="#5-1-peer-coordination">5.1 Peer Coordination</a></li>
+<li><a href="#5-2-hierarchical-down-delegation">5.2 Hierarchical-Down (Delegation)</a></li>
+<li><a href="#5-3-hierarchical-up-reporting">5.3 Hierarchical-Up (Reporting)</a></li>
+<li><a href="#5-4-why-three-kinds">5.4 Why Three Kinds</a></li>
+</ol></li>
+<li><a href="#6-scope-inheritance-and-isolation">6. Scope Inheritance and Isolation</a></li>
+<li><a href="#7-the-directory-hierarchy-as-governance-topology">7. The Directory Hierarchy as Governance Topology</a></li>
+<li><a href="#8-the-governs-quality-family">8. The &quot;Governs&quot; Quality Family</a></li>
+<li><a href="#9-what-filix-is">9. What Filix Is</a></li>
+<li><a href="#10-relationship-to-engagement-state">10. Relationship to engagement state</a></li>
+<li><a href="#11-relationship-to-paper-4a">11. Relationship to Paper 4a</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

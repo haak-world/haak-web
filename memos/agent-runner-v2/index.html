@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent Runner v2 — Constitutional Runtime over ACP &mdash; HAAK</title>
+<meta name="description" content="Constitutional runtime over ACP. A Rust daemon implementing governance-gated agent execution.">
+<meta property="og:title" content="Agent Runner v2 — Constitutional Runtime over ACP &mdash; HAAK">
+<meta property="og:description" content="Constitutional runtime over ACP. A Rust daemon implementing governance-gated agent execution.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Agent Runner v2 — Constitutional Runtime over ACP</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 38 &middot; March 2026</p>
+      <h1 class="article-title">Agent Runner v2 — Constitutional Runtime over ACP</h1>
+      <p class="article-subtitle">Replaces `scripts/agent_runner.py` and the agentic loop in `infra/console/server.py` with a single Rust daemon implementing OpenClaw&#x27;s Agent Client Protocol (ACP) wire interface, extended with HAAK&#x27;s…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#purpose">Purpose</a></li>
+<li><a href="#layer-stack">Layer Stack</a></li>
+<li><a href="#agentruntime-trait">`AgentRuntime` Trait</a></li>
+<li><a href="#runtimeevent">`RuntimeEvent`</a></li>
+<li><a href="#ledger-entry">Ledger Entry</a></li>
+<li><a href="#session-store">Session Store</a></li>
+<li><a href="#sessionmanager">`SessionManager`</a></li>
+<li><a href="#constitutionalruntime-r">`ConstitutionalRuntime&lt;R&gt;`</a></li>
+<li><a href="#openclaw-compatibility">OpenClaw Compatibility</a></li>
+<li><a href="#crate-layout">Crate Layout</a></li>
+<li><a href="#crypto-readiness">Crypto Readiness</a></li>
+<li><a href="#first-build-target">First Build Target</a></li>
+<li><a href="#supersedes">Supersedes</a></li>
+<li><a href="#related">Related</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="purpose"><a class="heading-anchor" href="#purpose">#</a>Purpose</h2>
+<p>Replaces <code>scripts/agent_runner.py</code> and the agentic loop in <code>infra/console/server.py</code> with a single Rust daemon implementing OpenClaw's Agent Client Protocol (ACP) wire interface, extended with HAAK's constitutional governance layer and designed for the Merkle-CRDT ledger specified in [[33-constitutional-ledger]].</p>
+<p>OpenClaw agents connect by changing one config line. All agents — native or OpenClaw — pass through the constitutional layer. The ledger schema carries <code>proof</code> and <code>envelope</code> fields from day one (null in v0), leaving no migration debt for Filix v1.0 cryptographic enforcement.</p>
+<h2 id="layer-stack"><a class="heading-anchor" href="#layer-stack">#</a>Layer Stack</h2>
+<pre><code>OpenClaw Agent        HAAK Native Agent        CLI
+      │  ACP/WebSocket       │  ACP/WebSocket    │
+      └─────────────┬────────┘                  │
+                    ▼                            │
+           ┌─────────────────┐                  │
+           │  Gateway Server │◄─────────────────┘
+           │  Axum, :18789   │
+           │  ACP wire compat│
+           └────────┬────────┘
+                    │
+           ┌────────▼────────┐
+           │  SessionManager │  serial queues · TTL eviction
+           │                 │  identity reconciliation
+           │                 │  session store (SQLite)
+           └────────┬────────┘
+                    │
+           ┌────────▼────────┐
+           │  Constitutional │  mandate injection · policy gates
+           │  Runtime&lt;R&gt;     │  mailbox · board · roster heartbeat
+           │                 │  ledger append (BLAKE3 + parents)
+           └────────┬────────┘
+                    │
+        ┌───────────┴───────────┐
+        │                       │
+┌───────▼─────────┐   ┌─────────▼───────────┐
+│AnthropicBackend │   │ ClaudeCodeBackend    │
+│reqwest + SSE    │   │ subprocess           │
+│reasoning blocks │   │ stream-json parse    │
+└─────────────────┘   └─────────────────────┘</code></pre>
+<h2 id="agentruntime-trait"><a class="heading-anchor" href="#agentruntime-trait">#</a><code>AgentRuntime</code> Trait</h2>
+<p>ACP-compatible interface. Any backend implementing this trait is governable by <code>ConstitutionalRuntime</code> and manageable by <code>SessionManager</code>.</p>
+<pre><code>#[async_trait]
+pub trait AgentRuntime: Send + Sync {
+    async fn ensure_session(&amp;self, input: SessionInput) -&gt; Result&lt;Handle&gt;;
+    fn run_turn(
+        &amp;self,
+        handle: &amp;Handle,
+        input: TurnInput,
+    ) -&gt; BoxStream&lt;&#x27;static, Result&lt;RuntimeEvent&gt;&gt;;
+    async fn cancel(&amp;self, handle: &amp;Handle) -&gt; Result&lt;()&gt;;
+    async fn close(&amp;self, handle: &amp;Handle, reason: CloseReason) -&gt; Result&lt;()&gt;;
+    async fn status(&amp;self, handle: &amp;Handle) -&gt; Result&lt;SessionStatus&gt;;
+}</code></pre>
+<h2 id="runtimeevent"><a class="heading-anchor" href="#runtimeevent">#</a><code>RuntimeEvent</code></h2>
+<p>ACP wire-compatible core. HAAK extensions are additive — unknown <code>type</code> values are ignored by OpenClaw clients. <code>seq</code> is mandatory on all events from day one (prerequisite for stream signing in v1.0).</p>
+<pre><code>pub enum RuntimeEvent {
+    // ACP-compatible — same JSON field names as OpenClaw
+    TextDelta       { seq: u64, text: String },
+    ToolCall        { seq: u64, id: String, name: String, input: Value },
+    ToolCallUpdate  { seq: u64, id: String, input_delta: String },
+    ToolResult      { seq: u64, id: String, content: String, is_error: bool },
+    UsageUpdate     { seq: u64, input_tokens: u32, output_tokens: u32 },
+    Done            { seq: u64, stop_reason: StopReason },
+    Error           { seq: u64, code: String, message: String },
+
+    // HAAK extensions
+    ReasoningDelta  { seq: u64, text: String },
+    PolicyGate      { seq: u64, entry: LedgerEntry },
+    MailboxInjected { seq: u64, entry: LedgerEntry },
+    LedgerAppend    { seq: u64, entry: LedgerEntry },
+}</code></pre>
+<h2 id="ledger-entry"><a class="heading-anchor" href="#ledger-entry">#</a>Ledger Entry</h2>
+<p>Every turn, tool call, and policy verdict produces a ledger entry. Schema matches [[33-constitutional-ledger]] exactly. <code>proof</code> and <code>envelope</code> are null in v0; their fields are present and typed from day one.</p>
+<pre><code>pub struct LedgerEntry {
+    pub cid:       Cid,              // BLAKE3 over JCS-canonical form (RFC 8785)
+    pub entity_id: String,           // agent session key
+    pub target:    String,           // session id or tool id
+    pub quality:   EntryQuality,     // Turn | ToolCall | PolicyVerdict | MailboxInject | SessionLifecycle
+    pub timestamp: DateTime&lt;Utc&gt;,
+    pub source:    String,           // session key of producing agent
+    pub actor:     String,           // agent roster id
+    pub parents:   Vec&lt;Cid&gt;,         // prev turn CID, tool call CID, etc.
+    pub tags:      Vec&lt;String&gt;,
+    pub payload:   Value,            // JCS canonical; skill trace format for Turn entries
+    pub proof:     Option&lt;Proof&gt;,    // null (v0) → attestation (v1.0) → zk-stark (v2.0)
+    pub envelope:  Option&lt;Envelope&gt;, // null (v0/v1.0) → KDF-encrypted (v1.5)
+}</code></pre>
+<p>Skill trace payload format (for <code>Turn</code> entries), as specified in [[strategy/19-filix-v1-plan]]:</p>
+<pre><code>{
+  &quot;skill_name&quot;: &quot;agent_runner&quot;,
+  &quot;inputs_hash&quot;: &quot;&lt;blake3 of canonical turn input&gt;&quot;,
+  &quot;outputs_hash&quot;: &quot;&lt;blake3 of canonical response&gt;&quot;,
+  &quot;timestamp&quot;: &quot;&lt;iso-8601-utc&gt;&quot;,
+  &quot;actor&quot;: &quot;&lt;roster id&gt;&quot;
+}</code></pre>
+<h2 id="session-store"><a class="heading-anchor" href="#session-store">#</a>Session Store</h2>
+<p>SQLite. Designed so that the Filix v1.0 transition (session store becomes a materialized view over the ledger) requires no schema migration — <code>prev_cid</code> and <code>proof</code> fields are present from v0.</p>
+<pre><code>CREATE TABLE sessions (
+    id              TEXT PRIMARY KEY,  -- blake3(agent_id || session_key || created_at)
+    agent_id        TEXT NOT NULL,
+    session_key     TEXT NOT NULL UNIQUE,
+    backend         TEXT NOT NULL,     -- &quot;anthropic&quot; | &quot;claude_code&quot;
+    model           TEXT,
+    mode            TEXT NOT NULL,     -- &quot;persistent&quot; | &quot;domain&quot; | &quot;oneshot&quot;
+    state           TEXT NOT NULL,     -- &quot;idle&quot; | &quot;running&quot; | &quot;cancelled&quot; | &quot;closed&quot;
+    pubkey          TEXT,              -- null (v0); ed25519 pubkey (v1.0)
+    last_activity   TEXT NOT NULL,
+    created_at      TEXT NOT NULL
+);
+
+CREATE TABLE turns (
+    id              TEXT PRIMARY KEY,  -- cid of ledger entry
+    session_id      TEXT NOT NULL REFERENCES sessions(id),
+    seq             INTEGER NOT NULL,
+    prev_cid        TEXT,              -- null for first turn; hash-chained thereafter
+    input_hash      TEXT NOT NULL,     -- blake3 of canonical turn input
+    output_hash     TEXT,              -- blake3 of canonical response; null until complete
+    stop_reason     TEXT,
+    usage           TEXT,              -- json: {input_tokens, output_tokens}
+    started_at      TEXT NOT NULL,
+    completed_at    TEXT,
+    proof           TEXT               -- null (v0); json attestation (v1.0)
+);
+
+CREATE TABLE history (
+    id              TEXT PRIMARY KEY,  -- cid of this message entry
+    session_id      TEXT NOT NULL REFERENCES sessions(id),
+    turn_id         TEXT REFERENCES turns(id),
+    seq             INTEGER NOT NULL,
+    role            TEXT NOT NULL,
+    content         TEXT NOT NULL,     -- JCS canonical json
+    created_at      TEXT NOT NULL
+);
+
+CREATE TABLE ledger (
+    cid             TEXT PRIMARY KEY,
+    quality         TEXT NOT NULL,
+    entity_id       TEXT NOT NULL,
+    target          TEXT,
+    actor           TEXT NOT NULL,
+    parents         TEXT NOT NULL,     -- json array of cids
+    tags            TEXT NOT NULL,     -- json array
+    payload         TEXT NOT NULL,     -- JCS canonical
+    proof           TEXT,              -- null (v0)
+    envelope        TEXT,              -- null (v0/v1.0)
+    timestamp       TEXT NOT NULL
+);</code></pre>
+<p>Session IDs are BLAKE3-derived, not random UUIDs. This makes them re-derivable from agent identity — prerequisite for keypair-anchored session identity in v1.0.</p>
+<h2 id="sessionmanager"><a class="heading-anchor" href="#sessionmanager">#</a><code>SessionManager</code></h2>
+<p>Matches OpenClaw's <code>AcpSessionManager</code>. Per-session serial queue: no concurrent turns within one session. TTL eviction applies only to <code>domain</code> mode sessions; <code>persistent</code> sessions (standing roles) are never evicted.</p>
+<p>Three session modes:</p>
+<table>
+<tr><th>Mode</th><th>TTL eviction</th><th>Use</th></tr>
+<tr><td><code>persistent</code></td><td>never</td><td>Standing roles (Naga, Veda, Reed)</td></tr>
+<tr><td><code>domain</code></td><td>configurable (default 30 min)</td><td>Project-scoped agents</td></tr>
+<tr><td><code>oneshot</code></td><td>after each turn</td><td>Console web sessions</td></tr>
+</table>
+<p>On startup, <code>SessionManager</code> reads <code>data/agent-roster.jsonl</code> for <code>standing: true</code> agents and calls <code>ensure_session</code> for each, preloading them before the gateway accepts connections.</p>
+<h2 id="constitutionalruntime-r"><a class="heading-anchor" href="#constitutionalruntime-r">#</a><code>ConstitutionalRuntime&lt;R&gt;</code></h2>
+<p>A decorator implementing <code>AgentRuntime</code> by wrapping any other <code>AgentRuntime</code>. The session manager sees only another <code>AgentRuntime</code> — the constitutional layer is transparent to it and to the inner backend.</p>
+<p>Per-turn sequence:</p>
+<ol>
+<li><strong>Session open</strong> — append <code>SessionLifecycle</code> ledger entry; register/heartbeat roster</li>
+<li><strong>Pre-turn</strong> — read unread mailbox entries; append <code>MailboxInject</code> ledger entry for each; prepend to history as <code>[mailbox from X: ...]</code> user turn</li>
+<li><strong>System prompt</strong> — assemble: constitutional preamble + mandate text + board excerpt + <code>constitution_hash: blake3(constitution.md)</code> in prompt footer (non-enforcing in v0; read by policy engine in v1.0)</li>
+<li><strong>Tool gating</strong> — pass tool list through <code>policy.gate(tools)</code>; emit <code>PolicyGate</code> ledger entry per tool with verdict and <code>constitution_hash</code>; <code>proof: null</code> in v0</li>
+<li><strong>Run inner</strong> — stream <code>RuntimeEvent</code>s from <code>inner.run_turn()</code></li>
+<li><strong>On <code>ToolCall</code></strong> — re-evaluate policy with known input; append <code>ToolCall</code> ledger entry; if <code>Blocked</code>, short-circuit: emit <code>PolicyGate</code> event, inject <code>tool_result</code> error, continue</li>
+<li><strong>On <code>ToolResult</code></strong> — append <code>ToolResult</code> ledger entry, <code>parents: [tool<em>call</em>cid]</code></li>
+<li><strong>On <code>Done</code></strong> — compute <code>output<em>hash</code> (BLAKE3 of accumulated response); complete <code>Turn</code> ledger entry with <code>prev</em>cid</code> = previous turn's CID; board post if relevant</li>
+</ol>
+<h2 id="openclaw-compatibility"><a class="heading-anchor" href="#openclaw-compatibility">#</a>OpenClaw Compatibility</h2>
+<p>An OpenClaw user migrates by adding one backend entry to their config:</p>
+<pre><code>// ~/.openclaw/config.json
+{
+  &quot;acp&quot;: {
+    &quot;backends&quot;: {
+      &quot;haak&quot;: { &quot;url&quot;: &quot;ws://localhost:18789&quot; }
+    }
+  }
+}</code></pre>
+<p>And pointing their agent's runtime at it:</p>
+<pre><code>{ &quot;runtime&quot;: { &quot;type&quot;: &quot;acp&quot;, &quot;acp&quot;: { &quot;backend&quot;: &quot;haak&quot;, &quot;mode&quot;: &quot;persistent&quot; } } }</code></pre>
+<p>Wire protocol — our gateway implements OpenClaw's full RPC surface:</p>
+<table>
+<tr><th>OpenClaw RPC</th><th>Handler</th></tr>
+<tr><td><code>session.init</code></td><td><code>SessionManager::ensure_session</code></td></tr>
+<tr><td><code>turn.run</code> (streaming)</td><td><code>SessionManager::run_turn</code></td></tr>
+<tr><td><code>session.cancel</code></td><td><code>SessionManager::cancel</code></td></tr>
+<tr><td><code>session.close</code></td><td><code>SessionManager::close</code></td></tr>
+<tr><td><code>session.status</code></td><td><code>SessionManager::status</code></td></tr>
+</table>
+<p><strong>Constitutional bind for OpenClaw agents.</strong> Unknown connecting agents receive the default mandate: sandboxed workspace, restricted tool allowlist (read/search/send_message only — no shell, no unconstrained file write, no direct network), board check-in on session open, all tool calls logged to ledger. A registered agent (known pubkey in roster) receives its specific mandate. The agent cannot negotiate or opt out — the constitutional layer is gateway-enforced.</p>
+<h2 id="crate-layout"><a class="heading-anchor" href="#crate-layout">#</a>Crate Layout</h2>
+<p>New crate at <code>infra/daemons/agent-runner/</code>, sibling to <code>infra/daemons/gateway/</code>.</p>
+<pre><code>infra/daemons/agent-runner/
+├── Cargo.toml
+└── src/
+    ├── main.rs
+    ├── lib.rs
+    ├── runtime/
+    │   ├── mod.rs           # AgentRuntime trait, RuntimeEvent, Handle, TurnInput, CloseReason
+    │   ├── anthropic.rs     # AnthropicBackend — reqwest + SSE, reasoning blocks, tool loop
+    │   └── claude_code.rs   # ClaudeCodeBackend — subprocess + stream-json parse
+    ├── constitution/
+    │   ├── mod.rs           # ConstitutionalRuntime&lt;R&gt;
+    │   ├── manifest.rs      # AgentManifest — parse mandate markdown, assemble system prompt
+    │   ├── policy.rs        # PolicyEngine — predicate eval, gate(), constitution_hash()
+    │   ├── mailbox.rs       # MailboxClient — read/ack agent-mailbox.jsonl
+    │   └── board.rs         # BoardClient — read/append board.md
+    ├── ledger/
+    │   ├── mod.rs           # LedgerEntry, LedgerWriter, Cid
+    │   ├── hash.rs          # BLAKE3 + JCS canonical serialization (RFC 8785)
+    │   └── proof.rs         # Proof enum: Null | Attestation | ZkStark
+    ├── session/
+    │   ├── mod.rs           # SessionManager — public API
+    │   ├── queue.rs         # KeyedQueue — per-session tokio mpsc + worker tasks
+    │   ├── store.rs         # SessionStore — SQLite, hash-chained turns
+    │   └── eviction.rs      # TTL loop (domain mode only)
+    └── server/
+        ├── mod.rs           # Axum, WebSocket upgrade, :18789
+        └── routes.rs        # RPC handlers, event serialization, ACP wire compat</code></pre>
+<p><code>ledger/</code> is a standalone module. In Filix v1.0, the session store becomes a materialized view over the ledger — that refactor is trivial if <code>LedgerWriter</code> has a clean interface. If ledger logic were entangled with the constitutional wrapper, it would be painful.</p>
+<h2 id="crypto-readiness"><a class="heading-anchor" href="#crypto-readiness">#</a>Crypto Readiness</h2>
+<table>
+<tr><th>Phase</th><th>Requirement</th><th>Status</th></tr>
+<tr><td>v0 (now)</td><td>BLAKE3 CIDs, <code>proof: null</code>, <code>envelope: null</code></td><td>in schema from day one</td></tr>
+<tr><td>v1.0 (Aug 2026)</td><td>Populate <code>proof</code> with attestation + agent signature; verify <code>prev_cid</code> chain</td><td><code>proof</code> field in schema; <code>prev_cid</code> in turns; <code>PolicyEngine</code> evaluates predicates</td></tr>
+<tr><td>v1.5</td><td>KDF audience keys, populate <code>envelope</code>, rotate on agent departure</td><td><code>envelope</code> field in schema; <code>tags</code> on entries track audience</td></tr>
+<tr><td>v2.0</td><td>ZK-STARK proof generation and verification</td><td><code>proof</code> accepts any <code>Proof</code> variant; verifier plugs in without touching event or session types</td></tr>
+</table>
+<h2 id="first-build-target"><a class="heading-anchor" href="#first-build-target">#</a>First Build Target</h2>
+<p>Start with <code>ledger/</code> — <code>LedgerEntry</code>, <code>Cid</code>, BLAKE3 + JCS canonical hash. Everything else builds on it: session store uses CIDs as primary keys, constitutional wrapper emits ledger entries, event stream carries them. Get the ledger module right first.</p>
+<h2 id="supersedes"><a class="heading-anchor" href="#supersedes">#</a>Supersedes</h2>
+<p>Replaces the minimal spec in [[35-agent-runner]]. The Python implementation (<code>scripts/agent_runner.py</code>) and console agentic loop (<code>infra/console/server.py</code>) remain active until migration is complete.</p>
+<h2 id="related"><a class="heading-anchor" href="#related">#</a>Related</h2>
+<ul>
+<li>[[33-constitutional-ledger]] — ledger entry schema, BLAKE3/JCS spec, crypto phase roadmap</li>
+<li>[[36-agent-router]] — session routing and room assignment</li>
+<li><code><a class="cross-ref" href="/memos/filix-v1-plan/">filix-v1-plan</a></code> — Filix v1.0 scope and design-for-crypto spec</li>
+<li><code><a class="cross-ref" href="/memos/ontology-governance-situation/">ontology-governance-situation</a></code> — governance proofs and authority model</li>
+</ul>
+
+        <p class="endnote">Architecture 38 &mdash; Agent Runner v2 — Constitutional Runtime over ACP &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/knowledge-organization/">&larr; 37: Knowledge Organization</a><a class="memo-nav-next" href="/memos/engagement-state/">39: Engagement State — The Third Externalization &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#purpose">Purpose</a></li>
+<li><a href="#layer-stack">Layer Stack</a></li>
+<li><a href="#agentruntime-trait">`AgentRuntime` Trait</a></li>
+<li><a href="#runtimeevent">`RuntimeEvent`</a></li>
+<li><a href="#ledger-entry">Ledger Entry</a></li>
+<li><a href="#session-store">Session Store</a></li>
+<li><a href="#sessionmanager">`SessionManager`</a></li>
+<li><a href="#constitutionalruntime-r">`ConstitutionalRuntime&lt;R&gt;`</a></li>
+<li><a href="#openclaw-compatibility">OpenClaw Compatibility</a></li>
+<li><a href="#crate-layout">Crate Layout</a></li>
+<li><a href="#crypto-readiness">Crypto Readiness</a></li>
+<li><a href="#first-build-target">First Build Target</a></li>
+<li><a href="#supersedes">Supersedes</a></li>
+<li><a href="#related">Related</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Origins &mdash; HAAK</title>
+<meta name="description" content="The intellectual lineage: from the Invisible College to a system that convenes knowledge work.">
+<meta property="og:title" content="Origins &mdash; HAAK">
+<meta property="og:description" content="The intellectual lineage: from the Invisible College to a system that convenes knowledge work.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; Origins</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 11 &middot; March 2026</p>
+      <h1 class="article-title">Origins</h1>
+      <p class="article-subtitle">**Three historical sources converge in HAAK: a 2015 human role-playing exercise that is the proof-of-concept; a 17th-century intellectual network that names the structural problem; and an…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-cnp-retreat-2015">The CNP Retreat (2015)</a></li>
+<li><a href="#the-invisible-college-1640s">The Invisible College (1640s)</a>
+<ol>
+<li><a href="#samuel-hartlib-the-intelligencer">Samuel Hartlib: the intelligencer</a></li>
+<li><a href="#theodore-haak-the-convener">Theodore Haak: the convener</a></li>
+<li><a href="#robert-boyle-the-scientist">Robert Boyle: the scientist</a></li>
+</ol></li>
+<li><a href="#science-architecture-the-figure-and-the-lab">Science Architecture: The Figure and the Lab</a>
+<ol>
+<li><a href="#figures-compose-into-manuscripts">Figures compose into manuscripts</a></li>
+<li><a href="#labs-are-teams-of-specialized-agents">Labs are teams of specialized agents</a></li>
+<li><a href="#levels-of-scientific-organization">Levels of scientific organization</a></li>
+</ol></li>
+<li><a href="#how-the-origins-connect">How the origins connect</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>Three historical sources converge in HAAK: a 2015 human role-playing exercise that is the proof-of-concept; a 17th-century intellectual network that names the structural problem; and an architecture of science where the figure is the atomic unit and the lab is a team of specialized agents. These are not mere backstory — they are the empirical observations that the formal theory (Library Theorem, institutional intelligence) later explained.</strong></p>
+<h2 id="the-cnp-retreat-2015"><a class="heading-anchor" href="#the-cnp-retreat-2015">#</a>The CNP Retreat (2015)</h2>
+<p>In April 2015, fifteen participants at the Champalimaud Neuroscience Programme retreat role-played the scientific ecosystem. Each adopted a character — ambitious junior faculty, Nature editor, first-year PhD student, philanthropist, struggling Portuguese researcher, FCT president — with different weights across six latent variables:</p>
+<table>
+<tr><th>Variable</th><th>What it measures</th></tr>
+<tr><td>Personal well-being</td><td>Quality of life, work-life balance</td></tr>
+<tr><td>Benefit to society</td><td>Social impact, public good</td></tr>
+<tr><td>Knowledge</td><td>Understanding, discovery</td></tr>
+<tr><td>Risk</td><td>Career risk, financial risk</td></tr>
+<tr><td>Money</td><td>Funding, salary, resources</td></tr>
+<tr><td>Productivity</td><td>Output, publications, citations</td></tr>
+</table>
+<p>Higher-level variables emerged from discussion: knowledge advancement, societal benefit, career advancement, exploration vs. exploitation, researcher quality of life, independence.</p>
+<p>Eight question clusters structured the exercise: project vs. lab-based organization, meritocracy, financial resources, efficiency vs. mentorship, measuring scientist quality, open science vs. scooping, quality of life, personal values.</p>
+<p>The exercise surfaced structural problems through embodied perspective-taking:</p>
+<ul>
+<li><strong>PhD overproduction</strong>: Too many PhDs for too few permanent positions</li>
+<li><strong>No staff scientist path</strong>: The system produces researchers but not research infrastructure</li>
+<li><strong>Perverse metrics</strong>: What's measured (publications, citations, h-index) diverges from what matters (insight, rigor, mentorship)</li>
+<li><strong>Degraded peer review</strong>: Reviewing is unrewarded labor with declining quality</li>
+<li><strong>Restricted access</strong>: Knowledge locked behind paywalls and institutional memberships</li>
+</ul>
+<p><strong>Why this matters for HAAK</strong>: This exercise is exactly what HAAK now does computationally — assign AI agents to institutional roles with specified objectives and constraints, run the interaction, observe what emerges. The retreat was a single-shot, 15-person, afternoon-length experiment. HAAK can run thousands of variants with different parameters, different institutional structures, different objective weightings. The retreat proved the concept; HAAK scales it.</p>
+<h2 id="the-invisible-college-1640s"><a class="heading-anchor" href="#the-invisible-college-1640s">#</a>The Invisible College (1640s)</h2>
+<p>The name "HAAK" comes from Theodore Haak (1605–1690), a German-born polymath who convened the meetings that became the Royal Society. The Invisible College — the 1640s network of people who wanted to do science before institutions existed — names three structural insights:</p>
+<h3 id="samuel-hartlib-the-intelligencer"><a class="heading-anchor" href="#samuel-hartlib-the-intelligencer">#</a>Samuel Hartlib: the intelligencer</h3>
+<p>Hartlib ran the Correspondence Network, routing letters between natural philosophers across Europe. He was the optimizer — the person who made information flow efficiently in a world without journals, databases, or email. His function was indexing: knowing who was working on what, connecting people who should know about each other's work, maintaining a structured map of ongoing inquiry.</p>
+<p>Hartlib was excluded from the Royal Society when it formalized. Institutions develop political logic that overrides founding principles. The people who make the pre-institutional network work are not the same people who thrive in the institution.</p>
+<p><strong>HAAK lesson</strong>: The system must be designed so that its organizational intelligence — its indexing, routing, and connection functions — is structural (built into the architecture) rather than personal (dependent on a key individual). Hartlib's function should be a method, not a person.</p>
+<h3 id="theodore-haak-the-convener"><a class="heading-anchor" href="#theodore-haak-the-convener">#</a>Theodore Haak: the convener</h3>
+<p>Haak organized the meetings. Not the smartest, not the most productive, not the most political — the person who created the conditions for others to work. The convener's contribution is infrastructure: time, place, format, invitation. Without the convener, the network doesn't meet; without meetings, the Royal Society never forms.</p>
+<p><strong>HAAK lesson</strong>: Convening is a function the system performs. Creating a review panel, assembling a research team, organizing a project workspace — these are acts of convening. The system is named for the convener because convening is what the system does: it creates the conditions for structured inquiry.</p>
+<h3 id="robert-boyle-the-scientist"><a class="heading-anchor" href="#robert-boyle-the-scientist">#</a>Robert Boyle: the scientist</h3>
+<p>Boyle did the science — experimental investigations of gases, the air pump, skeptical chemistry. His work was enabled by the network (Hartlib's connections, Haak's meetings) but his contribution was irreducible: the quality of thought, the rigor of experiment, the willingness to be wrong.</p>
+<p><strong>HAAK lesson</strong>: Human scientific judgment — the capacity to ask the right question, design the right experiment, recognize the surprising result — may be the irreducible contribution that HAAK's core question (where is human participation most valuable?) is designed to find.</p>
+<h2 id="science-architecture-the-figure-and-the-lab"><a class="heading-anchor" href="#science-architecture-the-figure-and-the-lab">#</a>Science Architecture: The Figure and the Lab</h2>
+<p>The atomic unit of scientific output is the <strong>figure</strong> — a self-contained chunk with data, statistics, analyses, plots, methods, results, and local interpretation. A figure is nearly a mini-paper: everything needed to make one claim, evaluate its evidence, and understand its context.</p>
+<p>This observation structures how HAAK models scientific work:</p>
+<h3 id="figures-compose-into-manuscripts"><a class="heading-anchor" href="#figures-compose-into-manuscripts">#</a>Figures compose into manuscripts</h3>
+<p>A manuscript is a sequence of figures arranged to tell a story. The arrangement — which figures, in what order, with what narrative connecting them — is the compositional act. Individual figures can be produced by specialized agents; the composition requires a higher-level judgment about what story the data supports.</p>
+<h3 id="labs-are-teams-of-specialized-agents"><a class="heading-anchor" href="#labs-are-teams-of-specialized-agents">#</a>Labs are teams of specialized agents</h3>
+<p>A lab is not one person doing everything. It is a team:</p>
+<table>
+<tr><th>Agent role</th><th>Function</th></tr>
+<tr><td>Bayesian statistician</td><td>Prior specification, posterior analysis, model comparison</td></tr>
+<tr><td>Frequentist statistician</td><td>Hypothesis testing, confidence intervals, power analysis</td></tr>
+<tr><td>Figure-maker</td><td>Visualization, layout, clarity</td></tr>
+<tr><td>Manuscript writer</td><td>Narrative composition, argument structure</td></tr>
+<tr><td>Reviewer</td><td>Critical assessment, gap identification</td></tr>
+</table>
+<p>In HAAK, these are implemented as AI agents with distinct personas and competencies. The architecture mirrors the structure of actual scientific labs — division of labor, shared workspace, coordination through explicit communication.</p>
+<h3 id="levels-of-scientific-organization"><a class="heading-anchor" href="#levels-of-scientific-organization">#</a>Levels of scientific organization</h3>
+<table>
+<tr><th>Level</th><th>Unit</th><th>Function</th></tr>
+<tr><td>Figure</td><td>Self-contained analysis</td><td>The atomic publishable unit</td></tr>
+<tr><td>Manuscript</td><td>Composition of figures</td><td>A story built from units</td></tr>
+<tr><td>Grant</td><td>Anticipation of manuscripts</td><td>A projection of work before knowing results</td></tr>
+<tr><td>Selection</td><td>Choice among grants</td><td>Deciding priorities</td></tr>
+</table>
+<p>Each level composes the one below it. Each requires judgment at a different grain. HAAK provides infrastructure at every level; the question is where human judgment is essential vs. where computational assessment is adequate.</p>
+<h2 id="how-the-origins-connect"><a class="heading-anchor" href="#how-the-origins-connect">#</a>How the origins connect</h2>
+<p>The three origins are not separate inspirations — they describe the same structure at different resolutions:</p>
+<table>
+<tr><th>Origin</th><th>Structural insight</th><th>HAAK instantiation</th></tr>
+<tr><td>CNP Retreat</td><td>Perspective-taking in institutional roles reveals structural problems</td><td>Persona-grounded agents with latent variable weightings</td></tr>
+<tr><td>Invisible College</td><td>Pre-institutional networks need indexing (Hartlib), convening (Haak), and irreducible expertise (Boyle)</td><td>Architecture provides indexing and convening; human participation provides expertise</td></tr>
+<tr><td>Science Architecture</td><td>Science decomposes into figures composed by teams at multiple levels</td><td>Agent teams produce atomic units; composition is the PI-level function</td></tr>
+</table>
+<p>The formal theory (Library Theorem, institutional intelligence) came later. The origins are where the observations were first made.</p>
+<hr>
+<p><em>haak · foundation · 2026-02-24 · zach + claude</em></p>
+
+        <p class="endnote">Foundations 11 &mdash; Origins &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/privacy-architecture/">&larr; 10: Privacy Architecture</a><span></span></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-cnp-retreat-2015">The CNP Retreat (2015)</a></li>
+<li><a href="#the-invisible-college-1640s">The Invisible College (1640s)</a>
+<ol>
+<li><a href="#samuel-hartlib-the-intelligencer">Samuel Hartlib: the intelligencer</a></li>
+<li><a href="#theodore-haak-the-convener">Theodore Haak: the convener</a></li>
+<li><a href="#robert-boyle-the-scientist">Robert Boyle: the scientist</a></li>
+</ol></li>
+<li><a href="#science-architecture-the-figure-and-the-lab">Science Architecture: The Figure and the Lab</a>
+<ol>
+<li><a href="#figures-compose-into-manuscripts">Figures compose into manuscripts</a></li>
+<li><a href="#labs-are-teams-of-specialized-agents">Labs are teams of specialized agents</a></li>
+<li><a href="#levels-of-scientific-organization">Levels of scientific organization</a></li>
+</ol></li>
+<li><a href="#how-the-origins-connect">How the origins connect</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

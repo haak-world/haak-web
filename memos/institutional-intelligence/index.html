@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Institutional Intelligence &mdash; HAAK</title>
+<meta name="description" content="Intelligence as a property of institutions, not individuals. What it means for a system to know.">
+<meta property="og:title" content="Institutional Intelligence &mdash; HAAK">
+<meta property="og:description" content="Intelligence as a property of institutions, not individuals. What it means for a system to know.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; Institutional Intelligence</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 03 &middot; March 2026</p>
+      <h1 class="article-title">Institutional Intelligence</h1>
+      <p class="article-subtitle">**Intelligence scales through institutions, not individuals. Alignment is governance — external, observable, modifiable infrastructure — not calibration of internal weights. Institutional AI, where…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-argument">The argument</a></li>
+<li><a href="#internal-vs-external-constitutions">Internal vs. external constitutions</a></li>
+<li><a href="#constitutional-reasoning">Constitutional reasoning</a></li>
+<li><a href="#the-cognitive-anthropology-lineage">The cognitive anthropology lineage</a></li>
+<li><a href="#planned-development">Planned development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>Intelligence scales through institutions, not individuals. Alignment is governance — external, observable, modifiable infrastructure — not calibration of internal weights. Institutional AI, where multiple agents operate under explicit constitutions with auditable records, is how AI capability will actually scale; the design choice between open and proprietary institutional AI is time-bounded and irreversible.</strong></p>
+<h2 id="the-argument"><a class="heading-anchor" href="#the-argument">#</a>The argument</h2>
+<p>Ten claims, each following from the previous:</p>
+<ol>
+<li><strong>Human intelligence is culturally scaffolded.</strong> No human reasons in isolation. Language, writing, libraries, institutions — externalized cognitive infrastructure shapes what individuals can think. (Goody 1977, Donald 1991, Clark &amp; Chalmers 1998)</li>
+</ol>
+<ol>
+<li><strong>Institutions are intelligence technologies.</strong> Constitutions, peer review, legal systems, double-entry bookkeeping — these are not merely social arrangements but cognitive architectures that enable groups to reason beyond individual capacity. (North 1990, Ostrom 1990)</li>
+</ol>
+<ol>
+<li><strong>Institutions are alignment technologies.</strong> Checks, balances, audits, term limits, professional codes — institutional structure constrains power and aligns collective action with stated purposes. Alignment is what institutions <em>do</em>.</li>
+</ol>
+<ol>
+<li><strong>AI is embedded in culture.</strong> AI systems are already deployed in institutions — hiring, content moderation, medical diagnosis, financial trading. This is not speculative; it is present fact.</li>
+</ol>
+<ol>
+<li><strong>AI capability will scale institutionally.</strong> Just as human intelligence scaled through institutions (the Invisible College → Royal Society → modern science), AI capability will scale through institutional structures — multiple specialized agents coordinated by explicit rules.</li>
+</ol>
+<ol>
+<li><strong>Institutional alignment differs from weight-level alignment.</strong> Anthropic's Constitutional AI trains values into model weights (internal, fixed at deployment, opaque). Institutional alignment operates through external infrastructure (constitutions, policies, audit trails) that remains inspectable, modifiable, and human-accessible throughout operation.</li>
+</ol>
+<ol>
+<li><strong>Institutional AI is corrigible and participatory.</strong> Because the governing documents are external and readable, humans can intervene at any point — modifying the constitution, overriding a policy, stepping in for any agent role. The system is designed for human participation at arbitrary grain.</li>
+</ol>
+<ol>
+<li><strong>Institutional structure amplifies power in any direction.</strong> The same mechanisms that make institutions effective for good — coordination, persistence, scaling — make them effective for harm. Institutional AI is not inherently benign; it is inherently powerful.</li>
+</ol>
+<ol>
+<li><strong>Plural institutional AIs will exist.</strong> Different organizations will build different institutional AI systems with different constitutions, different values, different structures. There will not be one aligned AI; there will be competing institutional intelligences, just as there are competing governments.</li>
+</ol>
+<ol>
+<li><strong>This follows necessarily, not speculatively.</strong> Each step is either empirical fact (1, 4), historical precedent (2, 5), definitional (3, 6), or logical consequence of the preceding steps (7–9). The conclusion is not a prediction to be verified but an implication to be prepared for.</li>
+</ol>
+<h2 id="internal-vs-external-constitutions"><a class="heading-anchor" href="#internal-vs-external-constitutions">#</a>Internal vs. external constitutions</h2>
+<p>The distinction between internal and external constitutions is load-bearing:</p>
+<table>
+<tr><th>Property</th><th>Internal (weight-level)</th><th>External (institutional)</th></tr>
+<tr><td>Where it lives</td><td>Model weights</td><td>Documents, policies, audit trails</td></tr>
+<tr><td>When it's set</td><td>Training time</td><td>Runtime (modifiable)</td></tr>
+<tr><td>Who can read it</td><td>Nobody (opaque)</td><td>Anyone (human-readable)</td></tr>
+<tr><td>Who can change it</td><td>The training organization</td><td>Authorized participants</td></tr>
+<tr><td>How it's verified</td><td>Behavioral testing (indirect)</td><td>Document inspection (direct)</td></tr>
+<tr><td>Failure mode</td><td>Undetectable misalignment</td><td>Auditable policy violation</td></tr>
+</table>
+<p>Both forms of alignment are necessary. Internal alignment provides baseline safety (a model that follows instructions at all). External alignment provides institutional governance (multiple agents held accountable to explicit standards). The Library Theorem explains <em>why</em> external organization matters: it transforms retrieval of governing principles from O(N) to O(log N), making complex governance computationally tractable.</p>
+<h2 id="constitutional-reasoning"><a class="heading-anchor" href="#constitutional-reasoning">#</a>Constitutional reasoning</h2>
+<p>HAAK implements a three-layer governance model (from the institutional AI project's constitutional reasoning work):</p>
+<ol>
+<li><strong>Constitution</strong> — meta-level constraints that govern all policies. Self-referential: the constitution constrains how the constitution can be changed. The root node of the governance tree.</li>
+</ol>
+<ol>
+<li><strong>Policies</strong> — domain-level constraints grouped into coherent scopes. Two types: architectural (about the system's structure) and operational (about human-agent interaction). An institution is a collection of policies.</li>
+</ol>
+<ol>
+<li><strong>Processes</strong> — operational procedures constrained by policies. Situations/engagements are governed by the union of all policies from constituent processes.</li>
+</ol>
+<p>This maps directly to the method axis of the three-axis model (foundation 06): constitution ≈ foundations, policies ≈ policies, processes ≈ methods/skills. The correspondence is structural, not coincidental — both are instances of the same hierarchical governance pattern.</p>
+<h2 id="the-cognitive-anthropology-lineage"><a class="heading-anchor" href="#the-cognitive-anthropology-lineage">#</a>The cognitive anthropology lineage</h2>
+<p>The institutional intelligence thesis has intellectual roots that distinguish it from the AI governance literature (which focuses on regulation) and the multi-agent systems literature (which focuses on coordination mechanisms):</p>
+<ul>
+<li><strong>Goody (1977)</strong>: Writing restructured cognition — not just recorded it. The technology of external inscription changed what humans could think, not just what they could remember.</li>
+<li><strong>Donald (1991)</strong>: Three transitions in cognitive evolution — episodic → mimetic → mythic → theoretic — each enabled by new forms of external representation.</li>
+<li><strong>Clark &amp; Chalmers (1998)</strong>: The extended mind thesis — cognitive processes constitutively include external artifacts (notebooks, tools, institutions) when they play the right functional role.</li>
+<li><strong>Clark (2025)</strong>: Extended mind applied to generative AI — the coupling between human and AI reasoning may be constitutive, not merely instrumental.</li>
+</ul>
+<p>No paper in the recent institutional AI wave (Waites 2026, Bracale Syrnikov 2026, Edelman et al. 2025) cites this lineage. The integrated argument — formal result (Library Theorem) + cognitive anthropology (Goody, Donald, Clark) + institutional analysis (North, Ostrom) — has no competition.</p>
+<h2 id="planned-development"><a class="heading-anchor" href="#planned-development">#</a>Planned development</h2>
+<table>
+<tr><th>Component</th><th>Status</th><th>Target</th></tr>
+<tr><td>10-point argument</td><td>Complete</td><td>Position paper</td></tr>
+<tr><td>Constitutional reasoning model</td><td>Complete</td><td>White paper</td></tr>
+<tr><td>Perspective piece (v2 draft)</td><td>Active</td><td>Aeon or Nature MI</td></tr>
+<tr><td>bioRxiv review experiment (Loop 1)</td><td>Designed</td><td>May 2026 first comparison</td></tr>
+<tr><td>Political simulation (Loop 3)</td><td>Conceptual</td><td>LRB essay with Teachout</td></tr>
+</table>
+<h2 id="constitutional-implications"><a class="heading-anchor" href="#constitutional-implications">#</a>Constitutional implications</h2>
+<p>This foundation grounds two constitutional requirements:</p>
+<ol>
+<li><strong>Human authority</strong> (Constitution §2): Not as a concession to human feelings but as a structural requirement. If institutional alignment operates through external infrastructure, that infrastructure must be modifiable by its intended beneficiaries. Human authority is the mechanism that keeps institutional AI corrigible.</li>
+</ol>
+<ol>
+<li><strong>AI attribution and transparency</strong> (Constitution §4): If the distinction between internal and external alignment is load-bearing, then every AI contribution must be attributable. Opacity is the failure mode of institutional alignment — it collapses external governance into internal mystery.</li>
+</ol>
+<hr>
+<p><em>haak · foundation · 2026-02-24 · zach + claude</em></p>
+
+        <p class="endnote">Foundations 03 &mdash; Institutional Intelligence &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/library-theorem/">&larr; 02: The Library Theorem</a><a class="memo-nav-next" href="/memos/science-ecosystem/">04: The Scientific Ecosystem &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-argument">The argument</a></li>
+<li><a href="#internal-vs-external-constitutions">Internal vs. external constitutions</a></li>
+<li><a href="#constitutional-reasoning">Constitutional reasoning</a></li>
+<li><a href="#the-cognitive-anthropology-lineage">The cognitive anthropology lineage</a></li>
+<li><a href="#planned-development">Planned development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

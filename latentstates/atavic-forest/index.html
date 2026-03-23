@@ -161,6 +161,38 @@ nav .breadcrumb a:hover { color: var(--text-primary); }
 }
 .grid-fullwidth img:hover { opacity: 0.85; }
 
+/* Compact theme grid */
+.grid-themes {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+  margin-bottom: 48px;
+}
+.theme-group { display: contents; }
+.theme-group-label {
+  grid-column: 1 / -1; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--text-muted); text-transform: uppercase; padding-top: 20px;
+  padding-bottom: 8px; margin-top: 20px; border-top: 1px solid var(--border-light);
+}
+.theme-group:first-of-type .theme-group-label { border-top: none; padding-top: 0; margin-top: 0; }
+.grid-thumbnail {
+  aspect-ratio: 1; background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 2px; overflow: hidden; cursor: pointer;
+  transition: border-color 0.3s, opacity 0.3s;
+}
+.grid-thumbnail img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.grid-thumbnail:hover { border-color: var(--accent); opacity: 0.9; }
+
+@media (max-width: 1024px) {
+  .grid-themes { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+  .grid-themes { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .grid-themes { grid-template-columns: repeat(2, 1fr); }
+}
+
 .related { display: flex; gap: 16px; flex-wrap: wrap; }
 .related a {
   font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
@@ -239,6 +271,88 @@ footer a:hover { color: var(--accent-warm); }
       <img src="assets/af-11.jpg" alt="Generative forest frame 11 — volumetric space" loading="lazy">
       <img src="assets/af-12.jpg" alt="Generative forest frame 12 — shifting focus" loading="lazy">
       <img src="assets/af-13.jpg" alt="Generative forest frame 13 — final landscape" loading="lazy">
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Generative Worlds: Mucho Flow Explorations -->
+  <div class="grid">
+    <div class="grid-label">Generative Worlds</div>
+    <div class="grid-caption">
+      Experiments in latent space from the Mucho Flow Festival. The forest explores its own boundaries: alien biomasses, particle systems, thermal geometries, and impossible ecosystems. Each theme emerges from the same training corpus, viewed through different generative lenses.
+    </div>
+
+    <div class="grid-themes">
+      <!-- Alien Fungi -->
+      <div class="theme-group">
+        <div class="theme-group-label">Alien Fungi</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-alien-fungi-033.jpg" alt="Alien fungi generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-alien-fungi-066.jpg" alt="Alien fungi generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Alien Vegetation -->
+      <div class="theme-group">
+        <div class="theme-group-label">Alien Vegetation</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-alien-vegetation-033.jpg" alt="Alien vegetation generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-alien-vegetation-066.jpg" alt="Alien vegetation generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Atavic Forest -->
+      <div class="theme-group">
+        <div class="theme-group-label">Atavic Forest</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-atavic-forest-033.jpg" alt="Atavic forest generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-atavic-forest-066.jpg" alt="Atavic forest generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Disgusting Forest -->
+      <div class="theme-group">
+        <div class="theme-group-label">Disgusting Forest</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-disgusting-forest-033.jpg" alt="Disgusting forest generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-disgusting-forest-066.jpg" alt="Disgusting forest generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Hard Particle -->
+      <div class="theme-group">
+        <div class="theme-group-label">Hard Particle</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-hard-particle-033.jpg" alt="Hard particle generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-hard-particle-066.jpg" alt="Hard particle generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Night Forest -->
+      <div class="theme-group">
+        <div class="theme-group-label">Night Forest</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-night-forest-033.jpg" alt="Night forest generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-night-forest-066.jpg" alt="Night forest generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Reactor Spores -->
+      <div class="theme-group">
+        <div class="theme-group-label">Reactor Spores</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-reactor-spores-033.jpg" alt="Reactor spores generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-reactor-spores-066.jpg" alt="Reactor spores generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Thermal Fire -->
+      <div class="theme-group">
+        <div class="theme-group-label">Thermal Fire</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-thermal-fire-033.jpg" alt="Thermal fire generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-thermal-fire-066.jpg" alt="Thermal fire generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Toxic Mycelium -->
+      <div class="theme-group">
+        <div class="theme-group-label">Toxic Mycelium</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-toxic-mycelium-033.jpg" alt="Toxic mycelium generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-toxic-mycelium-066.jpg" alt="Toxic mycelium generative study 2" loading="lazy"></div>
+      </div>
+
+      <!-- Tube Portal -->
+      <div class="theme-group">
+        <div class="theme-group-label">Tube Portal</div>
+        <div class="grid-thumbnail"><img src="assets/mucho-tube-portal-033.jpg" alt="Tube portal generative study 1" loading="lazy"></div>
+        <div class="grid-thumbnail"><img src="assets/mucho-tube-portal-066.jpg" alt="Tube portal generative study 2" loading="lazy"></div>
+      </div>
     </div>
   </div>
 

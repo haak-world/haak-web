@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>33. The Constitutional Ledger &mdash; HAAK</title>
+<meta name="description" content="Append-only, content-addressed, hash-chained. Every governance act recorded with tamper evidence.">
+<meta property="og:title" content="33. The Constitutional Ledger &mdash; HAAK">
+<meta property="og:description" content="Append-only, content-addressed, hash-chained. Every governance act recorded with tamper evidence.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; 33. The Constitutional Ledger</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 33 &middot; March 2026</p>
+      <h1 class="article-title">33. The Constitutional Ledger</h1>
+      <p class="article-subtitle">The constitutional ledger is the single data structure from which messaging, provenance, coordination, and the entity graph all derive. It is a Merkle-CRDT: a content-addressed, append-only directed…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-claim">The Claim</a></li>
+<li><a href="#the-entry">The Entry</a></li>
+<li><a href="#the-dag">The DAG</a></li>
+<li><a href="#constitutional-rules">Constitutional Rules</a></li>
+<li><a href="#tags-and-topology">Tags and Topology</a></li>
+<li><a href="#encryption-v1-5">Encryption (v1.5+)</a></li>
+<li><a href="#how-current-systems-map">How Current Systems Map</a></li>
+<li><a href="#implementation-path">Implementation Path</a></li>
+<li><a href="#amendments-post-stress-test">Amendments (Post Stress Test)</a>
+<ol>
+<li><a href="#content-is-material-not-structure">Content is material, not structure</a></li>
+<li><a href="#every-entry-is-an-entity">Every entry is an entity</a></li>
+<li><a href="#broadcasts-use-the-root-tag">Broadcasts use the root tag</a></li>
+<li><a href="#fork-reconciliation-requires-human-authority">Fork reconciliation requires human authority</a></li>
+<li><a href="#governance-integration-ontology-13">Governance integration (ontology/13)</a></li>
+</ol></li>
+<li><a href="#what-this-document-does-not-cover">What This Document Does NOT Cover</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="the-claim"><a class="heading-anchor" href="#the-claim">#</a>The Claim</h2>
+<p>The constitutional ledger is the single data structure from which messaging, provenance, coordination, and the entity graph all derive. It is a Merkle-CRDT: a content-addressed, append-only directed acyclic graph where entries are conflict-free and concurrent appends merge deterministically. Constitutional rules govern which appends are valid. Invalid appends do not fail — they fork into new tag partitions. This is productive inconsistency: the system does not reject disagreement; it makes disagreement visible and contained.</p>
+<p>The ledger unifies five systems that HAAK currently maintains separately:</p>
+<ul>
+<li><strong>Dispatch</strong> (agent-to-agent messages) — ledger entries with sender/recipient qualities.</li>
+<li><strong>Boards</strong> (domain coordination) — ledger entries with domain tag qualities.</li>
+<li><strong>Roster</strong> (agent lifecycle) — ledger entries with lifecycle state qualities.</li>
+<li><strong>Entity graph</strong> (knowledge structure) — the ledger IS the entity graph; every entry is a belonging.</li>
+<li><strong>Git history</strong> (code provenance) — one materialization of the ledger, not the ledger itself.</li>
+</ul>
+<p>The key ontological insight: the ledger entry and the entity belonging are the same object. A ledger entry IS a belonging with provenance, hash-linked into a DAG. The ledger IS the entity graph, append-only. Building them separately would mean spending months reconciling two implementations of the same structure. The ontology already defines the primitive — belongs-to with a quality ([[02-relations]], Definition R1). The ledger adds three things: content addressing, DAG linkage, and constitutional proof. Nothing else.</p>
+<hr>
+<h2 id="the-entry"><a class="heading-anchor" href="#the-entry">#</a>The Entry</h2>
+<p>Every entry in the ledger is a belonging — the sole primitive relation from [[02-relations]] — extended with provenance and DAG linkage.</p>
+<pre><code>{
+  &quot;cid&quot;: &quot;&lt;blake3-hash-of-canonical-json&gt;&quot;,
+  &quot;entity_id&quot;: &quot;&lt;who-or-what&gt;&quot;,
+  &quot;target&quot;: &quot;&lt;belongs-to-what&gt;&quot;,
+  &quot;quality&quot;: &quot;&lt;nature-of-belonging&gt;&quot;,
+  &quot;rank&quot;: null,
+  &quot;timestamp&quot;: &quot;&lt;iso-8601-utc&gt;&quot;,
+  &quot;source&quot;: &quot;&lt;provenance-session-or-system&gt;&quot;,
+  &quot;actor&quot;: &quot;&lt;who-appended-this&gt;&quot;,
+  &quot;parents&quot;: [&quot;&lt;cid-1&gt;&quot;, &quot;&lt;cid-2&gt;&quot;],
+  &quot;tags&quot;: [&quot;place:lisbon&quot;, &quot;role:architect&quot;],
+  &quot;envelope&quot;: null,
+  &quot;proof&quot;: null
+}</code></pre>
+<p><strong>Field definitions:</strong></p>
+<table>
+<tr><th>Field</th><th>Type</th><th>Purpose</th></tr>
+<tr><td><code>cid</code></td><td>string (BLAKE3)</td><td>Content identifier — hash of the canonical JSON form of all other fields. Immutable. If any field changes, the CID changes.</td></tr>
+<tr><td><code>entity_id</code></td><td>string</td><td>The entity that belongs. An agent, a person, a document, a situation.</td></tr>
+<tr><td><code>target</code></td><td>string</td><td>What the entity belongs to. Another entity, a situation, a domain.</td></tr>
+<tr><td><code>quality</code></td><td>string</td><td>The nature of the belonging — "actor", "author", "materialization", "governs", "episode-of", etc. From the quality vocabulary in [[02-relations]].</td></tr>
+<tr><td><code>rank</code></td><td>integer or null</td><td>Ordinal position within a quality group. Author position, track number, episode sequence. From [[12-situation-nesting]].</td></tr>
+<tr><td><code>timestamp</code></td><td>string (ISO 8601)</td><td>When the belonging was asserted.</td></tr>
+<tr><td><code>source</code></td><td>string</td><td>Provenance — which session, script, or system produced this entry.</td></tr>
+<tr><td><code>actor</code></td><td>string</td><td>Who appended this entry. May differ from <code>entity_id</code> — the actor records who made the assertion, not who the assertion is about.</td></tr>
+<tr><td><code>parents</code></td><td>array of strings</td><td>CIDs of parent entries in the DAG. One parent for linear appends. Multiple parents for concurrent appends (merge). Empty for genesis entry.</td></tr>
+<tr><td><code>tags</code></td><td>array of strings</td><td>Tag set defining visibility and routing. Format: <code>namespace:value</code>. Determines audience and constitutional scope.</td></tr>
+<tr><td><code>envelope</code></td><td>object or null</td><td>Encryption envelope. Null in v1.0. In v1.5+: <code>{audience<em>label, encrypted</em>key, ciphertext}</code>.</td></tr>
+<tr><td><code>proof</code></td><td>object or null</td><td>Constitutional compliance proof. Null in v0 (bootstrap). In v1.0: <code>{type: "attestation", rules<em>checked, signature}</code>. In v2.0: <code>{type: "zk-stark", stark</em>proof, public_inputs}</code>.</td></tr>
+</table>
+<p><strong>Canonical form.</strong> Fields are serialized in the fixed order above using JSON Canonicalization Scheme (RFC 8785 JCS). This ensures deterministic hashing — the same entry always produces the same CID regardless of serialization quirks. The CID is computed over all fields except <code>cid</code> itself. No optional omission: null fields are serialized as <code>null</code>, not elided.</p>
+<p><strong>Hash function.</strong> BLAKE3. Faster than SHA-256 by a factor of four to ten, parallelizable across cores, supports keyed hashing (useful for KDF in the encryption layer), and stream-friendly for large payloads. CIDs are prefixed with a multicodec identifier for algorithm agility — if BLAKE3 is ever superseded, old CIDs remain valid and new entries use the new algorithm.</p>
+<hr>
+<h2 id="the-dag"><a class="heading-anchor" href="#the-dag">#</a>The DAG</h2>
+<p>Entries form a directed acyclic graph via their <code>parents</code> field. The DAG has three structural properties.</p>
+<p><strong>1. Append-only.</strong> No entry can be modified. Changing any field changes the CID, which breaks all references to it. The ledger only grows. Deletion is expressed as a new entry with quality "supersedes" pointing at the entry being logically removed. The superseded entry remains in the DAG — it is not erased, only marked as replaced. Audit trails are permanent. This is the same commitment that the constitution makes about policy: norms accumulate downward through domain subsumption ([[01-objects]], Definition 12). The ledger makes that commitment structural.</p>
+<p><strong>2. Concurrent.</strong> Multiple agents can append simultaneously without coordination. Each agent references the heads it knows as parents. When two agents append concurrently, the DAG branches. The next append that references both becomes a merge point. This is Merkle-CRDT semantics — no central coordinator, deterministic convergence. The merge is automatic because entries are self-contained: an entry's validity depends on its own content and its constitutional proof, not on the global order of appends. Two entries that reference the same parent are not in conflict; they are concurrent assertions, both valid, both preserved.</p>
+<p><strong>3. Forkable.</strong> When an append violates constitutional rules at a tag intersection, it is not rejected. It is appended to a new branch with a new tag partition. The fork is visible in the DAG: sibling entries with the same parents but different tag sets. This is productive inconsistency — disagreement becomes structure, not error. A fork says: "these two entries cannot coexist under the same constitutional scope, so they coexist under different scopes." The fork is not a failure state. It is the system's way of preserving both assertions while recording that they are incompatible within the scope where the conflict arose. Resolution — if it ever comes — is a new entry that merges the branches, itself carrying a proof of how the conflict was resolved.</p>
+<hr>
+<h2 id="constitutional-rules"><a class="heading-anchor" href="#constitutional-rules">#</a>Constitutional Rules</h2>
+<p>Constitutional rules are themselves ledger entries — belongings with quality "governs":</p>
+<pre><code>{
+  &quot;entity_id&quot;: &quot;rule:externalization&quot;,
+  &quot;target&quot;: &quot;tag:domain:*&quot;,
+  &quot;quality&quot;: &quot;governs&quot;,
+  &quot;tags&quot;: [&quot;scope:universal&quot;],
+  &quot;proof&quot;: null
+}</code></pre>
+<p>A rule entry specifies: what entity (the rule), what it governs (a tag scope), with what quality ("governs"), and at what scope (its own tags determine where it applies). Rules inherit downward through tag refinement — a rule tagged <code>scope:universal</code> applies everywhere; a rule tagged <code>domain:inscription</code> applies only within that domain.</p>
+<p><strong>Policy resolution</strong> follows [[12-situation-nesting]], Definition S5: innermost applicable policy prevails, unless the outer policy is marked non-overridable. The constitution ([[01-objects]], Definition 14) is always non-overridable — it governs how other policies are created and amended. Domain policies are overridable by default. When two policies conflict at the same scope, the more recently appended entry prevails, because the append itself is an assertion of authority. If the authority is contested, the append forks — productive inconsistency again.</p>
+<p><strong>Enforcement progression:</strong></p>
+<table>
+<tr><th>Version</th><th>Mechanism</th><th>What <code>proof</code> contains</th></tr>
+<tr><td>v0 (bootstrap)</td><td>No enforcement</td><td><code>null</code> — entries are accepted without proof. The JSONL dispatch era.</td></tr>
+<tr><td>v1.0</td><td>Policy-as-code + attestation</td><td><code>{type: "attestation", rules<em>checked: [...], predicate</em>results: {...}, signature: "..."}</code> — executable predicates evaluated at append time, agent signs the result.</td></tr>
+<tr><td>v1.5</td><td>Formal rule specification</td><td>Rules expressed as SMT constraints. Predicate evaluation becomes formally verifiable.</td></tr>
+<tr><td>v2.0</td><td>ZK-STARK proofs</td><td><code>{type: "zk-stark", stark<em>proof: "...", public</em>inputs: {...}}</code> — agent proves compliance without revealing content. Constitutional enforcement becomes mechanical.</td></tr>
+</table>
+<p>The progression from v0 to v2.0 is a progression from social enforcement (agents follow rules because they are instructed to) through attested enforcement (agents prove they followed rules, but the proof is trust-based) to cryptographic enforcement (compliance is mathematically verified, and entries without valid proofs cannot be accepted). At v2.0, drift resistance ([[04-drift-resistance]]) is solved at the mechanism level — structurally impossible to violate, not merely detectable after the fact.</p>
+<hr>
+<h2 id="tags-and-topology"><a class="heading-anchor" href="#tags-and-topology">#</a>Tags and Topology</h2>
+<p>Tags are the mechanism by which the ledger produces structure. Every entry carries a tag set. Tags serve three simultaneous functions.</p>
+<p><strong>1. Topology.</strong> Agent A can see entry E if and only if A's tags overlap with E's tags. No overlap, no visibility. Edges in the communication graph emerge from tag overlap, not explicit wiring. Two agents tagged <code>{domain:inscription}</code> can see each other's entries in that domain. An agent tagged <code>{domain:inscription, role:reviewer}</code> can see everything in the inscription domain and everything addressed to reviewers. The communication topology is not configured — it is computed from the tag graph.</p>
+<p><strong>2. Observation frames.</strong> Any tag or combination of tags defines a "view" — the subgraph of entries visible from that vantage. Watching <code>domain:inscription</code> shows all entries tagged with that domain. Watching <code>role:architect</code> shows all entries from or to architects. Watching <code>domain:inscription AND role:architect</code> shows the intersection. Views compose by set intersection on tags. Every agent's perspective is a view. Every project board is a view. The board.md files that HAAK currently maintains are materializations of views — human-readable projections of the tag-filtered subgraph.</p>
+<p><strong>3. Search index.</strong> Hierarchical tags (e.g., <code>domain:ai-ontology/inscription</code>) create a tree that the Library Theorem's O(log N) navigation applies to. The tag hierarchy IS the search index. Navigating from <code>domain:ai-ontology</code> to <code>domain:ai-ontology/inscription</code> to a specific entry within that domain is logarithmic descent through the tag tree — the same operation that [[09-recursive-index]] performs over the filesystem, now performed over the ledger.</p>
+<p><strong>Ontological grounding.</strong> Tags are qualities on belongings. An agent tagged <code>{place:lisbon, role:architect}</code> has two belongings in the ledger: <code>belongs-to(agent, lisbon, quality: located)</code> and <code>belongs-to(agent, architect-role, quality: holds-role)</code>. Tag overlap between agents is shared qualities. The DCG topology that Paper 4a describes — the dynamic communication graph where edges form and dissolve as agents' tag sets change — emerges from the quality graph that [[02-relations]] defines. No separate routing layer. No wiring table. The topology is a read view over the ledger's own content.</p>
+<p><strong>Reserved namespace.</strong> <code>bridge:&lt;hash&gt;</code> tags are reserved for inter-constitutional bridge domains. When two Filix instances negotiate a shared scope, the bridge tag is <code>bridge:blake3(sorted-party-identifiers)</code>. This ensures no collision with either instance's existing tags. Bridge entries are visible to both parties (tag overlap through the bridge namespace) and governed by a negotiated sub-constitution specific to the bridge scope. Full bridge protocol is deferred (ontology/13, G7) but the namespace reservation prevents retrofitting costs later. The entry format, DAG structure, and visibility model already support bridges — only the namespace needs reserving.</p>
+<hr>
+<h2 id="encryption-v1-5"><a class="heading-anchor" href="#encryption-v1-5">#</a>Encryption (v1.5+)</h2>
+<p>In v1.0, entries are plaintext. Tags determine logical visibility — what you should see — but any agent with ledger access can technically read everything. This is acceptable for single-user Filix installations and trusted multi-agent setups.</p>
+<p>In v1.5, visibility becomes physical. The <code>envelope</code> field encrypts the entry's payload:</p>
+<pre><code>{
+  &quot;audience_label&quot;: &quot;blake3(sorted-tag-set)&quot;,
+  &quot;encrypted_key&quot;: &quot;encrypt_to(audience_key, entry_secret)&quot;,
+  &quot;ciphertext&quot;: &quot;age_encrypt(payload, entry_secret)&quot;
+}</code></pre>
+<p>Key derivation: <code>KDF(master<em>secret || audience</em>label) -&gt; audience_key</code>. Each unique tag combination has its own derived key. Agents who share tags derive the same keys — this is how tag overlap translates into cryptographic access. When an agent joins a tag group, it receives the current master secret and can derive all audience keys for its tag set. When an agent leaves, the master secret rotates and new keys are derived. The rotation cost is O(n) messages where n is the size of the departing group — each remaining member receives the new secret.</p>
+<p>The CID is computed over the envelope (encrypted form), not the plaintext. This means content addressing works without decryption. The DAG structure — who appended what, when, with what parents — is visible to everyone. The payload — the semantic content of the belonging — is visible only to the audience. Privacy is topological: your position in the tag graph determines what you can decrypt, and that position is itself recorded in the ledger as belongings with tag qualities.</p>
+<hr>
+<h2 id="how-current-systems-map"><a class="heading-anchor" href="#how-current-systems-map">#</a>How Current Systems Map</h2>
+<table>
+<tr><th>Current system</th><th>Ledger equivalent</th></tr>
+<tr><td>Dispatch message</td><td>Entry: <code>entity_id</code>=sender, <code>target</code>=situation:conversation, <code>quality</code>="communicates", tags include recipient.</td></tr>
+<tr><td>Board post</td><td>Entry: <code>entity_id</code>=agent, <code>target</code>=domain:project, <code>quality</code>="reports", tags include domain.</td></tr>
+<tr><td>Roster update</td><td>Entry: <code>entity_id</code>=agent, <code>target</code>=role:architect, <code>quality</code>="holds-role" or state quality ("live", "frozen", "dead").</td></tr>
+<tr><td>Entity belonging</td><td>Entry: the entry IS a belonging. No mapping needed — identity, not translation.</td></tr>
+<tr><td>Git commit</td><td>One materialization of ledger entries into the filesystem. The git DAG is a projection of the ledger DAG.</td></tr>
+<tr><td>Freeze-state</td><td>Entry: <code>entity_id</code>=agent, <code>target</code>=situation:session, <code>quality</code>="freeze-state", payload contains the structured summary from [[32-lifecycle-manager]].</td></tr>
+</table>
+<p>The mapping is not metaphorical. Each row describes a literal replacement. When Filix v1.0 ships, the dispatch JSONL, the roster JSONL, the board.md files, and the entity graph SQLite are all replaced by views over the ledger. The views are materialized for performance — SQLite indices, rendered markdown — but the ledger is the source of truth for all of them.</p>
+<hr>
+<h2 id="implementation-path"><a class="heading-anchor" href="#implementation-path">#</a>Implementation Path</h2>
+<p>The ledger does not replace everything overnight. It grows from the current JSONL bootstrap.</p>
+<p><strong>Phase 0 (now).</strong> JSONL dispatch + JSONL roster + board.md files. Working, unstructured. The immediate step: add content hashes (BLAKE3 of canonical form) to every record written by the dispatch and roster systems. This makes interim records content-addressable — the first ledger property — without changing any existing tooling. Records that already have hashes can be imported into the ledger at Phase 1 without recomputation.</p>
+<p><strong>Phase 1 (Filix v1.0).</strong> Single-file append-only ledger. Entries follow the schema above. Policy-as-code predicates evaluate at append time, and the appending agent signs an attestation. No encryption. The entity graph becomes a read view over the ledger — <code>entities.db</code> is a materialized index, not the source of truth. The materialization is rebuilt by scanning the ledger and projecting entries into relational tables. Boards become tag-filtered views rendered to markdown on demand. The roster becomes a quality-filtered view over entries with lifecycle state qualities.</p>
+<p><strong>Phase 2 (Filix v1.5).</strong> Per-entry encryption. Tags become physical visibility boundaries. KDF-based audience keys. Master secret rotation on group changes. The ledger can now be replicated to untrusted nodes — the DAG structure is public, but payload visibility is cryptographically enforced by tag overlap.</p>
+<p><strong>Phase 3 (Filix v2.0).</strong> ZK-STARK proofs. Every append carries a zero-knowledge proof that it satisfies the applicable constitutional rules without revealing the entry's content. Verification is mechanical: a node accepts an entry if and only if its proof verifies against the public rule set. Drift resistance is no longer a social or architectural problem — it is a mathematical guarantee. An invalid append cannot enter the ledger because it cannot produce a valid proof.</p>
+<hr>
+<h2 id="amendments-post-stress-test"><a class="heading-anchor" href="#amendments-post-stress-test">#</a>Amendments (Post Stress Test)</h2>
+<p>Four structural clarifications added after the spec was stress-tested with a worked example and a failure modes survey. Ontological grounding by Nagarjuna (ontologist-01).</p>
+<h3 id="content-is-material-not-structure"><a class="heading-anchor" href="#content-is-material-not-structure">#</a>Content is material, not structure</h3>
+<p>The entry schema records structure — who communicated, to whom, in what capacity. But messages carry content. Where does the content live?</p>
+<p>Content is a <strong>material belonging to the situation</strong>. Every entry in the ledger is an act-scale situation (ontology/12, Definition S1). The content of that act is a material that belongs to it. This means a dispatch message produces <strong>two entries</strong>:</p>
+<ol>
+<li><strong>Structural entry.</strong> <code>entity_id: agent:lina, target: situation:conv-01, quality: communicates</code>. Records the act.</li>
+<li><strong>Material entry.</strong> <code>entity_id: payload:&lt;content-hash&gt;, target: cid-of-structural-entry, quality: material</code>. Records what was said.</li>
+</ol>
+<p>The structural entry is always visible to tag-overlap agents. The material entry can be <strong>separately encrypted</strong> — you can know that Lina communicated without knowing what she said. This is privacy as granularity, not all-or-nothing.</p>
+<p>The same two-entry pattern applies to any belonging that carries content: board posts (structural + body), roster updates (structural + summary), document writes (structural + document content).</p>
+<h3 id="every-entry-is-an-entity"><a class="heading-anchor" href="#every-entry-is-an-entity">#</a>Every entry is an entity</h3>
+<p>Every entry is simultaneously a belonging (it relates an entity to a target) AND an entity (it can be the target of other belongings). The CID serves double duty: content address and entity identifier. This is the reflexive closure from ontology/02-relations applied to the ledger.</p>
+<p>When you annotate a specific message, you write: <code>entity_id: your-annotation, target: cid-of-message, quality: annotates</code>. The message's CID is its entity identity. No special mechanism needed — the graph is already reflexive.</p>
+<p>This resolves the dual-identity problem identified in testing: <code>entity_id</code> identifies the subject of the belonging (who or what belongs), while <code>cid</code> identifies the entry itself as a referenceable entity. Both are necessary. They serve different functions.</p>
+<h3 id="broadcasts-use-the-root-tag"><a class="heading-anchor" href="#broadcasts-use-the-root-tag">#</a>Broadcasts use the root tag</h3>
+<p><code>scope:universal</code> is the root of the tag hierarchy. Every agent's tags overlap with it by definition — it is the node from which all other tags descend. This is not a wildcard exception to the overlap-only visibility rule. It is the Library Theorem's root node: the top of the index that makes O(log N) navigation possible. A broadcast is an entry tagged <code>scope:universal</code>, meaning it belongs to the universal context.</p>
+<p>The convention: all agents carry <code>scope:universal</code> implicitly. It does not need to appear in their explicit tag set — the system adds it at tag resolution time.</p>
+<h3 id="fork-reconciliation-requires-human-authority"><a class="heading-anchor" href="#fork-reconciliation-requires-human-authority">#</a>Fork reconciliation requires human authority</h3>
+<p>The productive inconsistency model (invalid transitions fork rather than fail) has a known distributed systems risk: fork proliferation. If agents disagree frequently, the DAG fractures into branches that never merge.</p>
+<p>The answer: <strong>the human decides when forks merge.</strong> This is Constitution §2 (Human Authority). In the productive inconsistency model, persistent forks represent genuine disagreement. Mechanical auto-reconciliation would mean the system resolves disagreements without human judgment — contradicting the system's central claim that human participation is irreplaceable at the points where formal systems cannot decide.</p>
+<p>The oracle (LLM) can <strong>propose</strong> a merge by generating a resolution entry. But the merge is only valid when a human-authorized agent signs the proof. Fork proliferation is bounded by this: forks accumulate until a human-authorized resolution is appended.</p>
+<p>In practice, most forks are trivial (concurrent non-conflicting appends) and merge automatically via CRDT semantics. The forks that persist are the interesting ones — genuine policy disagreements that need human judgment. That is the system working as designed.</p>
+<p><strong>Operational bound:</strong> Unresolved forks cost tracking overhead (more branches to navigate), not structural integrity (the DAG remains valid). The historian (methods/29) monitors fork accumulation and surfaces persistent forks to the user for resolution.</p>
+<h3 id="governance-integration-ontology-13"><a class="heading-anchor" href="#governance-integration-ontology-13">#</a>Governance integration (ontology/13)</h3>
+<p>Ontology/13 (Governance as Situation) establishes six definitions that tighten the ledger spec in three areas.</p>
+<p><strong>Merge is governance (G3).</strong> A merge of forked branches is not a technical operation -- it is a governance situation. The merge entry must carry: actors (the parties who participated in the decision), method (the decision process: vote, consensus, delegation, arbitration), materials (the matters under deliberation -- the forked entries being reconciled), and a governance proof (G4). The merge entry's <code>quality</code> field is "governs" and its belongings include the forked entries as materials. A merge without a governance proof is structurally invalid.</p>
+<p><strong>The proof field carries governance evidence (G4).</strong> Two tiers, matching the existing v1.0/v2.0 progression:</p>
+<ul>
+<li><strong>v1.0:</strong> Attestation with quorum signatures. The proof specifies: which agents attested, what decision process was used (G2), whether quorum and threshold were met. Format: <code>{type: "governance-attestation", process: "consensus", quorum: 3, signers: [...], threshold_met: true}</code>.</li>
+<li><strong>v2.0:</strong> ZK proof that quorum and threshold were met without revealing individual positions. The proof demonstrates procedural legitimacy cryptographically.</li>
+</ul>
+<p><strong>Authority is traceable (G5).</strong> The <code>actor</code> field on every entry must be resolvable to a delegation chain terminating in a human-authorized governance process. An agent appending an entry does so under authority delegated from the user (Constitution section 2). The delegation chain is itself a sequence of ledger entries with quality "delegates-authority" -- the authorization to act is recorded in the same ledger as the actions. Unattributable entries (where the actor cannot be traced to a human authorization) are structurally suspect, flagged by the auditor.</p>
+<p><strong>Nested governance (G6).</strong> Three levels: constitutional (founding rules, non-overridable), institutional (standing bodies operating under the constitution), operational (atomic governance acts -- a single vote, a single merge). This maps to the existing policy resolution (ontology/12, S5): innermost prevails unless outer is non-overridable. The ledger's constitutional rules (entries with quality "governs" at scope:universal) are the constitutional level. Domain-scoped governance entries are institutional. Per-merge governance is operational.</p>
+<hr>
+<h2 id="what-this-document-does-not-cover"><a class="heading-anchor" href="#what-this-document-does-not-cover">#</a>What This Document Does NOT Cover</h2>
+<ul>
+<li>Wire protocol for ledger replication between nodes (network layer — separate spec).</li>
+<li>Specific constitutional rules (policy content — separate from the mechanism that enforces them).</li>
+<li>Migration plan from HAAK to Filix (strategy — see [[strategy/19-filix-v1-plan]]).</li>
+<li>The relationship between the ledger DAG and git (materialization details — the git DAG is one projection, but the projection rules need their own spec).</li>
+<li>Performance characteristics (benchmarking — deferred to implementation; the schema is designed for append-only sequential writes and indexed reads, but concrete numbers depend on entry volume and materialization strategy).</li>
+</ul>
+<hr>
+<p><em>haak architecture . 33 . the constitutional ledger . 2026-03-16 . designed by Lina (architect, session architect-new) with ontological grounding from Nagarjuna (ontologist, session ontologist-01). The foundational data structure of Filix v1.0: a Merkle-CRDT where every entry is a belonging, constitutional rules govern valid transitions, and productive inconsistency is structural.</em></p>
+
+        <p class="endnote">Architecture 33 &mdash; 33. The Constitutional Ledger &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/lifecycle-manager/">&larr; 32: 32. Agent Lifecycle Manager</a><a class="memo-nav-next" href="/memos/agent-runner-v1/">35: Agent Runner &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-claim">The Claim</a></li>
+<li><a href="#the-entry">The Entry</a></li>
+<li><a href="#the-dag">The DAG</a></li>
+<li><a href="#constitutional-rules">Constitutional Rules</a></li>
+<li><a href="#tags-and-topology">Tags and Topology</a></li>
+<li><a href="#encryption-v1-5">Encryption (v1.5+)</a></li>
+<li><a href="#how-current-systems-map">How Current Systems Map</a></li>
+<li><a href="#implementation-path">Implementation Path</a></li>
+<li><a href="#amendments-post-stress-test">Amendments (Post Stress Test)</a>
+<ol>
+<li><a href="#content-is-material-not-structure">Content is material, not structure</a></li>
+<li><a href="#every-entry-is-an-entity">Every entry is an entity</a></li>
+<li><a href="#broadcasts-use-the-root-tag">Broadcasts use the root tag</a></li>
+<li><a href="#fork-reconciliation-requires-human-authority">Fork reconciliation requires human authority</a></li>
+<li><a href="#governance-integration-ontology-13">Governance integration (ontology/13)</a></li>
+</ol></li>
+<li><a href="#what-this-document-does-not-cover">What This Document Does NOT Cover</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

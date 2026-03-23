@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engagement State — The Third Externalization &mdash; HAAK</title>
+<meta name="description" content="The third externalization: tracking multi-session work contexts as first-class state.">
+<meta property="og:title" content="Engagement State — The Third Externalization &mdash; HAAK">
+<meta property="og:description" content="The third externalization: tracking multi-session work contexts as first-class state.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Engagement State — The Third Externalization</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 39 &middot; March 2026</p>
+      <h1 class="article-title">Engagement State — The Third Externalization</h1>
+      <p class="article-subtitle">HAAK externalizes along three axes. Two are built: the domain axis has boards and indices (what happened here, what exists here), and the actor axis has trace (designed in Architecture 20, partially…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-gap">1. The gap</a></li>
+<li><a href="#2-formal-definitions">2. Formal definitions</a></li>
+<li><a href="#3-ontological-grounding">3. Ontological grounding</a></li>
+<li><a href="#4-what-engagement-state-replaces">4. What engagement state replaces</a></li>
+<li><a href="#5-implementation">5. Implementation</a></li>
+<li><a href="#context-for-successor-agents">Context for successor agents</a></li>
+<li><a href="#6-phase-graphs-for-existing-methods">6. Phase graphs for existing methods</a>
+<ol>
+<li><a href="#review-method-01">Review (method 01)</a></li>
+<li><a href="#write-method-03">Write (method 03)</a></li>
+</ol></li>
+<li><a href="#7-the-reconstruction-test">7. The reconstruction test</a></li>
+<li><a href="#8-relationship-to-governance-agent-files">8. Relationship to governance (.agent files)</a></li>
+<li><a href="#9-what-this-document-does-not-cover">9. What this document does NOT cover</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="1-the-gap"><a class="heading-anchor" href="#1-the-gap">#</a>1. The gap</h2>
+<p>HAAK externalizes along three axes. Two are built: the domain axis has boards and indices (what happened here, what exists here), and the actor axis has trace (designed in <a class="cross-ref" href="/memos/context-transport/">Architecture 20</a>, partially built). The method axis — engagement state — is named in <a class="cross-ref" href="/memos/coordination-topology/">Foundation 07</a>, referenced in <a class="cross-ref" href="/memos/context-transport/">Architecture 20</a>, but has no implementation. This document provides it.</p>
+<p>The problem is concrete. When a method is invoked — a review, a filesystem reorganization, a paper submission pipeline — there is no persistent record of where that particular execution stands. The method-type exists as a document in <code>patterns/methods/</code>. The method-token — this review of this paper, at this phase, with these participants — exists only in the context windows of agents currently working on it, in scattered board entries, and in the user's memory.</p>
+<p>When a session ends and a new one begins, the fresh agent faces an archaeological problem. It reads the board, scans file dates, infers from directory contents, and asks the user. Each source is incomplete. The board records events but not phase position. File dates record when something was last touched but not what step it was for. The user remembers the trajectory but cannot be queried programmatically by other agents. The result is that multi-session engagements — which are the norm for any serious work — degrade with each session boundary. Each handoff loses information. Each reconstruction takes time that could be spent on the work itself.</p>
+<p><a class="cross-ref" href="/memos/coordination-topology/">Foundation 07</a> identifies the three externalizations as the solution to the reconstruction problem: traces for actors, boards+indices for domains, engagement state for methods. The claim is that these three, together, are sufficient for any fresh agent to reconstruct the system's state. Two legs of this tripod are built. The third is missing. Until it exists, the reconstruction property is untestable.</p>
+<h2 id="2-formal-definitions"><a class="heading-anchor" href="#2-formal-definitions">#</a>2. Formal definitions</h2>
+<p>The relational situational ontology provides the ground. An engagement is already defined in the ontology (Definition 13 of [[01-objects]]) as a normative token-compound — the intentional, goal-directed view of a particular instance of action. What follows formalizes the internal structure of engagements and the mechanism by which that structure is externalized.</p>
+<p><strong>Definition 1 (Phase Graph).</strong> A phase graph G = (V, E, v<em>0, F) where V is a finite set of phases, E is a set of directed transitions (v, v') with each transition carrying an enabling condition c</em>{v,v'}, v_0 in V is the initial phase, and F is a subset of V containing the terminal phases. The phase graph is a property of the method-type — it defines the normative structure of all engagements of that type. It is the method-type's contribution to the situation's shape.</p>
+<p>The phase graph is not a simple sequence. Reviews have cycles (collect -&gt; consult -&gt; collect, when contradictions between reviewers require additional input). Writing has returns (validate -&gt; draft, when a quality gate fails). Ingestion is mostly linear but branches at triage (different content types diverge to different patterns). The directed graph with cycles captures all of these. A walk through the graph — a sequence of visited phases — is a particular engagement's trajectory.</p>
+<p><strong>Definition 2 (Engagement).</strong> An engagement is a method-token: an execution instance of a method-type. Formally, e = (M, G, sigma, t<em>0) where M is the method-type (the procedure being executed), G is M's phase graph (inherited from the type), sigma is the current engagement state (see Definition 3), and t</em>0 is the creation timestamp. The engagement is the normative view of a situation — it says not just what is happening, but what should happen next and toward what end.</p>
+<p>The distinction between engagement and situation is the distinction between the normative and descriptive views of the same token (Definition 13 of [[01-objects]]). A review round is a situation: these people, reading this manuscript, producing these documents. The same review round is an engagement: the editor should synthesize, two reviews are in, one is pending, the next step is to follow up with the third reviewer. The situation records what is; the engagement records what ought to be. Engagement state externalizes the normative view.</p>
+<p><strong>Definition 3 (Engagement State).</strong> The engagement state sigma = (v, H, O, A, D) where:</p>
+<ul>
+<li>v in V is the current phase — where the engagement stands in its phase graph</li>
+<li>H is a set of (phase, timestamp) pairs recording completed phases — where the engagement has been</li>
+<li>O is a set of pending obligations — what must happen before the next transition can fire</li>
+<li>A is a set of (actor-token, role) pairs — who is participating and in what capacity</li>
+<li>D is a set of domain-instances — where the work is happening</li>
+</ul>
+<p>The state is a complete snapshot. Given sigma and G, any agent can determine: the current phase (v), the history of how it got there (H), what remains to be done in this phase (O), who is involved (A), and where the work lives (D). This is exactly the information that is currently lost at session boundaries and reconstructed through archaeology.</p>
+<p><strong>Definition 4 (Phase Transition).</strong> A transition (v, v') fires when all enabling conditions c<em>{v,v'} are satisfied. The effect is: v is replaced by v', H is extended with (v, t</em>now), and O is recomputed from the new phase's obligation set as defined by the method-type. Enabling conditions are heterogeneous — they may be temporal (a deadline has passed), material (all reviews are in), actorial (the editor has been assigned), or computational (a script has completed). The only requirement is that they be evaluable: given the current state, an agent can determine whether the condition holds.</p>
+<p>The distinction between firing a transition and recording that a transition has fired is important. In the current design, agents fire transitions by writing the new state. There is no automated transition detection — agents exercise judgment about when conditions are met. This is deliberate. Automated detection is a future enhancement; the immediate need is a persistent record that agents can read and write.</p>
+<p><strong>Definition 5 (Engagement Nesting).</strong> If engagement e<em>1 spawns sub-engagement e</em>2, then completion of e<em>2 (reaching a terminal phase in e</em>2.G) is an enabling condition for some transition in e_1.G. The sub-engagement inherits the parent's domain constraints but may narrow them.</p>
+<p>This mirrors situation nesting (Definition S3 of [[12-situation-nesting]]). A paper submission engagement contains a review engagement as a sub-engagement. Completion of the review (terminal phase: synthesis delivered) enables the submission engagement to transition from "under review" to "revise." The review sub-engagement inherits the paper's project directory as its domain but may add reviewer-specific workspaces. The nesting is normative: the sub-engagement exists because the parent's method-type prescribes it as a step.</p>
+<p><strong>Definition 6 (Reconstruction Property).</strong> Given complete actor traces T, domain boards+indices B, and engagement states Sigma for all active engagements, the system state is reconstructible up to actor-internal reasoning. Formally: any fresh agent reading T union B union Sigma can determine (a) what work is active, (b) what phase each active engagement is in, (c) what obligations are pending, and (d) who is involved and in what role.</p>
+<p>The qualification "up to actor-internal reasoning" is essential. The externalized state does not capture why an agent made a particular judgment — the reasoning that led a reviewer to a specific critique, the editor's deliberation about panel composition. Those are actor-internal and ephemeral by design (<a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a>: identity is context, and context dies with the session). What the reconstruction property guarantees is that the structural state — phase, obligations, participants, domains — survives session death. The reasoning can be recovered from transcripts if needed, but it is not part of the engagement state.</p>
+<h2 id="3-ontological-grounding"><a class="heading-anchor" href="#3-ontological-grounding">#</a>3. Ontological grounding</h2>
+<p>Every formal object defined above maps to the relational situational ontology. There are no new primitives. The definitions are refinements of existing ontological structures, applied to the method axis.</p>
+<p>An <strong>engagement</strong> is a <strong>situation</strong> in the ontological sense — a compound of belongings with qualities (Definition 11 of [[01-objects]]). The method-type defines which kinds of belongings compose the situation. A review engagement is a situation where manuscripts belong as material, reviewers belong as actors with quality "reviewer," an editor belongs as actor with quality "editor," and the review method belongs as method. The engagement adds the normative dimension: the situation is not just described but governed by the method-type's phase graph.</p>
+<p>A <strong>phase</strong> is a <strong>quality</strong> of the engagement-as-situation. In the quality framework of [[02-relations]], qualities specify the nature of a belonging — in what way does A belong to B? The current phase is the engagement's mode of existence at this moment. "Collecting reviews" and "synthesizing" are different qualities of the same engagement, just as "author" and "reviewer" are different qualities of a person's belonging to different situations. The phase quality changes over time as transitions fire; other qualities of the engagement (its participants, its domain) may persist across phases.</p>
+<p>The <strong>phase graph</strong> is the <strong>normative structure</strong> that the method-type contributes. Definition 12 of [[01-objects]] defines policies as normative type-compounds that prescribe what must or should happen. The phase graph is a policy embedded in the method-type: it constrains which phase-qualities are reachable from which, and under what conditions. Not all phase sequences are valid. A review cannot reach synthesis without passing through collection. A manuscript cannot reach submission without passing through validation. The phase graph enforces this ordering — not mechanically (agents write the transitions) but normatively (a transition that skips a required phase is a violation, detectable by any agent that reads the graph).</p>
+<p><strong>Engagement state</strong> is the <strong>inscription</strong> of the engagement's current qualities — its materialization (Definition S4 of [[12-situation-nesting]]). Just as a directory materializes a project-situation, an engagement state file materializes an engagement. It makes the situation readable to any actor who enters it. Without the inscription, the engagement exists only in the memories of its participants. With it, a fresh agent can enter the engagement, read the state, and participate meaningfully — the same advantage that indices provide for navigating the domain axis.</p>
+<p><strong>Obligations</strong> are <strong>belongings</strong> with normative quality. They belong to the engagement and specify what must happen. "Synthesize reviews into editorial assessment" is an obligation that belongs to the engagement at the synthesis phase with quality "required-action." When fulfilled, obligations enable transitions. This is the same mechanism by which policies constrain actions in Definition 12 — obligations are phase-local policies, binding only within the engagement and only during the current phase.</p>
+<p>This grounding is not decorative. It means engagement state inherits all the properties of the ontological framework: qualities are entities subject to the quality graph, belongings carry provenance, situations nest with policy inheritance. An engagement state file is not an ad-hoc format — it is the materialization of an ontological structure, and its fields correspond to well-defined ontological objects.</p>
+<h2 id="4-what-engagement-state-replaces"><a class="heading-anchor" href="#4-what-engagement-state-replaces">#</a>4. What engagement state replaces</h2>
+<p>Currently, engagement position is reconstructed from three informal sources, each with characteristic failure modes.</p>
+<p><strong>Board entries</strong> are reverse-chronological event logs. They record that a review was dispatched, that a reviewer returned their assessment, that the editor posted a synthesis. But events are not phase positions. To determine the current phase from a board, an agent must read all entries related to the engagement, mentally reconstruct the sequence, and infer which phase the engagement is in based on which events have occurred. This is O(N) in the number of board entries — exactly the linear scan that the Library Theorem identifies as the problem. Worse, board entries are mixed: the same board carries entries from multiple engagements, unrelated coordination messages, and meta-commentary. Filtering by engagement requires pattern-matching on free text.</p>
+<p><strong>Agent memory</strong> dies with the session. An agent that has been conducting a review knows precisely where the engagement stands — which reviewers have returned, what the editor's instructions were, what remains. This knowledge is context-window state. When the session ends, it vanishes. The successor agent starts from scratch. Memory files (<code>memory/MEMORY.md</code>) carry cross-session patterns, but they are not designed for engagement state — they hold durable preferences and conventions, not the phase position of a specific review of a specific paper.</p>
+<p><strong>User memory</strong> is reliable and rich. The user knows what is happening, what has been done, what comes next. But user memory is unscalable — a user tracking twenty concurrent engagements cannot maintain precise phase positions for all of them — and unqueryable — an agent cannot programmatically ask the user's memory what phase the tasting paper review is in without interrupting the user.</p>
+<p>Engagement state replaces all three with a single, structured, persistent record per active engagement. The board remains for event logging; it records what happened. Engagement state records where we are. The difference is the difference between a ship's log (chronological record of events) and a navigation chart (current position, planned route, next waypoint). Both are necessary. Only the chart answers "where are we now?"</p>
+<h2 id="5-implementation"><a class="heading-anchor" href="#5-implementation">#</a>5. Implementation</h2>
+<p><strong>File format.</strong> Each active engagement gets an <code>engagement.md</code> file in the project directory where the work lives, alongside <code>board.md</code> and <code>index.md</code>. YAML frontmatter carries the formal state; the markdown body carries narrative context that helps a fresh agent orient.</p>
+<pre><code>---
+method: review
+engagement_id: review-tasting-2026-03
+phase: synthesis
+started: 2026-03-10
+phases_completed:
+  - { phase: recruit, completed: 2026-03-10 }
+  - { phase: dispatch, completed: 2026-03-11 }
+  - { phase: collect, completed: 2026-03-18 }
+obligations:
+  - &quot;synthesize reviews into editorial assessment&quot;
+  - &quot;draft author response&quot;
+actors:
+  - { id: editor-session-xyz, role: editor, status: pending }
+  - { id: reviewer-1-abc, role: reviewer, status: complete }
+  - { id: reviewer-2-def, role: reviewer, status: complete }
+  - { id: reviewer-3-ghi, role: reviewer, status: complete }
+domains:
+  - projects/ai-ontology/02-tasting-paper
+parent_engagement: null
+---
+
+# Review: Tasting Paper
+
+Three reviews collected. All reviewers returned substantive assessments.
+Reviewer 1 raised methodological concerns about the sensory protocol.
+Reviewers 2 and 3 converged on the statistical analysis as the strongest
+contribution but diverged on the novelty claim.
+
+Next: editor synthesizes, resolving the methodological disagreement and
+producing a decision letter with the eLife vocabulary.
+
+## Context for successor agents
+
+The panel was assembled from existing personas (lopes-g, kampff-ar,
+feierstein-c). No new personas were built. The manuscript is at
+projects/ai-ontology/02-tasting-paper/ms-v2.md. Individual reviews
+are in R1/.</code></pre>
+<p>The frontmatter is machine-readable: any agent or script can parse the YAML and determine the phase, the obligations, the participants. The body is human-readable: it provides the narrative context that makes the formal state meaningful. This is the same two-level structure as <code>index.md</code> — Contents for routing, Details for understanding — applied to engagement state.</p>
+<p><strong>Naming.</strong> When a project has one active engagement, the file is <code>engagement.md</code>. When multiple engagements coexist — a review and a submission pipeline running concurrently on the same manuscript — each gets a distinguishing name: <code>engagement-review.md</code>, <code>engagement-submission.md</code>. The naming follows the navigate-not-address principle (<a class="cross-ref" href="/memos/navigate-not-address/">Architecture 11</a>): the project's <code>index.md</code> lists active engagements; agents navigate there, not to memorized paths.</p>
+<p><strong>Lifecycle.</strong> An engagement state file is created when a method is invoked on a project — either manually by an agent writing the file or via a <code>/engage start &lt;method&gt;</code> skill invocation. It is updated at each phase transition: the agent writes the new phase, appends to the completion history, and recomputes obligations. It is archived — moved to <code>.archive/</code> — when the engagement reaches a terminal phase. This follows the existing archiving convention: <code>.archive/</code> at any level holds superseded or completed artifacts.</p>
+<p>Multiple engagements can be active simultaneously in the same project directory. A paper may be under review (review engagement), undergoing revision (writing engagement), and being prepared for submission (submission engagement) at the same time. Each has its own state file, its own phase position, its own participants. There is no singleton constraint — principle 3 (parallelizable by default) applies.</p>
+<p><strong>Skills integration.</strong> Four skill verbs cover the lifecycle:</p>
+<ul>
+<li><code>/engage start &lt;method&gt;</code> — creates <code>engagement.md</code> from the method-type's phase graph, populating the initial phase, empty history, initial obligations, and current actor set.</li>
+<li><code>/engage status</code> — reads and reports the current engagement state in natural language. Equivalent to reading the file, but formatted for conversation.</li>
+<li><code>/engage advance &lt;phase&gt;</code> — records a phase transition: writes the new phase, timestamps the completed phase, recomputes obligations from the method-type's definition.</li>
+<li><code>/engage close</code> — archives the engagement state file to <code>.archive/</code> and posts a completion summary to the board.</li>
+</ul>
+<p>These are thin — they read and write a file. The intelligence is in the agent's judgment about when to advance, not in the skill's logic.</p>
+<p><strong>Session start integration.</strong> Agents already read <code>board.md</code> on session entry (CLAUDE.md convention). The addition: also read any <code>engagement.md</code> files in the active project directory. This tells the agent not just what happened (board) but where the work stands (engagement state). The board is a log; engagement state is a dashboard. Both are needed; together they are sufficient.</p>
+<h2 id="6-phase-graphs-for-existing-methods"><a class="heading-anchor" href="#6-phase-graphs-for-existing-methods">#</a>6. Phase graphs for existing methods</h2>
+<p>Two methods already defined in <code>patterns/methods/</code> are shown here with their phase graphs, demonstrating that the abstraction applies to existing workflows without modification.</p>
+<h3 id="review-method-01"><a class="heading-anchor" href="#review-method-01">#</a>Review (method 01)</h3>
+<p>The review method's phase graph is the most complex in the current system. It has cycles (collect -&gt; consult -&gt; collect when reviewers contradict), branches (the find-panel sub-procedure), and multiple terminal paths (accept, revise, reject).</p>
+<pre><code>                    +--[gaps found]--+
+                    |                |
+                    v                |
+recruit -----&gt; dispatch -----&gt; collect -----&gt; consult -----&gt; synthesize -----&gt; respond
+  ^                              ^    \         |                               |
+  |                              |     \        |                               |
+  +-------[panel incomplete]-----+      +-------+                               v
+                                    [contradictions                           package
+                                      unresolved]                               |
+                                                                                v
+                                                                         [TERMINAL]</code></pre>
+<p>Phases:</p>
+<ul>
+<li><strong>recruit</strong>: assemble reviewer panel from personas. Obligations: panel of 3-5, coverage matrix complete, cost estimate shown.</li>
+<li><strong>dispatch</strong>: send manuscript to reviewers, spawn parallel review subagents. Obligations: all reviewers assigned, engine selected.</li>
+<li><strong>collect</strong>: gather completed reviews. Obligations: all dispatched reviews returned.</li>
+<li><strong>consult</strong>: resolve contradictions between reviewers. Obligations: contradictions identified and addressed. Loops back to collect if additional input needed.</li>
+<li><strong>synthesize</strong>: editor produces editorial assessment, bias report, decision letter. Obligations: synthesis covers all major points, convergence check passed.</li>
+<li><strong>respond</strong>: draft author responses with literature support. Obligations: each concern addressed, rebuttal searches complete.</li>
+<li><strong>package</strong>: assemble final deliverables (PDFs, index). Terminal phase.</li>
+</ul>
+<p>Enabling conditions on transitions:</p>
+<ul>
+<li>recruit -&gt; dispatch: panel approved by user, cost estimate accepted.</li>
+<li>dispatch -&gt; collect: all reviews spawned (not completed — spawning is the trigger).</li>
+<li>collect -&gt; consult: all reviews returned.</li>
+<li>consult -&gt; collect: contradictions remain unresolved after first pass.</li>
+<li>consult -&gt; synthesize: all contradictions addressed or flagged as irreducible.</li>
+<li>synthesize -&gt; respond: synthesis approved by user.</li>
+<li>respond -&gt; package: all responses drafted.</li>
+</ul>
+<p>Multi-round review (revision rounds) restarts the graph at dispatch with the same panel, incrementing the round counter. The engagement state records which round is active.</p>
+<h3 id="write-method-03"><a class="heading-anchor" href="#write-method-03">#</a>Write (method 03)</h3>
+<p>The write method is more linear, with a single significant cycle.</p>
+<pre><code>gather -----&gt; research -----&gt; draft -----&gt; validate -----&gt; iterate
+                                ^             |               |
+                                |             v               v
+                                +----[fails gate]        [TERMINAL]</code></pre>
+<p>Phases:</p>
+<ul>
+<li><strong>gather</strong>: collect source material. Obligations: all referenced sources identified and accessible.</li>
+<li><strong>research</strong>: background research, literature check, gap analysis. Obligations: gaps identified and addressed.</li>
+<li><strong>draft</strong>: write the document. Obligations: complete draft in type-appropriate structure.</li>
+<li><strong>validate</strong>: quality gate — completeness, grounding, voice consistency, length. Obligations: all checks passed.</li>
+<li><strong>iterate</strong>: author review and revision. Terminal phase (user decides when done).</li>
+</ul>
+<p>Enabling conditions:</p>
+<ul>
+<li>gather -&gt; research: user confirms material complete.</li>
+<li>research -&gt; draft: user confirms gaps filled.</li>
+<li>draft -&gt; validate: draft complete.</li>
+<li>validate -&gt; iterate: all checks pass. If checks fail, loops to draft.</li>
+<li>iterate -&gt; [terminal]: user approves.</li>
+</ul>
+<p>The write method's simplicity relative to review is structural, not accidental. Writing is primarily sequential with one feedback loop; reviewing is inherently parallel (multiple reviewers) with multiple feedback loops (contradictions, panel gaps, revision rounds).</p>
+<h2 id="7-the-reconstruction-test"><a class="heading-anchor" href="#7-the-reconstruction-test">#</a>7. The reconstruction test</h2>
+<p><a class="cross-ref" href="/memos/coordination-topology/">Foundation 07</a> proposes a test for the sufficiency of the three externalizations: run a multi-context session, collect only the externalized state, and have a fresh agent reconstruct what happened. With engagement state in place, this test becomes feasible. Without it, the test would fail trivially — the method axis would have no externalization to read, and phase positions would be unrecoverable.</p>
+<p><strong>What the test looks like.</strong> A structured experiment with three phases:</p>
+<p><em>Phase 1 — Generation.</em> Run a multi-session engagement that spans at least three sessions and involves at least two context switches per session. A review engagement is the natural candidate: session 1 assembles the panel and dispatches reviews; session 2 collects reviews and begins synthesis; session 3 completes synthesis and packages deliverables. Each session ends with proper externalization: board updated, engagement state advanced, trace recorded (when built).</p>
+<p><em>Phase 2 — Collection.</em> After the engagement completes, collect all externalized state: the final and all intermediate versions of <code>engagement.md</code>, all board entries tagged to this engagement, the project index, and any actor traces. Remove all session transcripts, agent memories, and conversation histories. The collected state is the input to reconstruction.</p>
+<p><em>Phase 3 — Reconstruction.</em> A fresh agent — one that has never participated in the engagement — reads the collected state and produces a narrative reconstruction: what happened, in what order, who did what, what the current status is (or was at completion), and what the key decision points were. This reconstruction is compared against the actual transcript record.</p>
+<p><strong>What success means.</strong> Success is reconstruction that correctly identifies: (a) every phase the engagement passed through, in order; (b) the participants and their roles; (c) the key obligations at each phase and whether they were met; (d) the domain(s) where work occurred. The reconstruction need not capture actor-internal reasoning — why the editor chose a particular phrasing, why a reviewer focused on methodology rather than statistics. Those are context-window ephemera, not structural state.</p>
+<p>Quantitatively: if the reconstruction correctly identifies all phase transitions (timing and ordering), all participant assignments, and all obligation resolutions, the test passes. If it misses a phase transition, misidentifies a participant, or cannot determine whether an obligation was met, the test fails — and the failure points to which externalization is inadequate.</p>
+<p><strong>What failure would reveal.</strong> Three failure modes correspond to the three externalizations:</p>
+<ol>
+<li><em>Engagement state failure.</em> The reconstruction cannot determine phase positions — it knows events happened (from the board) but not which phase they correspond to. This means the engagement state was not written at transitions, or was written with insufficient detail. The fix is better engagement state hygiene.</li>
+</ol>
+<ol>
+<li><em>Board/index failure.</em> The reconstruction can determine phase positions but cannot determine what happened within each phase — the events, the artifacts produced, the decisions made. This means boards were not updated or indices were stale. The fix is better domain externalization.</li>
+</ol>
+<ol>
+<li><em>Trace failure.</em> The reconstruction can determine what happened and where the engagement stands, but cannot determine why context switches occurred — why the agent moved from one project to another, what triggered the transition. This means the actor trace was missing or incomplete. The fix is building the trace.</li>
+</ol>
+<p>The test is informative regardless of outcome. Success validates the three-axis model. Failure identifies which axis needs work. The engagement state document makes the test possible by providing the method-axis input that was previously missing entirely.</p>
+<h2 id="8-relationship-to-governance-agent-files"><a class="heading-anchor" href="#8-relationship-to-governance-agent-files">#</a>8. Relationship to governance (.agent files)</h2>
+<p>Engagement state and governance authority coexist in the same directories. They are orthogonal externalizations that operate at different timescales and answer different questions. The <code>.agent</code> file declares who may act — it is standing authority, permanent until revoked by a governance act recorded in the ledger (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>). The <code>engagement.md</code> file declares what action is underway — it is execution state, episodic, created when a method is invoked and archived when the method completes.</p>
+<p>The two interact through a single constraint: agents can only create engagements where they have write access under the governance chain. Workspace scoping (<a class="cross-ref" href="/memos/filix-governance/">Architecture 43</a>, §6) already enforces this — an agent whose scope does not include a directory cannot write an <code>engagement.md</code> there. No additional mechanism is needed. The governed agent for a directory has authority over any engagements in its scope: it can audit them, intervene in them, or constrain them, because governance subsumes engagement management. The <code>actors</code> field in <code>engagement.md</code> and the assignment layer in <code>.agent</code> files track the same agents in different capacities — participation (who is doing the work) versus authority (who may govern the work). An agent may appear in both without contradiction: the editor governing <code>projects/paper-x/</code> may also be an actor in the review engagement running there.</p>
+<p>Engagement files are always archived on completion; <code>.agent</code> files are never archived. This asymmetry reflects the structural difference: governance is topology (persistent), engagement is trajectory (episodic).</p>
+<h2 id="9-what-this-document-does-not-cover"><a class="heading-anchor" href="#9-what-this-document-does-not-cover">#</a>9. What this document does NOT cover</h2>
+<p>Four related topics are outside scope, each requiring its own treatment:</p>
+<p><strong>Trace</strong> — the actor-axis externalization. <a class="cross-ref" href="/memos/context-transport/">Architecture 20</a> designs the trace as a private navigation log. Building it is a separate work item. Engagement state does not depend on trace (they externalize different axes), but the reconstruction test requires both.</p>
+<p><strong>Phase graph formalization for all methods.</strong> This document shows phase graphs for review and write. Extending to all methods in <code>patterns/methods/</code> is incremental work — each method's existing workflow section already describes its phases informally. Formalization means drawing the graph, naming the enabling conditions, and listing obligations per phase. This can be done method by method as engagements are created.</p>
+<p><strong>Automated phase transition detection.</strong> The current design has agents write transitions manually. A future enhancement would detect transitions automatically — monitoring for enabling conditions and notifying agents when a transition is available. This requires evaluable enabling conditions, which the current obligation model supports in principle but does not enforce. The automation is desirable but not blocking.</p>
+<p><strong>Engagement state querying across projects.</strong> The current design is per-project: each project directory holds its own <code>engagement.md</code> files. Querying across projects — "show me all active engagements across the system" — requires an engagement registry or a sweep that reads all project directories. This is the same pattern as the entity graph's relationship to domain databases: local state is authoritative, the graph provides cross-cutting views. An engagement registry would be a natural extension of the entity graph, with engagements as situation entities and phase positions as qualities. The ontological groundwork for this is already in place (Section 3); the implementation is future work.</p>
+<hr>
+<p><em>architecture . 39 . engagement state . 2026-03-19 . zach + claude</em></p>
+
+        <p class="endnote">Architecture 39 &mdash; Engagement State — The Third Externalization &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/agent-runner-v2/">&larr; 38: Agent Runner v2 — Constitutional Runtime over ACP</a><a class="memo-nav-next" href="/memos/agent-runner/">40: HAAK Agent Runner: Technical Specification &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-gap">1. The gap</a></li>
+<li><a href="#2-formal-definitions">2. Formal definitions</a></li>
+<li><a href="#3-ontological-grounding">3. Ontological grounding</a></li>
+<li><a href="#4-what-engagement-state-replaces">4. What engagement state replaces</a></li>
+<li><a href="#5-implementation">5. Implementation</a></li>
+<li><a href="#context-for-successor-agents">Context for successor agents</a></li>
+<li><a href="#6-phase-graphs-for-existing-methods">6. Phase graphs for existing methods</a>
+<ol>
+<li><a href="#review-method-01">Review (method 01)</a></li>
+<li><a href="#write-method-03">Write (method 03)</a></li>
+</ol></li>
+<li><a href="#7-the-reconstruction-test">7. The reconstruction test</a></li>
+<li><a href="#8-relationship-to-governance-agent-files">8. Relationship to governance (.agent files)</a></li>
+<li><a href="#9-what-this-document-does-not-cover">9. What this document does NOT cover</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

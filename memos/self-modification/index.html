@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-Modification &mdash; HAAK</title>
+<meta name="description" content="A system that studies its own operation and evolves its architecture through use.">
+<meta property="og:title" content="Self-Modification &mdash; HAAK">
+<meta property="og:description" content="A system that studies its own operation and evolves its architecture through use.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; Self-Modification</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 09 &middot; March 2026</p>
+      <h1 class="article-title">Self-Modification</h1>
+      <p class="article-subtitle">**HAAK is a self-modifying system. Its domain forest, method inventory, engagement population, and foundations change over time. Three claims govern how: (1) all self-modification is…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#all-self-modification-is-engagement-mediated">All self-modification is engagement-mediated</a></li>
+<li><a href="#level-relativity-of-structural-change">Level-relativity of structural change</a></li>
+<li><a href="#governance-scales-with-level">Governance scales with level</a></li>
+<li><a href="#insertability">Insertability</a></li>
+<li><a href="#the-self-referential-problem">The self-referential problem</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>HAAK is a self-modifying system. Its domain forest, method inventory, engagement population, and foundations change over time. Three claims govern how: (1) all self-modification is engagement-mediated, (2) the distinction between structural and configurational change is level-relative, and (3) governance intensity scales with the level at which a modification is configurational. Human authority is the constitutional anchor at every level.</strong></p>
+<h2 id="all-self-modification-is-engagement-mediated"><a class="heading-anchor" href="#all-self-modification-is-engagement-mediated">#</a>All self-modification is engagement-mediated</h2>
+<p>Creating a new domain token (a new paper project), a new engagement (a new review cycle), or a new method (a documented procedure) — all require an engagement. There is no mechanism for the system to modify itself outside of deliberate, governed work.</p>
+<p>This is not a design preference but a consequence of three constitutional requirements:</p>
+<ul>
+<li>Without an engagement, self-modification would be <strong>unauditable</strong> — no record tracking who proposed the change and who approved it</li>
+<li>Without a work point, it would be <strong>ungoverned</strong> — no constraints resolved, no human authority exercised</li>
+<li>Without externalized state, it would be <strong>invisible</strong> — no before-and-after captured</li>
+</ul>
+<p>Concretely, creating a new paper project follows the standard pattern:</p>
+<pre><code>method:      architect
+domain:      mainen-lab (the parent scope)
+engagement:  &quot;stand up neural-coding-review&quot;
+output:      new domain token, added to the forest as a child of mainen-lab</code></pre>
+<p>The parent domain scopes the creation. The method provides the procedure. The engagement is where agency, deliberation, and governance converge. The output — a new node in the domain forest — is a modification to the system's self-description, produced through the system's own governance.</p>
+<h2 id="level-relativity-of-structural-change"><a class="heading-anchor" href="#level-relativity-of-structural-change">#</a>Level-relativity of structural change</h2>
+<p>It is tempting to distinguish "structural" modification (changing what the system can express) from "configurational" modification (adding instances within existing vocabulary). Creating a paper project feels configurational — the <code>paper</code> type exists; you add a token. Creating a new domain <em>kind</em> (say, "consortium") feels structural — you expand what domain types are possible.</p>
+<p>This distinction is real but not fundamental. It is relative to the <strong>level of description</strong>.</p>
+<p><strong>The key insight: types at level n are tokens at level n+1.</strong></p>
+<p>The "paper" domain kind is a type at L₀ (relative to paper instances like <code>face-states</code>) but simultaneously a token at L₁ (an element in the collection of domain kinds). Creating a new domain kind is adding a token at L₁ — configurational at that level, even though it is structural at L₀.</p>
+<table>
+<tr><th>Level</th><th>Example modification</th><th>What changes</th><th>Configurational at</th></tr>
+<tr><td>L₀</td><td>Create <code>face-states</code> paper project</td><td>Token population of <code>paper</code> kind</td><td>L₀</td></tr>
+<tr><td>L₁</td><td>Create <code>consortium</code> domain kind</td><td>Type vocabulary of domain kinds</td><td>L₁</td></tr>
+<tr><td>L₂</td><td>Create a new organizational axis</td><td>Axis vocabulary</td><td>L₂</td></tr>
+<tr><td>L₃</td><td>Change what "axis" means</td><td>Meta-structure of the model</td><td>L₃</td></tr>
+</table>
+<p>Each row is structural at the level below and configurational at its own level. There is no absolute boundary between "changing the population" and "changing the grammar." The boundary shifts with the level of description. What looks like a constitutional amendment from inside the system looks like a routine parameter update from one level up.</p>
+<p>The hierarchy is shallow in practice — three or four levels deep for HAAK. But the principle is unbounded: at every level, structural change is configurational change viewed from above.</p>
+<h2 id="governance-scales-with-level"><a class="heading-anchor" href="#governance-scales-with-level">#</a>Governance scales with level</h2>
+<p>Because the structural/configurational boundary is level-relative, the governance question is not "is this structural or configurational?" but "<strong>at what level</strong> is this configurational?" The answer determines blast radius, which determines appropriate governance intensity.</p>
+<table>
+<tr><th>Level</th><th>Blast radius</th><th>Governance</th><th>Examples</th></tr>
+<tr><td>L₀</td><td>Local — one project</td><td>PI decision, routine</td><td>Start a paper project, begin a review</td></tr>
+<tr><td>L₁</td><td>Moderate — affects future instances</td><td>Deliberative; requires architecture doc</td><td>Add a domain kind, create a method type</td></tr>
+<tr><td>L₂</td><td>System-wide — restructures coordination</td><td>Constitutional; explicit process</td><td>Add an organizational axis, change level hierarchy</td></tr>
+<tr><td>L₃</td><td>Foundational — changes self-description</td><td>Rare; philosophical justification</td><td>Redefine what "axis" means</td></tr>
+</table>
+<p>Most activity occurs at L₀: creating projects, starting engagements, instantiating methods. This is the system operating normally — self-modification in the strict sense, but routine, governed by standing authority.</p>
+<p>The highest levels are where the system's identity is at stake. Changing what "axis" means should not happen as a side effect of a Tuesday afternoon engagement. It requires the kind of deliberation that produces foundations — documents articulating <em>why</em> before <em>how</em>, reviewed carefully, with explicit arguments.</p>
+<p>The intermediate levels — creating new domain kinds, method types, engagement templates — are where the system grows its vocabulary. This is where the most interesting governance questions arise. The blast radius is real but bounded. Appropriate governance: write an architecture doc, update relevant indices, review with the PI.</p>
+<h2 id="insertability"><a class="heading-anchor" href="#insertability">#</a>Insertability</h2>
+<p>Insertability is a special case of configurational self-modification: inserting a new level in the method hierarchy adds a token at L₁; inserting a new intermediate domain adds a token at L₀. Both preserve existing relationships while growing the structure.</p>
+<p>This holds on all three axes:</p>
+<ul>
+<li><strong>Method axis</strong>: Insert "conventions" between policies and methods. The total order accommodates it; existing inheritance paths gain an intermediate step but don't break.</li>
+<li><strong>Domain axis</strong>: Insert <code>computational-neuroscience</code> between <code>mainen-lab</code> and specific collaborations. The tree gains depth.</li>
+<li><strong>Engagement axis</strong>: Insert sub-phases into a review round. The phase graph gains nodes; existing edges reconnect.</li>
+</ul>
+<p>The formal property: each axis defines a partial order that admits refinement. Given any two comparable elements a &lt; b, a new element c can be inserted such that a &lt; c &lt; b, without contradicting inherited constraints. The system grows without redesign.</p>
+<h2 id="the-self-referential-problem"><a class="heading-anchor" href="#the-self-referential-problem">#</a>The self-referential problem</h2>
+<p>This foundation describes how the system modifies itself. The system can also modify <em>this foundation</em> — changing the rules of self-modification. This is the L₃ case: meta-structural change.</p>
+<p>HAAK's current answer is simple and sufficient: <strong>the PI resolves</strong>. Human authority is the constitutional anchor that prevents infinite regress. The system can propose changes to its own governance; the human decides whether to accept them. This is not a formal solution to the self-reference problem — it is a practical one that works because there is a human in the loop.</p>
+<p>If HAAK were fully autonomous, the self-reference problem would be acute. For an externalized reasoning system with human oversight, it is manageable: the human is the fixed point.</p>
+<h2 id="historical-development"><a class="heading-anchor" href="#historical-development">#</a>Historical development</h2>
+<p>Self-modification theory was developed in the three-axis model (v1/14, Feb 23 2026) as part of the type/token analysis. It was split into its own foundation because:</p>
+<ol>
+<li>The three-axis model was 697 lines — exceeding the 500-line convention</li>
+<li>Self-modification is a foundation-level concern independent of the three-axis decomposition</li>
+<li>The governance-scales-with-level principle informs the constitution directly</li>
+</ol>
+<h2 id="constitutional-implications"><a class="heading-anchor" href="#constitutional-implications">#</a>Constitutional implications</h2>
+<p>This foundation grounds two constitutional requirements:</p>
+<ol>
+<li><strong>Human authority</strong> (Constitution §2): "The PI has final authority over all system decisions." This is the resolution of the self-referential problem — human authority is the fixed point that prevents governance from modifying its own anchor.</li>
+</ol>
+<ol>
+<li><strong>Self-amendment</strong> (Constitution § "Itself"): "Amendments require PI approval." This is the L₃ governance rule: changes to the constitution are engagement-mediated and require the highest level of human authorization.</li>
+</ol>
+<hr>
+<p><em>haak · foundation · 2026-02-24 · zach + claude</em></p>
+
+        <p class="endnote">Foundations 09 &mdash; Self-Modification &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/agent-mortality/">&larr; 08: Agent Mortality</a><a class="memo-nav-next" href="/memos/privacy-architecture/">10: Privacy Architecture &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#all-self-modification-is-engagement-mediated">All self-modification is engagement-mediated</a></li>
+<li><a href="#level-relativity-of-structural-change">Level-relativity of structural change</a></li>
+<li><a href="#governance-scales-with-level">Governance scales with level</a></li>
+<li><a href="#insertability">Insertability</a></li>
+<li><a href="#the-self-referential-problem">The self-referential problem</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

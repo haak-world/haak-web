@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multi-Agent Coordination Topology &mdash; HAAK</title>
+<meta name="description" content="How multiple agents coordinate through shared state, boards, and index hierarchies.">
+<meta property="og:title" content="Multi-Agent Coordination Topology &mdash; HAAK">
+<meta property="og:description" content="How multiple agents coordinate through shared state, boards, and index hierarchies.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; Multi-Agent Coordination Topology</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 07 &middot; March 2026</p>
+      <h1 class="article-title">Multi-Agent Coordination Topology</h1>
+      <p class="article-subtitle">![Three-Axis Coordination Topology](07-coordination-topology-diagram.png)</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-insight">The insight</a>
+<ol>
+<li><a href="#three-perspectives">Three perspectives</a></li>
+<li><a href="#type-token-distinction">Type/token distinction</a></li>
+<li><a href="#the-symmetry">The symmetry</a></li>
+</ol></li>
+<li><a href="#nodes-and-edges">Nodes and edges</a></li>
+<li><a href="#three-externalizations">Three externalizations</a>
+<ol>
+<li><a href="#actor-trace-private">Actor trace (private)</a></li>
+<li><a href="#domain-board-index-public">Domain board + index (public)</a></li>
+<li><a href="#engagement-state-shared-among-participants">Engagement state (shared among participants)</a></li>
+</ol></li>
+<li><a href="#connections">Connections</a></li>
+<li><a href="#temporal-structure-of-situations">Temporal structure of situations</a></li>
+<li><a href="#reconstruction-property">Reconstruction property</a></li>
+<li><a href="#multi-user-multi-agent">Multi-user, multi-agent</a></li>
+<li><a href="#generalization-as-indexing">Generalization as indexing</a></li>
+<li><a href="#quests-the-method-trajectory">Quests: the method trajectory</a></li>
+<li><a href="#the-haak-instantiation">The HAAK instantiation</a>
+<ol>
+<li><a href="#layer-1-ontology-general">Layer 1: Ontology (general)</a></li>
+<li><a href="#layer-2-haak-system-design-specific-instantiation">Layer 2: HAAK system design (specific instantiation)</a></li>
+<li><a href="#layer-3-code-implementation">Layer 3: Code implementation</a></li>
+<li><a href="#what-s-built-what-s-not">What&#x27;s built, what&#x27;s not</a></li>
+</ol></li>
+<li><a href="#the-fourth-axis-why">The fourth axis: why</a></li>
+<li><a href="#origin-of-this-document">Origin of this document</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p>!<a href="07-coordination-topology-diagram.png">Three-Axis Coordination Topology</a></p>
+<h2 id="the-insight"><a class="heading-anchor" href="#the-insight">#</a>The insight</h2>
+<p>The coordination problem decomposes along the ontology's three axes. Each axis has its own perspective on what's happening, its own kind of state, and its own externalization need. The coordination topology is the structure that emerges when all three are externalized simultaneously.</p>
+<h3 id="three-perspectives"><a class="heading-anchor" href="#three-perspectives">#</a>Three perspectives</h3>
+<table>
+<tr><th>Axis</th><th>From its perspective</th><th>What it does to the others</th><th>Externalization</th></tr>
+<tr><td><strong>Actor</strong> (who)</td><td>I move through domains, following methods</td><td>Follows methods, enters/leaves domains, interacts with other actors</td><td><strong>Trace</strong>: my path through situations</td></tr>
+<tr><td><strong>Domain</strong> (where)</td><td>Actors arrive and depart, methods are applied here</td><td>Hosts actors, constrains methods via resources and affordances, accumulates history</td><td><strong>Board + Index</strong>: what happened here, what exists here</td></tr>
+<tr><td><strong>Method</strong> (how)</td><td>I chain actors and domains into a purposeful trajectory</td><td>Orchestrates who does what where, in what sequence</td><td><strong>Engagement state</strong>: where we are in the procedure</td></tr>
+</table>
+<p>The ontology grants full agency only to actors (Definition 2: "operators capable of processing"). But domains and methods have analogous capacities:</p>
+<ul>
+<li>A <strong>domain</strong> has affordances and resources that constrain and attract. A project that needs a reviewer effectively recruits one. The domain doesn't decide, but it shapes what happens.</li>
+<li>A <strong>method</strong> has a phase graph that prescribes what comes next. A method IS a purpose — not something that serves a purpose external to itself, but the purposeful action sequence itself. Like a constitution (Definition 14), methods at the highest level are self-referential: methods for making methods.</li>
+</ul>
+<h3 id="type-token-distinction"><a class="heading-anchor" href="#type-token-distinction">#</a>Type/token distinction</h3>
+<p>The type/token distinction (Definition 9) is critical: <strong>types define, tokens remember.</strong></p>
+<ul>
+<li><strong>Actor-type</strong> (e.g., "reviewer") defines capabilities. <strong>Actor-token</strong> (e.g., "this Claude session reviewing this paper") has a trace — a history of where it's been and what it's done.</li>
+<li><strong>Domain-kind</strong> (e.g., "research project") defines structure. <strong>Domain-instance</strong> (e.g., "the inscription project") has a board — an accumulated record of what's happened here.</li>
+<li><strong>Method-type</strong> (e.g., "peer review") defines the procedure. <strong>Method-token</strong> / <strong>engagement</strong> (e.g., "this review of this paper") has execution state — a phase position, accumulated obligations, and progress toward a goal.</li>
+</ul>
+<p>Types are stateless definitions. Tokens are stateful instances that accumulate memory through their externalization (trace, board, engagement state).</p>
+<h3 id="the-symmetry"><a class="heading-anchor" href="#the-symmetry">#</a>The symmetry</h3>
+<p>Each axis, from its own perspective, is the subject — and the other two are what it acts on and through:</p>
+<ul>
+<li>From the <strong>actor's</strong> view: I move through domains using methods. My trace records my journey.</li>
+<li>From the <strong>domain's</strong> view: actors come and go, methods are applied, situations unfold. My board records the history.</li>
+<li>From the <strong>method's</strong> view: I chain actors and domains into a trajectory that crosses contexts. A paper gets written in one domain, reviewed in another, published in a third, publicized in a fourth. The method ties these together. My engagement state records how far along we are.</li>
+</ul>
+<p>This threefold symmetry means coordination is not an actor-centric problem (how agents talk to each other) but a three-axis problem: how actors, domains, and methods each externalize their state and read each other's state.</p>
+<h2 id="nodes-and-edges"><a class="heading-anchor" href="#nodes-and-edges">#</a>Nodes and edges</h2>
+<p>A <strong>node</strong> in the coordination graph is a <strong>situation</strong> (Definition 11) — "a particular, ongoing coming-together of actors, methods, and domains around materials." Equivalently, from the normative side, an <strong>engagement</strong> (Definition 13). It is the bundle of who, what, and where work takes place. Multiple agents participate in the same situation.</p>
+<p>An <strong>edge</strong> is a transition: an agent moving between situations (actor trace), a situation triggering work in another domain (method trajectory), or a domain event attracting a new actor (domain recruitment).</p>
+<p>The graph is directed and cyclic — you can revisit situations.</p>
+<h2 id="three-externalizations"><a class="heading-anchor" href="#three-externalizations">#</a>Three externalizations</h2>
+<h3 id="actor-trace-private"><a class="heading-anchor" href="#actor-trace-private">#</a>Actor trace (private)</h3>
+<p>Each actor-token maintains its own record of navigation: where it's been, where it went, why it moved. The trace is private to the actor — different agents at the same situation have different histories of how they arrived.</p>
+<pre><code>11:00 whatsapp-import → iphone-extraction (need broader plan)
+11:15 iphone-extraction → cloud-storage (309GB needs offsite)
+11:20 cloud-storage → context-stack (need context management)</code></pre>
+<h3 id="domain-board-index-public"><a class="heading-anchor" href="#domain-board-index-public">#</a>Domain board + index (public)</h3>
+<p>Each domain-instance carries a public record. The <strong>index</strong> describes what exists here (stable, structural). The <strong>board</strong> records what's happening (dynamic, temporal). Together: what's here and what's going on.</p>
+<p>The board records events that no single agent sees in full. Agent C worked here before A and B arrived. A and B don't know that, but the domain does.</p>
+<h3 id="engagement-state-shared-among-participants"><a class="heading-anchor" href="#engagement-state-shared-among-participants">#</a>Engagement state (shared among participants)</h3>
+<p>Each method-token (engagement) tracks its phase position in the method's phase graph, across whatever domains and actors the procedure requires. The engagement state answers: what step are we on, what's been done, what comes next, and where does the next step happen?</p>
+<p>This is what's currently missing from HAAK. Methods have definitions (<code>patterns/methods/</code>) but no execution state. The engagement state is the third externalization.</p>
+<h2 id="connections"><a class="heading-anchor" href="#connections">#</a>Connections</h2>
+<p>This foundation unifies four previously separate threads:</p>
+<ol>
+<li><strong>Inscription project</strong> (Library Theorem): hierarchical indexing gives exponential retrieval advantage. This is the read side — why the shared state (indices) is navigable at scale.</li>
+</ol>
+<ol>
+<li><strong>Write placement</strong> (<a class="cross-ref" href="/memos/drift-resistance/">Architecture 04</a>, drift resistance): agents must maintain the index structure they depend on. This is the write side — whether agents can sustain the advantage. File misplacement is a directly measurable failure of write-side coordination.</li>
+</ol>
+<ol>
+<li><strong>Context switching</strong> (<a class="cross-ref" href="/memos/context-transport/">Architecture 20</a>): agents navigate between situations, checkpointing state and loading new state. This is transport — how work moves between nodes. The mechanism differs for AI agents (context window constraints, subagent isolation) and humans (window switching, memory).</li>
+</ol>
+<ol>
+<li><strong>SCMP</strong> (secure constitutional messaging): coordination extends across trust boundaries with encryption, authentication, and constitutional governance. This is the boundary layer — the topology spans locations and organizations while preserving local autonomy (Separation Theorem).</li>
+</ol>
+<h2 id="temporal-structure-of-situations"><a class="heading-anchor" href="#temporal-structure-of-situations">#</a>Temporal structure of situations</h2>
+<p>Situations are not instantaneous. They have temporal extent — an initiation, a present, and a projected future. This is what distinguishes a situation from a mere intersection point in the three-axis space.</p>
+<p>A situation carries three temporal aspects:</p>
+<ol>
+<li><strong>Initiation</strong> — when and why the situation began. What triggered it. Which actor, applying which method, entered which domain. The origin point in A × M × D × T space.</li>
+</ol>
+<ol>
+<li><strong>Current state</strong> — what's happening now. Who is participating, what phase the method is in, what the domain's board shows. The live position.</li>
+</ol>
+<ol>
+<li><strong>Planned future</strong> — what comes next, when it's expected, what the method prescribes as the next phase. The trajectory projection.</li>
+</ol>
+<p>This temporal structure is what makes a project a project. A project IS the executed timeline of situations — the history of who did what where, when, and the plan for what comes next. Project management is the read/write interface to this timeline. Boards record the past (what happened here). Engagement state records the present (where are we in the procedure). The plan records the future (what's next, by when).</p>
+<p>Each axis has its own timeline:</p>
+<ul>
+<li><strong>Actor trace</strong>: the sequence of situations an agent has participated in, with timestamps and transitions</li>
+<li><strong>Method timeline</strong>: the phases of the procedure, with planned and actual durations</li>
+<li><strong>Domain history</strong>: the board — the timestamped record of events at a location</li>
+</ul>
+<p>A situation is where these three timelines intersect. Its duration is the interval during which a specific actor is applying a specific method in a specific domain. When any coordinate changes — new actor, new phase, new domain — the situation ends and a new one begins.</p>
+<p>The visualization should render this: situations as luminous segments in 4D (3 axes + time), not points. They have extent. They overlap. The threads of each axis weave through them.</p>
+<h2 id="reconstruction-property"><a class="heading-anchor" href="#reconstruction-property">#</a>Reconstruction property</h2>
+<p><strong>Claim</strong>: traces + boards + indices + engagement states = lossless reconstruction of any multi-agent session.</p>
+<p>Test: run a multi-context session, collect only the externalized state, have a fresh agent reconstruct what happened, compare against the actual transcript. If reconstruction succeeds, the externalization is sufficient. If it fails, identify what was lost and which axis's externalization is inadequate.</p>
+<p>This test simultaneously evaluates: index read capability (can the agent navigate?), write quality (did checkpoints capture enough?), and the completeness of the three-axis externalization.</p>
+<h2 id="multi-user-multi-agent"><a class="heading-anchor" href="#multi-user-multi-agent">#</a>Multi-user, multi-agent</h2>
+<p>The topology is not single-user. Multiple humans interact with different agents, all reading and writing the same boards and indices. Human A talks to the architect; Human B talks to the reviewer. Both agents read the same project board. Each agent has its own trace. The method's engagement state is shared among participants.</p>
+<p>Multiple terminal windows = multiple agents with independent context windows. Each agent has its own identity and focus. The user interacts with whichever agent has the relevant context. "Switching context" may mean switching windows rather than switching within one session.</p>
+<p>SCMP extends this across trust boundaries: different people, different locations, each with their own agents, coordinating through shared indexed state — encrypted, authenticated, and constitutionally governed.</p>
+<h2 id="generalization-as-indexing"><a class="heading-anchor" href="#generalization-as-indexing">#</a>Generalization as indexing</h2>
+<p>Reconstructing the full collection of token paths back to their types IS generalization. The movement from token to type:</p>
+<ul>
+<li>Many actor-tokens following similar paths → recognize an <strong>actor-type</strong> (this is how "reviewer" becomes a defined role)</li>
+<li>Many domain-instances showing similar histories → recognize a <strong>domain-kind</strong> (this is how "research project" becomes a template)</li>
+<li>Many engagements tracing similar trajectories → recognize a <strong>method-type</strong> (this is how "peer review" becomes a codified procedure)</li>
+</ul>
+<p>This is the reflexive improvement loop (Constitutional Requirement 3). Observed token patterns become defined types. Patterns (Definition 10) become methods. Methods become policies. The system learns from its own operation by aggregating token histories into type definitions.</p>
+<p>The connection to the Library Theorem: types ARE the index. They organize the token histories so you can find relevant precedents without scanning everything. <strong>Generalization is indexing, viewed from the token side.</strong> The exponential advantage of indexed retrieval is also the exponential advantage of having well-defined types — both reduce search from O(N) to O(log N).</p>
+<h2 id="quests-the-method-trajectory"><a class="heading-anchor" href="#quests-the-method-trajectory">#</a>Quests: the method trajectory</h2>
+<p>A <strong>quest</strong> is a method-token viewed from the actor's perspective — the purposeful journey through domains, sub-tasks, and interactions that constitutes getting something done. The term captures what "process" and "method" miss: a quest has direction, purpose, and the possibility of sub-quests.</p>
+<p>A quest to write a paper traverses multiple domains: draft in the project domain, review with reviewers, revise, submit to a venue, publicize on a website, write an op-ed for a different audience. Each domain has its own sub-tree of methods (the paper domain uses academic style; the op-ed domain uses journalistic style). The quest recruits different actor-types at different stages and eventually involves different humans who participate as agents in different steps.</p>
+<p>Sub-quests branch off the main quest when a step reveals additional work. Writing a paper (main quest) → realizing we need a data infrastructure (sub-quest) → realizing we need cloud storage (sub-sub-quest). Each sub-quest may traverse its own domains and recruit its own actors, but remains connected to the parent quest by the trigger that spawned it.</p>
+<p>The quest graph is the method-axis trace — the engagement's path through its phase graph, including all branches and returns. It complements the actor trace (which path did I follow?) and the domain board (what happened at this location?).</p>
+<h2 id="the-haak-instantiation"><a class="heading-anchor" href="#the-haak-instantiation">#</a>The HAAK instantiation</h2>
+<p>The ontology is general — it could describe plants, perception, governance, or any domain of structured action. What HAAK instantiates is a specific application: <strong>a knowledge and action system, constitutionally managed, with multi-agent coordination.</strong></p>
+<p>Three layers map to each other:</p>
+<h3 id="layer-1-ontology-general"><a class="heading-anchor" href="#layer-1-ontology-general">#</a>Layer 1: Ontology (general)</h3>
+<p>The three axes (actor, method, domain), four compound types (pattern, situation, policy, engagement), type/token distinction, and the properties (time, agency, normativity). Universal — applies to any structured action.</p>
+<h3 id="layer-2-haak-system-design-specific-instantiation"><a class="heading-anchor" href="#layer-2-haak-system-design-specific-instantiation">#</a>Layer 2: HAAK system design (specific instantiation)</h3>
+<p>The ontology applied to a knowledge workspace:</p>
+<table>
+<tr><th>Ontology concept</th><th>HAAK instantiation</th></tr>
+<tr><td>Actor-token</td><td>Claude session, human user, subagent</td></tr>
+<tr><td>Actor-type</td><td>Architect, reviewer, writer, editor (personas)</td></tr>
+<tr><td>Domain-instance</td><td>Project folder, feature, foundation</td></tr>
+<tr><td>Domain-kind</td><td>Research project, infrastructure feature, strategy doc</td></tr>
+<tr><td>Method-type</td><td>Review, write, search, architect, engage</td></tr>
+<tr><td>Method-token / engagement</td><td>This review of this paper at this stage</td></tr>
+<tr><td>Situation</td><td>The current state of work at a location (board + index)</td></tr>
+<tr><td>Policy</td><td>Constitution, domain policies, conventions</td></tr>
+<tr><td>Pattern</td><td>Observed regularities promoted to methods</td></tr>
+<tr><td>Material</td><td>Documents, databases, code, media</td></tr>
+<tr><td>Constitution</td><td><code>patterns/policies/01-constitution.md</code></td></tr>
+<tr><td>Trace (actor)</td><td>Agent's navigation history</td></tr>
+<tr><td>Board (domain)</td><td>Location's event history</td></tr>
+<tr><td>Engagement state (method)</td><td>Procedure execution state (to be built)</td></tr>
+</table>
+<h3 id="layer-3-code-implementation"><a class="heading-anchor" href="#layer-3-code-implementation">#</a>Layer 3: Code implementation</h3>
+<p>The system design mapped to concrete infrastructure:</p>
+<table>
+<tr><th>HAAK design</th><th>Implementation</th></tr>
+<tr><td>Index hierarchy</td><td><code>index.md</code> files, <code>/read</code> and <code>/write</code> skills</td></tr>
+<tr><td>Board</td><td><code>board.md</code> files, <code>/board</code> skill</td></tr>
+<tr><td>Trace</td><td><code>.claude/trace.md</code> (to be built)</td></tr>
+<tr><td>Engagement state</td><td>TBD — the missing third externalization</td></tr>
+<tr><td>Agent identity</td><td>Origin tags, session IDs</td></tr>
+<tr><td>Transport</td><td><code>/engage</code> + checkpoint</td></tr>
+<tr><td>Boundary crossing</td><td>SCMP protocol, encryption</td></tr>
+<tr><td>Constitutional governance</td><td>Constitution doc + policy cascade</td></tr>
+<tr><td>Reconstruction test</td><td>Compare externalized state against transcript</td></tr>
+<tr><td>Write placement</td><td>Index update on every write, <code>/write</code> mediation</td></tr>
+</table>
+<h3 id="what-s-built-what-s-not"><a class="heading-anchor" href="#what-s-built-what-s-not">#</a>What's built, what's not</h3>
+<table>
+<tr><th>Component</th><th>Status</th></tr>
+<tr><td>Index hierarchy</td><td>Built, enforced by <code>/read</code> and <code>/write</code></td></tr>
+<tr><td>Board</td><td>Built, active</td></tr>
+<tr><td>Agent identity (origin tags)</td><td>Partial — inconsistent format</td></tr>
+<tr><td>Transport (<code>/engage</code>)</td><td>Built, needs checkpoint-on-exit</td></tr>
+<tr><td>Trace</td><td>Designed, not built</td></tr>
+<tr><td>Engagement state</td><td>Designed here, not built</td></tr>
+<tr><td>Reconstruction test</td><td>Designed here, not run</td></tr>
+<tr><td>SCMP</td><td>Spec'd, not implemented</td></tr>
+<tr><td>Write placement benchmark</td><td>Idea captured, not built</td></tr>
+</table>
+<h2 id="the-fourth-axis-why"><a class="heading-anchor" href="#the-fourth-axis-why">#</a>The fourth axis: why</h2>
+<p>The three axes — who, how, where — are the system's axes. There is a fourth: <strong>why</strong>. And it is not the system's to generate.</p>
+<p>The AI can populate actors, execute methods, navigate domains. It can infer purpose from context (the Anthropic constitution explicitly instructs this: model the user's "final goals," imagine the "1,000 users," apply charitable interpretation). But inference is not origination. The AI has no why of its own. Its why is whatever the user said.</p>
+<p><strong>The user is the why.</strong> Every time the user explains their motivation — why this project, why this priority, why this approach — that explanation enters the inscription. It becomes part of the record. It is the one kind of content that no amount of AI capability can substitute for, because the AI's purpose is derivative: it serves, it doesn't want.</p>
+<p>This has three consequences:</p>
+<ol>
+<li><strong>The user should explain why.</strong> Not because the system demands it, but because the why is the most valuable part of the record. When a future agent (or the user themselves) reads back through the history, the whats and hows are recoverable from the files. The why is recoverable only if someone said it.</li>
+</ol>
+<ol>
+<li><strong>The user's conversations are part of the inscription.</strong> The session transcript — including the user's natural language explaining their reasoning — is the primary record of why. This is the "fourth externalization" that complements boards (domain), traces (actor), and engagement state (method). It is the user's externalization.</li>
+</ol>
+<ol>
+<li><strong>The constitution bounds the why.</strong> The user is in charge of purpose, but constitutional constraints still apply. The AI will not execute a why that violates its trained values. This is not a limitation — it is the same principle as HAAK's own constitution constraining future action. Purpose is free within governance.</li>
+</ol>
+<p>The connection to the core thesis: "Where is human participation irreplaceable?" Here. At the why. The system can scale who, how, and where indefinitely. The why scales only with human participation. This is the empirical answer the project is designed to find — and it was visible from the start, in the structure of the axes themselves.</p>
+<h2 id="origin-of-this-document"><a class="heading-anchor" href="#origin-of-this-document">#</a>Origin of this document</h2>
+<p>This foundation emerged during a single session (2026-02-28) that began with a WhatsApp historical import and evolved through six context switches into a foundational architectural insight. The session itself demonstrated the problem: each context switch risked losing state, and the agent repeatedly placed files in wrong locations. The insight — that coordination decomposes along three axes, each needing its own externalization — arose from the practical experience of trying to manage multiple concurrent work streams.</p>
+<p>The sequence: WhatsApp import (data task) → iPhone data extraction (broader scope) → cloud storage (infrastructure need) → "we need a context stack" (architectural insight) → the stack is not a stack, it's the coordination topology (foundational insight) → the three-axis decomposition follows from the ontology (theoretical grounding) → generalization is indexing (connection to inscription project).</p>
+<p>This document should be read alongside the session transcript (when archived) for the full derivation. The conversation moved faster than externalization could keep up — itself evidence that the engagement state externalization is needed.</p>
+
+        <p class="endnote">Foundations 07 &mdash; Multi-Agent Coordination Topology &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/three-axis-model/">&larr; 06: The Three-Axis Model</a><a class="memo-nav-next" href="/memos/agent-mortality/">08: Agent Mortality &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-insight">The insight</a>
+<ol>
+<li><a href="#three-perspectives">Three perspectives</a></li>
+<li><a href="#type-token-distinction">Type/token distinction</a></li>
+<li><a href="#the-symmetry">The symmetry</a></li>
+</ol></li>
+<li><a href="#nodes-and-edges">Nodes and edges</a></li>
+<li><a href="#three-externalizations">Three externalizations</a>
+<ol>
+<li><a href="#actor-trace-private">Actor trace (private)</a></li>
+<li><a href="#domain-board-index-public">Domain board + index (public)</a></li>
+<li><a href="#engagement-state-shared-among-participants">Engagement state (shared among participants)</a></li>
+</ol></li>
+<li><a href="#connections">Connections</a></li>
+<li><a href="#temporal-structure-of-situations">Temporal structure of situations</a></li>
+<li><a href="#reconstruction-property">Reconstruction property</a></li>
+<li><a href="#multi-user-multi-agent">Multi-user, multi-agent</a></li>
+<li><a href="#generalization-as-indexing">Generalization as indexing</a></li>
+<li><a href="#quests-the-method-trajectory">Quests: the method trajectory</a></li>
+<li><a href="#the-haak-instantiation">The HAAK instantiation</a>
+<ol>
+<li><a href="#layer-1-ontology-general">Layer 1: Ontology (general)</a></li>
+<li><a href="#layer-2-haak-system-design-specific-instantiation">Layer 2: HAAK system design (specific instantiation)</a></li>
+<li><a href="#layer-3-code-implementation">Layer 3: Code implementation</a></li>
+<li><a href="#what-s-built-what-s-not">What&#x27;s built, what&#x27;s not</a></li>
+</ol></li>
+<li><a href="#the-fourth-axis-why">The fourth axis: why</a></li>
+<li><a href="#origin-of-this-document">Origin of this document</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

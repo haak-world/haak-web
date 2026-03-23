@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents &mdash; HAAK</title>
+<meta name="description" content="Constitutional AI governance paper: pre-API policy enforcement, content-addressed ledger. NeurIPS target.">
+<meta property="og:title" content="Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents &mdash; HAAK">
+<meta property="og:description" content="Constitutional AI governance paper: pre-API policy enforcement, content-addressed ledger. NeurIPS target.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#strategy">strategy</a> &rsaquo; Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Strategy 30 &middot; March 2026</p>
+      <h1 class="article-title">Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents</h1>
+      <p class="article-subtitle">**Type**: `plan____` **Created**: 2026-03-21 **Status**: Draft **Target**: Systems or AI conference (OSDI, NeurIPS Systems Track, AAMAS, or SoCC) **Submission window**: May-June 2026</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#title-candidates">Title candidates</a></li>
+<li><a href="#abstract-draft">Abstract (draft)</a></li>
+<li><a href="#paper-structure">Paper structure</a>
+<ol>
+<li><a href="#1-introduction-2-pages">1. Introduction (2 pages)</a></li>
+<li><a href="#2-background-and-related-work-1-5-pages">2. Background and Related Work (1.5 pages)</a></li>
+<li><a href="#3-architecture-2-pages">3. Architecture (2 pages)</a></li>
+<li><a href="#4-constitutional-runtime-3-pages-core-contribution">4. Constitutional Runtime (3 pages) — core contribution</a></li>
+<li><a href="#5-governance-model-2-pages">5. Governance Model (2 pages)</a></li>
+<li><a href="#6-content-addressed-ledger-1-5-pages">6. Content-Addressed Ledger (1.5 pages)</a></li>
+<li><a href="#7-evaluation-2-pages">7. Evaluation (2 pages)</a></li>
+<li><a href="#8-discussion-1-page">8. Discussion (1 page)</a></li>
+<li><a href="#9-related-work-1-page">9. Related Work (1 page)</a></li>
+<li><a href="#10-conclusion-0-5-pages">10. Conclusion (0.5 pages)</a></li>
+</ol></li>
+<li><a href="#key-claims-requiring-evidence">Key claims requiring evidence</a></li>
+<li><a href="#figures">Figures</a></li>
+<li><a href="#venue-analysis">Venue analysis</a></li>
+<li><a href="#related-haak-documents">Related HAAK documents</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>Type</strong>: <code>plan<em>_</em>_</code> <strong>Created</strong>: 2026-03-21 <strong>Status</strong>: Draft <strong>Target</strong>: Systems or AI conference (OSDI, NeurIPS Systems Track, AAMAS, or SoCC) <strong>Submission window</strong>: May-June 2026</p>
+<h2 id="title-candidates"><a class="heading-anchor" href="#title-candidates">#</a>Title candidates</h2>
+<ol>
+<li><strong>Constitutional Governance of AI Agents: Pre-API Policy Enforcement via Content-Addressed Ledger</strong></li>
+<li><strong>Binding the Model: A Runtime Architecture for Governed Multi-Agent Systems</strong></li>
+<li><strong>Before the Call: Constitutional Policy Gates for Autonomous AI Agents</strong></li>
+<li><strong>The Constitutional Layer: Governance-by-Construction in Multi-Agent Runtimes</strong></li>
+</ol>
+<p>Preferred: (1) for systems venues (emphasizes mechanism), (3) for AI venues (emphasizes novelty of pre-API enforcement).</p>
+<h2 id="abstract-draft"><a class="heading-anchor" href="#abstract-draft">#</a>Abstract (draft)</h2>
+<p>Multi-agent AI systems deployed in production lack governance guarantees. Existing frameworks — LangChain, CrewAI, AutoGen — treat safety as output filtering: the model sees all tools, generates unconstrained actions, and a post-hoc layer decides whether to execute. This architecture is fundamentally weaker than preventing unsafe actions from entering the model's action space. We present the HAAK Agent Runner, a production Rust runtime (8,200 lines, 113 tests) that constitutionally governs AI agents <em>before</em> their API calls. Policy enforcement operates at the tool-definition level: blocked tools are removed from the model's tool list before each turn, so the model never generates calls to tools it cannot use. A three-layer governance model — actors (governed), constitution (governing), courts (verifying) — separates execution from enforcement from adjudication, with workspace scoping replacing tool-level blocking as the primary security boundary. Every governance event produces a content-addressed ledger entry (BLAKE3 over JCS-canonical JSON, RFC 8785) with hash-chained parent references, creating a tamper-evident audit trail with a typed upgrade path from null proofs through signed attestations to ZK-STARK verification. The system implements OpenClaw's Agent Client Protocol (ACP) wire interface, governs 27 standing agents in production, and adds measurable overhead of [X] ms per constitutional bind. We evaluate policy gate correctness, runtime overhead, and present a case study of an autonomous infrastructure agent executing 21 tool calls under constitutional governance.</p>
+<p>(198 words — refine after benchmarks fill in the overhead number.)</p>
+<h2 id="paper-structure"><a class="heading-anchor" href="#paper-structure">#</a>Paper structure</h2>
+<h3 id="1-introduction-2-pages"><a class="heading-anchor" href="#1-introduction-2-pages">#</a>1. Introduction (2 pages)</h3>
+<p>The governance gap in multi-agent AI. Production systems run agents with broad tool access — shell, filesystem, network, messaging — but governance is afterthought. The standard pattern: generate action, check action, maybe block. This is post-hoc filtering, analogous to application-layer firewalls that inspect traffic after it has been constructed. We argue for a stronger primitive: constitutional bind, where the policy layer shapes the model's <em>action space</em> before generation. The model cannot propose what it cannot see.</p>
+<p><strong>Contributions:</strong></p>
+<ul>
+<li>A formal definition of pre-API policy enforcement and proof that it is strictly stronger than post-hoc filtering (Section 4)</li>
+<li>A three-layer governance model (actors, constitution, courts) with workspace scoping as the primary security boundary (Section 5)</li>
+<li>A production runtime implementing constitutional governance over the ACP wire protocol (Section 3-4)</li>
+<li>A content-addressed audit ledger with hash-chained entries and cryptographic upgrade path (Section 6)</li>
+<li>Evaluation on 27 standing agents including an autonomous infrastructure case study (Section 7)</li>
+</ul>
+<h3 id="2-background-and-related-work-1-5-pages"><a class="heading-anchor" href="#2-background-and-related-work-1-5-pages">#</a>2. Background and Related Work (1.5 pages)</h3>
+<p><strong>Agent frameworks.</strong> LangChain (tool chains, no governance), CrewAI (role-based, no enforcement), AutoGen (multi-agent, conversation-level safety), Claude Code (built-in permission model, not extensible).</p>
+<p><strong>Agent protocols.</strong> OpenClaw's ACP: session management, turn execution, tool definition. MCP (Model Context Protocol): tool servers, no governance. Neither defines a policy layer.</p>
+<p><strong>Governance approaches.</strong> Constitutional AI (Bai et al. 2022) — training-time alignment, not runtime enforcement. Guardrails AI — output validation. NeMo Guardrails — programmable rails on input/output. All post-hoc. None shape the action space.</p>
+<p><strong>Content-addressed storage.</strong> IPFS, Git, CAS in distributed systems. BLAKE3 for speed. JCS (RFC 8785) for deterministic JSON canonicalization.</p>
+<h3 id="3-architecture-2-pages"><a class="heading-anchor" href="#3-architecture-2-pages">#</a>3. Architecture (2 pages)</h3>
+<p>The five-layer stack:</p>
+<ol>
+<li><strong>Gateway</strong> — Axum WebSocket server implementing ACP JSON-RPC 2.0. Accepts OpenClaw and native agents on the same port.</li>
+<li><strong>SessionManager</strong> — per-session serial queues, three session modes (persistent/domain/oneshot), TTL eviction, SQLite session store with BLAKE3-derived IDs.</li>
+<li><strong>ConstitutionalRuntime\&lt;R\&gt;</strong> — generic decorator over any <code>AgentRuntime</code>. The governance layer is invisible to both the session manager above and the backend below.</li>
+<li><strong>AgentRuntime backends</strong> — AnthropicBackend (reqwest + SSE, streaming, reasoning blocks), ClaudeCodeBackend (subprocess).</li>
+<li><strong>Ledger</strong> — content-addressed entries with BLAKE3 CIDs over JCS-canonical payloads, hash-chained via parent references.</li>
+</ol>
+<p>Key architectural property: the <code>ConstitutionalRuntime&lt;R&gt;</code> implements the same <code>AgentRuntime</code> trait as the backends. This means governance is compositionally transparent — it can wrap any backend, and the session manager requires no knowledge of whether governance is present.</p>
+<h3 id="4-constitutional-runtime-3-pages-core-contribution"><a class="heading-anchor" href="#4-constitutional-runtime-3-pages-core-contribution">#</a>4. Constitutional Runtime (3 pages) — core contribution</h3>
+<p>The per-turn governance sequence:</p>
+<ol>
+<li><strong>Mandate injection</strong> — agent's constitutional mandate (role, constraints, allowed tools) injected as system prompt preamble. The mandate is the agent's identity: what it may do, what it must do, what it must not do.</li>
+</ol>
+<ol>
+<li><strong>Mailbox injection</strong> — unread inter-agent messages prepended to turn input. Each injection produces a <code>MailboxInject</code> ledger entry. This is how standing agents coordinate without direct communication.</li>
+</ol>
+<ol>
+<li><strong>Tool gating (pre-API)</strong> — the policy engine evaluates each tool against the agent's mandate and the constitution. Blocked tools are <em>removed from the tool list</em> sent to the model API. The model's completion is conditioned on a tool list that excludes forbidden actions. This is the core claim: the model cannot call <code>Bash</code> if <code>Bash</code> is not in its tool definition.</li>
+</ol>
+<ol>
+<li><strong>Tool call interception (runtime)</strong> — even with pre-API gating, a tool call's <em>arguments</em> may violate policy (e.g., <code>Write</code> to a forbidden path). The runtime re-evaluates at call time. Blocked calls produce a <code>PolicyGate</code> ledger entry and inject an error tool result. The model sees the block and adapts.</li>
+</ol>
+<ol>
+<li><strong>Ledger append</strong> — every event (tool call, tool result, policy verdict, session lifecycle) becomes a <code>LedgerEntry</code> with BLAKE3 CID, parent references, and null-but-typed proof and envelope fields.</li>
+</ol>
+<p><strong>Formal claim.</strong> Pre-API enforcement is strictly stronger than post-hoc filtering. Proof sketch: post-hoc filtering allows the model to <em>generate</em> the forbidden action, which may leak information (the model has "thought about" the action, and its subsequent text may be influenced by having considered it). Pre-API enforcement prevents the forbidden action from entering the model's generative process. The model's output distribution is conditioned on a tool set that never included the blocked tool.</p>
+<h3 id="5-governance-model-2-pages"><a class="heading-anchor" href="#5-governance-model-2-pages">#</a>5. Governance Model (2 pages)</h3>
+<p>The governance architecture instantiates a separation principle: agents operate under the constitution, not with it. Three layers with distinct relationships to the same normative order.</p>
+<p><strong>5.1 The separation principle.</strong> Actors (agents, users) do work and are governed. The constitution defines what is permitted. Courts (auditor, owner, hash chain) verify compliance post-hoc. The temporal separation is essential: governance happens in real time (the policy gate fires during the turn); adjudication happens after the fact (the auditor reads the ledger entry the gate produced). Agents never read the ledger during normal operation — the information asymmetry IS the enforcement mechanism.</p>
+<p><strong>5.2 Trust tiers and workspace scoping.</strong> Three tiers (unknown, registered, standing) map to workspace roots rather than tool-level permissions. Unknown users are scoped to <code>platform/</code> (public, read-only). Registered users see their own workspace plus platform. Standing agents see the full repository. The tool executor's <code>safe_resolve</code> enforces boundaries at the filesystem level — path canonicalization rejects traversal before any tool executes. This shifts security from "you cannot read" to "you can only read what is yours."</p>
+<p><strong>5.3 The two-boundary model.</strong> Platform (the system — runtime, constitution, ontology, ledger) vs. workspaces (the content — projects, data, strategy). Platform is publishable; workspaces are private by default. The ledger lives in the platform because governance records are public — a secret constitution is not a constitution; a private audit log provides no evidence.</p>
+<p><strong>5.4 Why agents don't read the ledger.</strong> Three reasons: (1) information asymmetry prevents adversarial strategies based on governance knowledge; (2) separation of concerns — agents work, courts verify; (3) context economy — ledger metadata wastes tokens the agent cannot act on.</p>
+<p><strong>5.5 Roles mapped to the ontology.</strong> Every governance concept maps to the relational situational ontology: agents are actors (Def. 2), the constitution is a policy of maximal scope (Def. 14), sessions are situations (Def. 11), ledger entries are belongings (Def. R1) with qualities (Def. R2). The architecture was built from the ontology, not rationalized into it after the fact.</p>
+<p><strong>5.6 The crypto roadmap.</strong> v0 (current): null proofs, hash-chain tamper evidence. v1.0 (Aug 2026): attestation proofs with Ed25519 signatures — third parties verify "this runner, running this constitution, made this decision." v1.5: audience-keyed encryption via KDF-derived envelope keys. v2.0: ZK-STARK proofs — prove compliance without revealing policy rules or agent input. All proof and envelope fields are present and typed from v0; the schema carries zero migration debt.</p>
+<h3 id="6-content-addressed-ledger-1-5-pages"><a class="heading-anchor" href="#6-content-addressed-ledger-1-5-pages">#</a>6. Content-Addressed Ledger (1.5 pages)</h3>
+<p>Every ledger entry:</p>
+<ul>
+<li><strong>CID</strong>: BLAKE3 hash of JCS-canonical JSON representation</li>
+<li><strong>Parents</strong>: CIDs of causally prior entries (previous turn, tool call that produced this result)</li>
+<li><strong>Quality</strong>: enum discriminator (Turn, ToolCall, ToolResult, PolicyVerdict, MailboxInject, SessionLifecycle)</li>
+<li><strong>Proof</strong>: null in v0, attestation in v1.0, ZK-STARK in v2.0</li>
+<li><strong>Envelope</strong>: null in v0, KDF-encrypted in v1.5</li>
+</ul>
+<p>The hash chain creates a DAG, not a linear chain — a turn's parents include both the previous turn and any tool calls within it. This DAG structure maps directly to the causal structure of agent execution.</p>
+<p><strong>Crypto upgrade path.</strong> The <code>proof</code> and <code>envelope</code> fields are present and typed from v0. The schema carries zero migration debt: populating <code>proof</code> with attestation data in v1.0 requires no schema change, no data migration, no event format change.</p>
+<h3 id="7-evaluation-2-pages"><a class="heading-anchor" href="#7-evaluation-2-pages">#</a>7. Evaluation (2 pages)</h3>
+<p><strong>7.1 Overhead.</strong> Benchmark the constitutional bind: measure latency from "tools defined" to "API call sent" with and without the policy gate. Measure per-entry ledger write latency (BLAKE3 + JCS + SQLite insert). Target: &lt;5ms overhead per tool gate, &lt;1ms per ledger write.</p>
+<p><strong>7.2 Policy gate correctness.</strong> Automated test: for each of N tool definitions, assert that a blocked tool never appears in the tool list sent to the API. Run across all 27 agent mandates. This is a coverage property, not a sampling test — enumerate all (agent, tool) pairs.</p>
+<p><strong>7.3 Scale.</strong> 27 standing agents with persistent sessions. Heartbeat interval 5 minutes. Session store growth over 30 days. Ledger size vs. turn count.</p>
+<p><strong>7.4 Case study: Reed.</strong> Reed is a standing infrastructure agent with mandate to maintain services, check health, and recover crashed daemons. In a single autonomous run (triggered by heartbeat), Reed executed 21 tool calls: read service status, diagnosed a crashed daemon, restarted it, verified recovery, and posted a summary to the board. All 21 calls logged to the ledger with hash-chained entries. Present the full trace as a figure.</p>
+<h3 id="8-discussion-1-page"><a class="heading-anchor" href="#8-discussion-1-page">#</a>8. Discussion (1 page)</h3>
+<p><strong>Limitations.</strong> Pre-API enforcement depends on the model API accepting a tool list. If a model ignores tool definitions and generates arbitrary JSON, the runtime gate is the last defense. Trust bootstrapping: who writes the constitution? Currently a single human operator. Multi-party governance is future work.</p>
+<p><strong>The attestation roadmap.</strong> v0 has null proofs — the ledger is auditable but not cryptographically verifiable. v1.0 (August 2026) adds agent-signed attestations: each agent holds an ed25519 keypair, and its ledger entries carry signatures. v2.0 adds ZK-STARK proofs for privacy-preserving audit.</p>
+<p><strong>Relationship to Filix.</strong> The agent runner is the runtime substrate for Filix v1.0, a platform-independent agent governance system. The session store is designed to become a materialized view over the ledger — no migration required.</p>
+<h3 id="9-related-work-1-page"><a class="heading-anchor" href="#9-related-work-1-page">#</a>9. Related Work (1 page)</h3>
+<table>
+<tr><th>System</th><th>Governance model</th><th>Pre-API?</th><th>Audit trail</th><th>Protocol</th></tr>
+<tr><td>Claude Code</td><td>Permission prompts</td><td>No (user approves)</td><td>Local logs</td><td>Proprietary</td></tr>
+<tr><td>LangChain</td><td>None (opt-in callbacks)</td><td>No</td><td>Optional</td><td>Custom</td></tr>
+<tr><td>CrewAI</td><td>Role descriptions</td><td>No (advisory)</td><td>None</td><td>Custom</td></tr>
+<tr><td>AutoGen</td><td>Conversation rules</td><td>No</td><td>Chat history</td><td>Custom</td></tr>
+<tr><td>NeMo Guardrails</td><td>Input/output rails</td><td>No (post-hoc)</td><td>Rails log</td><td>Custom</td></tr>
+<tr><td>Guardrails AI</td><td>Output validation</td><td>No (post-hoc)</td><td>Validation log</td><td>Custom</td></tr>
+<tr><td>OpenClaw/ACP</td><td>Session management</td><td>No (no policy layer)</td><td>None</td><td>ACP</td></tr>
+<tr><td><strong>HAAK Runner</strong></td><td><strong>Constitutional bind</strong></td><td><strong>Yes</strong></td><td><strong>BLAKE3 ledger</strong></td><td><strong>ACP-compatible</strong></td></tr>
+</table>
+<h3 id="10-conclusion-0-5-pages"><a class="heading-anchor" href="#10-conclusion-0-5-pages">#</a>10. Conclusion (0.5 pages)</h3>
+<p>Pre-API constitutional governance is a stronger primitive than post-hoc filtering, implementable with modest overhead, and practical at the scale of dozens of standing agents. The content-addressed ledger provides a tamper-evident audit trail with a clear upgrade path to cryptographic verification. The system is ACP-compatible and deployable today.</p>
+<h2 id="key-claims-requiring-evidence"><a class="heading-anchor" href="#key-claims-requiring-evidence">#</a>Key claims requiring evidence</h2>
+<table>
+<tr><th>Claim</th><th>Evidence needed</th><th>Status</th></tr>
+<tr><td>Pre-API enforcement is strictly stronger than post-hoc</td><td>Formal argument + empirical: model never generates blocked tool calls</td><td>Draft argument in Section 4; need automated verification</td></tr>
+<tr><td>Content addressing provides tamper-evident audit</td><td>BLAKE3 hash chain verification test</td><td>Implemented; need benchmark</td></tr>
+<tr><td>Constitutional bind adds &lt;5ms overhead</td><td>Benchmark harness measuring gate latency</td><td>Not yet built</td></tr>
+<tr><td>Standing agent autonomy is viable</td><td>Reed case study with 21-tool-call trace</td><td>Have the trace; need to extract and present</td></tr>
+<tr><td>27 agents in production</td><td>Roster snapshot + uptime data</td><td>Roster exists; need uptime metrics</td></tr>
+<tr><td>Workspace scoping is a more natural security model than tool-level blocking</td><td>Argument + comparison: same tools, different workspaces → different security properties</td><td>Argument drafted in <a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a></td></tr>
+<tr><td>The ledger records governance, not content — distinct from git</td><td>Schema analysis: ledger fields vs git objects; show orthogonality</td><td>Argument drafted in <a class="cross-ref" href="/memos/governance-architecture/">Architecture 41</a></td></tr>
+</table>
+<h2 id="figures"><a class="heading-anchor" href="#figures">#</a>Figures</h2>
+<ol>
+<li><strong>Layer stack diagram</strong> — the five-layer architecture (already in README, needs polish)</li>
+<li><strong>Policy gate flow</strong> — tool definition list -&gt; policy engine -&gt; filtered list -&gt; API call; show a concrete example (agent X has mandate Y, tools A,B,C defined, B blocked, API receives A,C)</li>
+<li><strong>Ledger hash chain</strong> — DAG of ledger entries for a multi-tool turn: session<em>open -&gt; turn</em>1 (parents: [session<em>open]) -&gt; tool</em>call<em>1 (parents: [turn</em>1]) -&gt; tool<em>result</em>1 (parents: [tool<em>call</em>1]) -&gt; turn<em>2 (parents: [turn</em>1, tool<em>result</em>1])</li>
+<li><strong>Reed case study timeline</strong> — 21 tool calls with timestamps, tool names, and outcomes; highlight the board post at the end</li>
+</ol>
+<h2 id="venue-analysis"><a class="heading-anchor" href="#venue-analysis">#</a>Venue analysis</h2>
+<table>
+<tr><th>Venue</th><th>Deadline</th><th>Fit</th><th>Notes</th></tr>
+<tr><td>NeurIPS 2025 Systems Track</td><td>May 2026 (TBC)</td><td>Strong</td><td>Systems for ML; constitutional governance fits</td></tr>
+<tr><td>AAMAS 2026</td><td>Feb 2026 (passed)</td><td>Strong</td><td>Multi-agent systems; would need 2027</td></tr>
+<tr><td>SoCC 2026</td><td>June 2026 (TBC)</td><td>Good</td><td>Cloud/systems; audit trail angle</td></tr>
+<tr><td>OSDI 2026</td><td>May 2026 (TBC)</td><td>Stretch</td><td>Top systems; need stronger eval</td></tr>
+<tr><td>Workshop: NeurIPS MASEC</td><td>Oct 2026</td><td>Fallback</td><td>Multi-Agent Safety workshop</td></tr>
+</table>
+<p><strong>Recommendation</strong>: Target NeurIPS Systems Track (May deadline) as primary. Prepare SoCC as backup. If eval is not ready by May, submit to a NeurIPS workshop and upgrade to main conference for 2027.</p>
+<h2 id="related-haak-documents"><a class="heading-anchor" href="#related-haak-documents">#</a>Related HAAK documents</h2>
+<ul>
+<li><code><a class="cross-ref" href="/memos/agent-runner-v2/">agent-runner-v2</a></code> — full architecture spec</li>
+<li><code><a class="cross-ref" href="/memos/constitutional-ledger/">constitutional-ledger</a></code> — ledger design</li>
+<li><code><a class="cross-ref" href="/memos/filix-v1-plan/">filix-v1-plan</a></code> — Filix v1.0 and crypto roadmap</li>
+<li><code><a class="cross-ref" href="/memos/ontology-governance-situation/">ontology-governance-situation</a></code> — ontological grounding</li>
+<li><code>projects/inscription/</code> — the inscription paper arc (overlapping intellectual content)</li>
+</ul>
+<hr>
+<p><em>haak strategy 29 -- agent runner paper -- zach + claude</em></p>
+
+        <p class="endnote">Strategy 30 &mdash; Strategy 30 — Agent Runner Paper: Constitutional Governance of AI Agents &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/lab-database-architecture/">&larr; 29: Lab Database Architecture</a><a class="memo-nav-next" href="/memos/agent-runner-next-steps/">31: Strategy 31 — Agent Runner: Next Steps Roadmap &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#title-candidates">Title candidates</a></li>
+<li><a href="#abstract-draft">Abstract (draft)</a></li>
+<li><a href="#paper-structure">Paper structure</a>
+<ol>
+<li><a href="#1-introduction-2-pages">1. Introduction (2 pages)</a></li>
+<li><a href="#2-background-and-related-work-1-5-pages">2. Background and Related Work (1.5 pages)</a></li>
+<li><a href="#3-architecture-2-pages">3. Architecture (2 pages)</a></li>
+<li><a href="#4-constitutional-runtime-3-pages-core-contribution">4. Constitutional Runtime (3 pages) — core contribution</a></li>
+<li><a href="#5-governance-model-2-pages">5. Governance Model (2 pages)</a></li>
+<li><a href="#6-content-addressed-ledger-1-5-pages">6. Content-Addressed Ledger (1.5 pages)</a></li>
+<li><a href="#7-evaluation-2-pages">7. Evaluation (2 pages)</a></li>
+<li><a href="#8-discussion-1-page">8. Discussion (1 page)</a></li>
+<li><a href="#9-related-work-1-page">9. Related Work (1 page)</a></li>
+<li><a href="#10-conclusion-0-5-pages">10. Conclusion (0.5 pages)</a></li>
+</ol></li>
+<li><a href="#key-claims-requiring-evidence">Key claims requiring evidence</a></li>
+<li><a href="#figures">Figures</a></li>
+<li><a href="#venue-analysis">Venue analysis</a></li>
+<li><a href="#related-haak-documents">Related HAAK documents</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

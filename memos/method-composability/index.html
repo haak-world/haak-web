@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Method Composability &mdash; HAAK</title>
+<meta name="description" content="Methods are composable primitives forming a directed labeled composition graph and a bipartite domain graph.">
+<meta property="og:title" content="Method Composability &mdash; HAAK">
+<meta property="og:description" content="Methods are composable primitives forming a directed labeled composition graph and a bipartite domain graph.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Method Composability</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 15 &middot; March 2026</p>
+      <h1 class="article-title">Method Composability</h1>
+      <p class="article-subtitle">| Section | What it covers | |:--------|:---------------| | Principle | Why methods must be composable | | Graph structure | Composition graph, domain graph, engagements, governance line | | Design…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#principle">Principle</a></li>
+<li><a href="#graph-structure">Graph structure</a>
+<ol>
+<li><a href="#composition-graph">Composition graph</a></li>
+<li><a href="#domain-graph">Domain graph</a></li>
+</ol></li>
+<li><a href="#design-constraint">Design constraint</a></li>
+<li><a href="#composition-examples">Composition examples</a></li>
+<li><a href="#relation-to-encapsulation">Relation to encapsulation</a></li>
+<li><a href="#generalize-before-implementing">Generalize before implementing</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<table>
+<tr><th>Section</th><th>What it covers</th></tr>
+<tr><td>Principle</td><td>Why methods must be composable</td></tr>
+<tr><td>Graph structure</td><td>Composition graph, domain graph, engagements, governance line</td></tr>
+<tr><td>Design constraint</td><td>What composability requires of each method</td></tr>
+<tr><td>Composition examples</td><td>How primitives combine in practice</td></tr>
+<tr><td>Relation to encapsulation</td><td>Why mixing concerns kills composability</td></tr>
+</table>
+<h2 id="principle"><a class="heading-anchor" href="#principle">#</a>Principle</h2>
+<p>HAAK has eleven composable methods (review, audit, write, search, ingest, persona, preregister, sweep, architect, disclose, five-step) forming a directed graph — any method can invoke another as a sub-step. Complex workflows don't create new monolithic methods — they compose existing ones. A manuscript review composes search (literature context) + review (assessment) + write (editorial synthesis). An index audit composes sweep (consistency propagation) + audit (structural checks). A persona build composes search (bibliography) + ingest (source material) + write (persona document).</p>
+<p>The alternative — monolithic methods that embed their own search, their own validation, their own writing — duplicates logic and creates divergent behavior. Two methods that each implement their own search will search differently. Composability means search is defined once and composed everywhere, so it behaves consistently.</p>
+<p>This is the method-layer expression of <a href="08-encapsulation.md">encapsulation</a>: information serving different functions lives in different containers. A method that reviews <em>and</em> searches has mixed concerns — changing the search behavior requires modifying the review method.</p>
+<h2 id="graph-structure"><a class="heading-anchor" href="#graph-structure">#</a>Graph structure</h2>
+<p>Methods participate in two distinct graphs over the same node set.</p>
+<h3 id="composition-graph"><a class="heading-anchor" href="#composition-graph">#</a>Composition graph</h3>
+<p>A <strong>directed labeled graph</strong>, potentially cyclic. Nodes are methods. Each edge is labeled with (step, reason) — e.g., review →(Collect, "literature context") search. Cycles exist: review → search → persona → review. This is not a DAG; it's a general directed graph.</p>
+<p>The graph is navigable through bidirectional links in each method doc: <code>## Composition</code> (outgoing edges — what this method invokes) and <code>Composed by:</code> (incoming edges — what invokes this method). The <a href="../methods/11-five-step.md">five-step</a> method sits at the root — every sequential method composes it. The <a href="../methods/10-disclose.md">disclose</a> and <a href="../methods/08-sweep.md">sweep</a> methods are structural — they compose each other but not via the five-step.</p>
+<p>Properties: the graph enables <strong>consistency checking</strong> (if A composes B, A's behavior must be consistent with B's contract), <strong>change propagation</strong> (modifying B requires checking all methods that compose it), and <strong>cost estimation</strong> (a workflow's cost is the sum of its composed methods' costs).</p>
+<h3 id="domain-graph"><a class="heading-anchor" href="#domain-graph">#</a>Domain graph</h3>
+<p>A <strong>domain</strong> is a governance scope — a semantic space where specific constraints, resources, and quality criteria apply. Domains are declared in <code>domains:</code> frontmatter on both methods and policies.</p>
+<p>An <strong>engagement</strong> is the governed unit of work — one method or a composition of methods applied to content. Skills and raw tool calls are mechanical; methods involve judgment. The governance line runs between skills (below) and methods (above). Domains apply at and above the governance line.</p>
+<p><strong>Domain set resolution.</strong> Every engagement carries a domain set — the union of:</p>
+<ol>
+<li><strong>Static domains</strong> — <code>domains:</code> frontmatter from all composed methods</li>
+<li><strong>Dynamic domains</strong> — detected from content properties during Define (e.g., patient data → <code>privacy</code>, external manuscript → <code>external</code>)</li>
+</ol>
+<p>When methods compose, their domains union. A manuscript review composing search + review + persona + write inherits all four methods' domains. Content detection can add more. The full domain set determines governance for the entire engagement.</p>
+<p><strong>What domains provide.</strong> Not just constraints — a domain scopes three things:</p>
+<table>
+<tr><th>Provides</th><th>Example</th></tr>
+<tr><td><strong>Constraints</strong> (policies)</td><td><code>review</code> → anti-groupthink requirements</td></tr>
+<tr><td><strong>Resources</strong> (tools, context)</td><td><code>review</code> → persona pool, convergence metrics</td></tr>
+<tr><td><strong>Quality criteria</strong></td><td><code>review</code> → independence score, coverage matrix</td></tr>
+</table>
+<p>Entering a domain activates its full scope, not just its prohibitions.</p>
+<p><strong>Graph structure.</strong> A <strong>bipartite hypergraph</strong>. One partition is methods; the other is policies. Each domain tag is a hyperedge connecting every method and policy that carries it in <code>domains:</code> frontmatter. The <a href="../methods/index.md#policy-mapping">policy mapping</a> is the adjacency matrix. Edges are asymmetric: policies <em>constrain</em> domains, methods <em>declare</em> domains. A policy doesn't know which methods it constrains — the domain tag is the only coupling.</p>
+<p>Domains are currently flat and independent — no hierarchy, no inter-domain relationships. They intersect freely through co-declaration. Future extensions (subsumption, implication) are possible but not yet needed.</p>
+<p>The two graphs serve different purposes: composition edges say "invokes at step X" (operational), domain edges say "constrained by" (governance). Both maintained through frontmatter and in-text links.</p>
+<h2 id="design-constraint"><a class="heading-anchor" href="#design-constraint">#</a>Design constraint</h2>
+<p>For methods to compose, each must be:</p>
+<ul>
+<li><strong>Stateless</strong>: no persistent state between invocations. All context comes from inputs (files, frontmatter, skill prompts), all outputs go to files. A method doesn't remember being called.</li>
+<li><strong>Clean I/O</strong>: inputs and outputs are files or frontmatter fields, not internal data structures. A composed method reads the output files of the method it invoked, not its internal state.</li>
+<li><strong>Single concern</strong>: each method does one thing. Review assesses. Search discovers. Write produces. Sweep propagates. When a method needs to do two things, it composes two methods.</li>
+<li><strong>Self-describing</strong>: each method declares its <code>domains:</code> in frontmatter, so policy constraints propagate automatically through composition. A workflow that composes review + search inherits both review and search policies.</li>
+</ul>
+<h2 id="composition-examples"><a class="heading-anchor" href="#composition-examples">#</a>Composition examples</h2>
+<table>
+<tr><th>Workflow</th><th>Composes</th><th>How</th></tr>
+<tr><td>Manuscript review</td><td>search → review → write</td><td>Search finds relevant literature; review assesses manuscript with that context; write produces editorial synthesis</td></tr>
+<tr><td>Index maintenance</td><td>sweep → audit</td><td>Sweep propagates consistency; audit checks structural invariants</td></tr>
+<tr><td>Persona construction</td><td>search → ingest → write</td><td>Search finds bibliography; ingest processes papers; write produces persona document</td></tr>
+<tr><td>Literature review</td><td>search → write</td><td>Search discovers literature; write produces the review document</td></tr>
+<tr><td>Preprint opinion</td><td>search → review → write</td><td>Search provides context; review generates assessment; write formats as HOP opinion</td></tr>
+<tr><td>Architectural change</td><td>sweep → architect → sweep</td><td>Sweep maps implications; architect analyzes and acts; sweep propagates</td></tr>
+</table>
+<h2 id="relation-to-encapsulation"><a class="heading-anchor" href="#relation-to-encapsulation">#</a>Relation to encapsulation</h2>
+<p><a href="08-encapsulation.md">Encapsulation</a> says: information serving different functions must live in different containers. Method composability is the process-layer consequence. A method is a container for one function. Mixing functions in one method violates encapsulation the same way mixing index and data in one file does — it couples concerns that change independently.</p>
+<p>The test: if changing how HAAK searches would require modifying the review method, composability is broken. Each method should be modifiable independently, with composition as the only coupling.</p>
+<h2 id="generalize-before-implementing"><a class="heading-anchor" href="#generalize-before-implementing">#</a>Generalize before implementing</h2>
+<p>Before building anything new, ask: what abstraction level does this belong at? The HAAK stack has five levels — foundations (beliefs), architecture (structural decisions), policies (constraints), methods (procedures), skills (atomic capabilities). A new piece of knowledge belongs at exactly one level. Building at the wrong level creates either an over-specific architecture doc (should be a method) or an under-grounded method (should reference an architecture doc).</p>
+<p>The same applies within the method layer. Before creating a new method, ask: is this a new primitive, or a composition of existing primitives? If review + search + write already cover a workflow, documenting that composition is cheaper and more correct than creating a new monolithic method that embeds its own review, search, and writing logic. Composition hints in <a href="../../patterns/methods/index.md#composition-hints">methods/index.md</a> track recurring compositions that haven't yet been promoted to methods.</p>
+<p>This is the design-time complement of encapsulation's <a href="08-encapsulation.md#corollary-no-unnecessary-structure">no unnecessary structure</a>: encapsulation says don't create containers without a function to separate; generalization says don't create implementations without checking what already exists at the right abstraction level.</p>
+
+        <p class="endnote">Architecture 15 &mdash; Method Composability &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/universal-indexing/">&larr; 14: Universal Indexing</a><a class="memo-nav-next" href="/memos/traceability/">16: Traceability &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#principle">Principle</a></li>
+<li><a href="#graph-structure">Graph structure</a>
+<ol>
+<li><a href="#composition-graph">Composition graph</a></li>
+<li><a href="#domain-graph">Domain graph</a></li>
+</ol></li>
+<li><a href="#design-constraint">Design constraint</a></li>
+<li><a href="#composition-examples">Composition examples</a></li>
+<li><a href="#relation-to-encapsulation">Relation to encapsulation</a></li>
+<li><a href="#generalize-before-implementing">Generalize before implementing</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

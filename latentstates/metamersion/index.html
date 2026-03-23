@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metamersion — Latent States</title>
+<meta name="description" content="Three editions of an exhibition programme at the Champalimaud Foundation warehouse in Lisbon. Art, science, and technology without hierarchy.">
+<meta property="og:title" content="Metamersion — Latent States">
+<meta property="og:description" content="Art · Science · Technology at the Champalimaud Warehouse. Three editions, 2022–2024.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --bg-raised: #111110;
+  --bg-card: #161614;
+  --text-primary: #e8e4e0;
+  --text-secondary: #8a8580;
+  --text-muted: #585450;
+  --text-ghost: #2a2826;
+  --accent: #c4956a;
+  --accent-sage: #7a9a8a;
+  --accent-warm: #a89888;
+  --accent-highlight: #c8c0b8;
+  --border: #1e1c1a;
+  --border-light: #2a2826;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f0ec;
+    --bg-raised: #e8e4e0;
+    --bg-card: #ddd9d5;
+    --text-primary: #1a1816;
+    --text-secondary: #6a6560;
+    --text-muted: #8a8580;
+    --text-ghost: #c8c4c0;
+    --accent: #9a6a42;
+    --accent-sage: #4a7a6a;
+    --accent-warm: #7a6a5a;
+    --accent-highlight: #4a4440;
+    --border: #d8d4d0;
+    --border-light: #c8c4c0;
+  }
+}
+
+[data-theme="light"] {
+  --bg: #f4f0ec;
+  --bg-raised: #e8e4e0;
+  --bg-card: #ddd9d5;
+  --text-primary: #1a1816;
+  --text-secondary: #6a6560;
+  --text-muted: #8a8580;
+  --text-ghost: #c8c4c0;
+  --accent: #9a6a42;
+  --accent-sage: #4a7a6a;
+  --accent-warm: #7a6a5a;
+  --accent-highlight: #4a4440;
+  --border: #d8d4d0;
+  --border-light: #c8c4c0;
+}
+html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  padding: 0 32px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+nav .nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; height: 64px;
+}
+nav .logo {
+  font-family: var(--font-heading); font-weight: 700; font-size: 18px;
+  letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none;
+}
+nav .breadcrumb {
+  font-size: 13px; color: var(--text-muted); letter-spacing: 0.04em;
+}
+nav .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+nav .breadcrumb a:hover { color: var(--text-primary); }
+
+.page { max-width: 960px; margin: 0 auto; padding: 120px 32px 80px; }
+.page-title {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: clamp(48px, 8vw, 80px); letter-spacing: -0.03em;
+  line-height: 0.95; margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 60%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.page-subtitle {
+  font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px;
+}
+.page-meta {
+  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 48px;
+}
+.page-meta .accent { color: var(--accent); }
+
+.hero-image { margin: 0 0 56px; width: 100%; }
+.hero-image img { width: 100%; max-height: 70vh; object-fit: cover; border-radius: 2px; }
+.stills-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 24px; }
+.stills-grid img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 2px; }
+
+.description {
+  font-size: 18px; line-height: 1.85; color: var(--text-secondary);
+  margin-bottom: 56px; max-width: 720px;
+}
+
+.info-section { margin-bottom: 48px; }
+.info-label {
+  font-family: var(--font-heading); font-weight: 600; font-size: 11px;
+  letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.info-text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
+.info-text a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--border); padding-bottom: 1px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.info-text a:hover { color: var(--text-primary); border-color: var(--accent); }
+
+.related { display: flex; gap: 16px; flex-wrap: wrap; }
+.related a {
+  font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
+  text-decoration: none; border: 1px solid var(--border); padding: 8px 20px;
+  border-radius: 2px; transition: border-color 0.3s, color 0.3s;
+}
+.related a:hover { border-color: var(--accent); color: var(--text-primary); }
+
+.divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
+
+.edition { margin-bottom: 64px; }
+.edition-title {
+  font-family: var(--font-heading); font-weight: 700; font-size: 24px;
+  letter-spacing: -0.01em; color: var(--text-primary); margin-bottom: 8px;
+}
+.edition-dates {
+  font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 24px;
+}
+.edition-image {
+  width: 100%; aspect-ratio: 21/9; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px; position: relative; overflow: hidden;
+}
+.edition-image .label {
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-ghost);
+}
+.edition-subsection { margin-bottom: 20px; }
+.edition-sublabel {
+  font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 8px;
+}
+.edition-list {
+  font-size: 15px; line-height: 1.85; color: var(--text-secondary);
+}
+.edition-list a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--border); padding-bottom: 1px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.edition-list a:hover { color: var(--text-primary); border-color: var(--accent); }
+
+footer {
+  padding: 48px 32px; border-top: 1px solid var(--border);
+}
+footer .footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+footer .footer-left, footer .footer-right {
+  font-size: 12px; letter-spacing: 0.15em; color: var(--text-ghost);
+}
+footer a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+footer a:hover { color: var(--accent-warm); }
+.footer-links {
+  display: flex; gap: 24px; font-size: 12px; letter-spacing: 0.1em;
+}
+
+@media (max-width: 768px) {
+  .page { padding: 100px 20px 60px; }
+  nav { padding: 0 20px; }
+  footer .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .footer-links { flex-direction: column; gap: 8px; align-items: center; }
+}
+</style>
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../" class="logo">LS</a>
+    <div class="breadcrumb">Metamersion</div>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Metamersion</h1>
+  <div class="page-subtitle">Art &middot; Science &middot; Technology at the Champalimaud Warehouse</div>
+  <div class="page-meta"><span class="accent">2022&ndash;2024</span> &middot; Lisbon</div>
+
+  <figure class="hero-image">
+    <img src="../assets/mots_ls_DSCF8519.jpg" alt="Behind the scenes — Champalimaud Foundation warehouse during Metamersion setup" loading="lazy">
+  </figure>
+
+  <div class="description">
+    Three editions of an exhibition programme at the Champalimaud Foundation warehouse in Lisbon, organized by Joe Paton, Zach Mainen, and John Krakauer. The name combines metamers &mdash; perceptually identical stimuli with distinct physical origins &mdash; and immersion.
+  </div>
+
+  <div class="description">
+    The warehouse (Doca Pesca F, Avenida Bras&iacute;lia) became a space where neuroscience, art, and technology intersected without hierarchy. Artists were not illustrating research. Scientists were not validating art. The question was shared: how does immersive experience work, and what can it do?
+  </div>
+
+  <div class="description">
+    Part of the Champalimaud Foundation&rsquo;s Bridges to the Unknown programme, coordinated by Julia Salaroli and Patricia Correia. Free and open to the public.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Edition 1 -->
+  <div class="edition">
+    <h2 class="edition-title">Edition 1 &mdash; Metamersion</h2>
+    <div class="edition-dates">May 2022</div>
+    <div class="stills-grid" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 24px;">
+      <img src="../assets/cf-metamersion-polylith.png" alt="Polylith installation at Metamersion Edition 1" loading="lazy">
+      <img src="../assets/cf-metamersion-augenblick-lunar-ring.png" alt="Augenblick by Lunar Ring at Metamersion Edition 1" loading="lazy">
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Works</div>
+      <div class="edition-list">
+        <a href="../polylith/">Polylith</a> (Guiomar &amp; Mainen) &middot;
+        Augenblick (Lunar Ring) &middot;
+        Haita (Tupac Martir / Satore) &middot;
+        At the Beach (Werner Haas) &middot;
+        MindPod (MindMaze)
+      </div>
+    </div>
+  </div>
+
+  <!-- Edition 2 -->
+  <div class="edition">
+    <h2 class="edition-title">Edition 2 &mdash; Latent Spaces</h2>
+    <div class="edition-dates">December 2022 &ndash; January 2023</div>
+    <div class="stills-grid" style="grid-template-columns: repeat(2, 1fr);">
+      <img src="../assets/cf-metamersion-ls-choreographic-objects-forsythe.png" alt="Choreographic Objects by William Forsythe at Metamersion Edition 2" loading="lazy">
+      <img src="../assets/cf-metamersion-ls-atavic-forest.jpg" alt="Atavic Forest at Metamersion Edition 2" loading="lazy">
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Works</div>
+      <div class="edition-list">
+        Nowhere and Everywhere at the Same Time (William Forsythe) &middot;
+        Stellentstellen Film (Forsythe) &middot;
+        <a href="../atavic-forest/">Atavic Forest</a> (Lunar Ring + Saldanha + Guiomar + Mainen) &middot;
+        <a href="../ls1/">Latent Space I</a> (Lunar Ring + mots) &middot;
+        <a href="../palimpsest/">Palimpsest 0.0.1</a> &middot;
+        Wingy &middot;
+        MindPod &amp; MindMotion GO
+      </div>
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Music</div>
+      <div class="edition-list">
+        Clothilde &middot; Joana S&aacute; &middot; Sal Grosso &middot; Aires &middot; Phoebe &middot; Usof &middot; Odete &middot; Carincur &middot; Jo&atilde;o Pedro Fonseca
+      </div>
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Roundtables</div>
+      <div class="edition-list">
+        &ldquo;What is health?&rdquo; (Paton, Krakauer) &middot;
+        &ldquo;Atavic Forest Creative Process&rdquo; (Lunar Ring, Saldanha, Guiomar, Mainen)
+      </div>
+    </div>
+  </div>
+
+  <!-- Edition 3 -->
+  <div class="edition">
+    <h2 class="edition-title">Edition 3 &mdash; Healing Algorithms</h2>
+    <div class="edition-dates">May 2024</div>
+    <div class="stills-grid">
+      <img src="../assets/cf-metamersion-ha-venue-photo.jpg" alt="Champalimaud warehouse venue during Healing Algorithms" loading="lazy">
+      <img src="../assets/cf-metamersion-ha-installation-overview.jpg" alt="Installation overview at Healing Algorithms" loading="lazy">
+      <img src="../assets/cf-metamersion-ha-all-around-you.jpeg" alt="All Around You performance by Sofia Dias and Vitor Roriz" loading="lazy">
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Works</div>
+      <div class="edition-list">
+        ConsonancIA &middot; Submersion &middot; Oceans of Mind &middot; Altered Reflections &middot; Chatsubo &middot; Manifold Time &middot; Virtual Deformations &middot; Synth Riders
+      </div>
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Performances</div>
+      <div class="edition-list">
+        From Trauma to Healing (Universal Everything / School of Life) &middot;
+        Machine Learning &middot;
+        All Around You (Sofia Dias &amp; V&iacute;tor Roriz) &middot;
+        Psychoactive Surface &middot;
+        Overparameterized Time
+      </div>
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Roundtables</div>
+      <div class="edition-list">
+        Performance and Body Movement &middot;
+        Immersion (Krakauer, Mainen, Cook, Okach) &middot;
+        AI Ethics
+      </div>
+    </div>
+    <div class="edition-subsection">
+      <div class="edition-sublabel">Music</div>
+      <div class="edition-list">
+        Rita Silva &middot; Ricardo Martins &middot; Jonathan Uliel Saldanha
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="info-section">
+    <div class="info-label">Related</div>
+    <div class="related">
+      <a href="../polylith/">Polylith</a>
+      <a href="../atavic-forest/">Atavic Forest</a>
+      <a href="../ls1/">LS1</a>
+      <a href="../palimpsest/">Palimpsest</a>
+      <a href="../waking-life/">Waking Life</a>
+      <a href="../boom/">Boom</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">Latent States &middot; 2026</div>
+    <div class="footer-links">
+      <a href="https://www.fchampalimaud.org">Champalimaud Foundation</a>
+      <a href="https://www.fchampalimaud.org/education-art-science/art-science">Bridges to the Unknown</a>
+    </div>
+    <div class="footer-right">Lisbon</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var t=document.getElementById('theme-toggle'),r=document.documentElement;
+  var saved=localStorage.getItem('ls-theme');
+  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
+  t.addEventListener('click',function(){
+    var current=r.getAttribute('data-theme');
+    var next=current==='light'?'dark':'light';
+    r.setAttribute('data-theme',next);
+    localStorage.setItem('ls-theme',next);
+    t.textContent=next==='light'?'☾':'☀';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Governance Architecture &mdash; HAAK</title>
+<meta name="description" content="The separation principle, trust model, and normative order for a multi-agent system.">
+<meta property="og:title" content="Governance Architecture &mdash; HAAK">
+<meta property="og:description" content="The separation principle, trust model, and normative order for a multi-agent system.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Governance Architecture</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 41 &middot; March 2026</p>
+      <h1 class="article-title">Governance Architecture</h1>
+      <p class="article-subtitle">The governance model rests on one structural claim: agents operate *under* the constitution, not *with* it. They do not read it, interpret it, or reason about it. They are governed by it —…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-separation-principle">1. The Separation Principle</a></li>
+<li><a href="#2-the-ledger">2. The Ledger</a>
+<ol>
+<li><a href="#2-1-what-it-records">2.1 What it records</a></li>
+<li><a href="#2-2-structure">2.2 Structure</a></li>
+<li><a href="#2-3-scope">2.3 Scope</a></li>
+<li><a href="#2-4-tamper-evidence">2.4 Tamper evidence</a></li>
+</ol></li>
+<li><a href="#3-trust-and-workspace-scoping">3. Trust and Workspace Scoping</a>
+<ol>
+<li><a href="#3-1-three-tiers">3.1 Three tiers</a></li>
+<li><a href="#3-2-workspace-scoping-as-security-model">3.2 Workspace scoping as security model</a></li>
+<li><a href="#3-3-what-each-tier-sees">3.3 What each tier sees</a></li>
+</ol></li>
+<li><a href="#4-the-two-boundary-model">4. The Two-Boundary Model</a></li>
+<li><a href="#5-roles-in-the-governance-model">5. Roles in the Governance Model</a>
+<ol>
+<li><a href="#5-1-ontological-grounding">5.1 Ontological grounding</a></li>
+<li><a href="#5-2-why-agents-do-not-read-the-ledger">5.2 Why agents do not read the ledger</a></li>
+</ol></li>
+<li><a href="#6-multi-user-session-model">6. Multi-User Session Model</a></li>
+<li><a href="#7-the-crypto-roadmap">7. The Crypto Roadmap</a>
+<ol>
+<li><a href="#v0-current-null-proofs">v0 (current): Null proofs</a></li>
+<li><a href="#v1-0-august-2026-attestation-proofs">v1.0 (August 2026): Attestation proofs</a></li>
+<li><a href="#v1-5-audience-keyed-encryption">v1.5: Audience-keyed encryption</a></li>
+<li><a href="#v2-0-zk-stark-proofs">v2.0: ZK-STARK proofs</a></li>
+</ol></li>
+<li><a href="#8-federation-future-paper-5a">8. Federation (Future -- Paper 5a)</a></li>
+<li><a href="#9-relationship-to-the-ontology">9. Relationship to the Ontology</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="1-the-separation-principle"><a class="heading-anchor" href="#1-the-separation-principle">#</a>1. The Separation Principle</h2>
+<p>The governance model rests on one structural claim: agents operate <em>under</em> the constitution, not <em>with</em> it. They do not read it, interpret it, or reason about it. They are governed by it — transparently, from above, without their knowledge or consent. This separation produces three distinct layers with distinct relationships to the same normative order.</p>
+<p><strong>Actors</strong> — entities that do work and are governed. Standing agents (Reed, Calli, Naga), registered users, unknown Telegram contacts. They produce tool calls, write files, send messages. They never see the governance apparatus except through its effects: a tool that was available yesterday is absent today; a mailbox message appears at the start of a turn they did not request. The actor's relationship to the constitution is that of a citizen to a legal code — compliance is not optional, but understanding is not required.</p>
+<p><strong>Constitution</strong> — the normative framework that defines what is permitted. Two artifacts: <code>constitution.md</code> (the prose document, human-readable, the source of authority) and <code>constitution.yaml</code> (the machine-readable policy sidecar, evaluated by the policy engine). The BLAKE3 hash of the prose document is computed once at startup and carried in every policy verdict, anchoring machine decisions to the human-readable source. The constitution is not an actor — it does not decide. It is a policy of maximal scope (Definition 14 from the ontology): it prescribes how the normative order itself may be changed.</p>
+<p><strong>Courts</strong> — entities that verify compliance post-hoc. The auditor agent reads the ledger and checks that policy verdicts were applied correctly. The owner queries the ledger directly for anomaly detection. The hash chain itself is an automated court: a broken chain is detected tampering, no interpretation required. Courts do not govern — they verify that governance occurred correctly. The temporal separation is essential: governance happens in real time (the policy gate fires during the turn); adjudication happens after the fact (the auditor reads the ledger entry the gate produced).</p>
+<p>The separation is not decorative. It solves a concrete problem: if agents could read the constitution and reason about it, they could argue with it, find loopholes, or simulate compliance while violating intent. By removing the constitution from the agent's information environment entirely, the system eliminates a class of adversarial behavior that post-hoc filtering cannot address. The blocked tool simply is not in the tool list. The agent cannot call what it cannot see.</p>
+<h2 id="2-the-ledger"><a class="heading-anchor" href="#2-the-ledger">#</a>2. The Ledger</h2>
+<h3 id="2-1-what-it-records"><a class="heading-anchor" href="#2-1-what-it-records">#</a>2.1 What it records</h3>
+<p>The ledger records governance events — not content. It does not store what an agent wrote, what files it read, or what it said to the user. It stores:</p>
+<ul>
+<li><strong>Policy verdicts</strong> — which tools were allowed, which were blocked, under what rules, with the constitution hash anchoring the decision.</li>
+<li><strong>Session lifecycle</strong> — when sessions opened, closed, were evicted, or cancelled.</li>
+<li><strong>Mailbox injections</strong> — when unread messages were injected into a turn's history.</li>
+<li><strong>Turn completions</strong> — that a turn finished, with hashes of its inputs and outputs (not the inputs and outputs themselves).</li>
+</ul>
+<p>This distinction matters. Git tracks content changes (what files changed, who committed). The ledger tracks governance decisions (what was permitted, what was denied, under what rules). Both are needed. Git is for work products. The ledger is for constitutional compliance. They are orthogonal audit trails over the same system.</p>
+<h3 id="2-2-structure"><a class="heading-anchor" href="#2-2-structure">#</a>2.2 Structure</h3>
+<p>Each ledger entry is content-addressed: its identity is the BLAKE3 digest of its JCS-canonical JSON representation (RFC 8785). The canonical serializer sorts object keys alphabetically at all nesting levels, producing a deterministic byte sequence regardless of insertion order. The entry's <code>cid</code> is computed from all fields except <code>cid</code> itself.</p>
+<p>Within a session, entries are hash-chained: each <code>Turn</code> entry's <code>parents</code> field contains the <code>cid</code> of the previous completed turn. The first turn has <code>parents: []</code>. This chain creates a verifiable sequence — you can reconstruct the order of governance events within any session by following the parent links.</p>
+<p>The ledger is append-only. <code>INSERT OR IGNORE</code> on the <code>cid</code> primary key guarantees idempotency. No entry is ever updated or deleted. The storage is SQLite with WAL mode for concurrent reads.</p>
+<h3 id="2-3-scope"><a class="heading-anchor" href="#2-3-scope">#</a>2.3 Scope</h3>
+<p>One ledger for the whole platform — not per-user, not per-agent, not per-session. All governance events from all actors interleave in a single append-only store, queryable by actor, by session, by time range, by entry quality. The constitutional authority (the runner) owns the ledger. Users can query their own entries but cannot modify or delete them.</p>
+<h3 id="2-4-tamper-evidence"><a class="heading-anchor" href="#2-4-tamper-evidence">#</a>2.4 Tamper evidence</h3>
+<p>A broken hash chain — where an entry's <code>parents</code> field references a <code>cid</code> that does not exist in the ledger, or where recomputing an entry's <code>cid</code> from its fields produces a different hash — is detected tampering. No interpretation is needed; the verification is mechanical. This is the cheapest court in the system: a script that walks the chain and checks hashes.</p>
+<h2 id="3-trust-and-workspace-scoping"><a class="heading-anchor" href="#3-trust-and-workspace-scoping">#</a>3. Trust and Workspace Scoping</h2>
+<h3 id="3-1-three-tiers"><a class="heading-anchor" href="#3-1-three-tiers">#</a>3.1 Three tiers</h3>
+<table>
+<tr><th>Tier</th><th>Trust</th><th>Determination</th><th>Example</th></tr>
+<tr><td>Unknown</td><td>Sandboxed</td><td>Not in roster, or dead</td><td>Telegram user, expired agent</td></tr>
+<tr><td>Registered</td><td>Scoped</td><td>In roster, state != dead</td><td>Named collaborator, domain agent</td></tr>
+<tr><td>Standing</td><td>Full</td><td>In roster, kind = role, state = live</td><td>Reed, Calli, Naga</td></tr>
+</table>
+<p>Trust is resolved at session creation by scanning <code>agent-roster.jsonl</code>. The determination is not negotiable — an agent cannot request elevated trust. Escalation requires a human (the PI) to edit the roster, a manual gate that is itself a governance event.</p>
+<h3 id="3-2-workspace-scoping-as-security-model"><a class="heading-anchor" href="#3-2-workspace-scoping-as-security-model">#</a>3.2 Workspace scoping as security model</h3>
+<p>Each trust tier maps to a workspace root:</p>
+<table>
+<tr><th>Tier</th><th>Workspace</th><th>Access</th></tr>
+<tr><td>Unknown</td><td><code>platform/</code></td><td>Public content, read-only</td></tr>
+<tr><td>Registered</td><td><code>workspaces/users/&lt;name&gt;/</code> + <code>platform/</code></td><td>Own workspace + public</td></tr>
+<tr><td>Standing</td><td>Full repository root</td><td>Everything</td></tr>
+</table>
+<p>The tool executor's <code>safe_resolve</code> enforces workspace boundaries at the filesystem level. It canonicalizes paths via <code>canonicalize()</code> — resolving symlinks and <code>..</code> components — and verifies the resolved path starts with the workspace root. Paths that escape the sandbox are rejected before any tool executes. Six unit tests cover traversal rejection.</p>
+<p>This is a more natural security model than tool-level blocking. The shift is from "you cannot read" to "you can only read what is yours." Re-enabling <code>read_file</code> for unknown users becomes safe once they are scoped to public content. The policy gate shifts from blocking tools to scoping workspaces. An unknown Telegram user scoped to <code>platform/</code> literally cannot reference paths outside it — the path resolution rejects them before any tool executes.</p>
+<h3 id="3-3-what-each-tier-sees"><a class="heading-anchor" href="#3-3-what-each-tier-sees">#</a>3.3 What each tier sees</h3>
+<p>An unknown user sees the platform: the constitution, the ontology, the foundations, the public documentation. They can read and search but cannot write, execute shell commands, or access private workspaces. A registered user sees their own workspace plus the platform. They can write within their workspace, read the platform, and communicate via mailbox. A standing agent sees everything — the full repository, all workspaces, all data — because standing agents are trusted internal actors whose mandates already constrain their behavior.</p>
+<h2 id="4-the-two-boundary-model"><a class="heading-anchor" href="#4-the-two-boundary-model">#</a>4. The Two-Boundary Model</h2>
+<pre><code>haak/
+  platform/                 &lt;- public, open-sourceable
+    agent-runner/           &lt;- the runtime binary
+    constitution/           &lt;- the governance rules
+    ontology/               &lt;- the formal ontology
+    foundations/            &lt;- the intellectual claims
+    ledger.db               &lt;- all governance records
+
+  workspaces/               &lt;- private, per-user
+    zach/                   &lt;- owner workspace (current projects/, strategy/, data/)
+    users/
+      &lt;username&gt;/           &lt;- registered user workspace</code></pre>
+<p>Platform is the system. Workspaces are the content. The platform is publishable — it contains the runtime, the constitution, the ontology, and the ledger. Nothing in the platform is private. Workspaces are private by default, shareable by invitation. The boundary between platform and workspace is the boundary between what the system <em>is</em> and what people <em>do with it</em>.</p>
+<p>The ledger lives in the platform because governance records are public. The constitution's authority derives from its visibility — a secret constitution is not a constitution. The ledger's integrity derives from its accessibility — a tamper-evident log that no one can read provides no evidence.</p>
+<p>A casual user (Telegram, unknown trust) does not need git. Their ledger entries in the runner DB are their audit trail — they can verify what happened in their sessions without version control infrastructure. A collaborator working on a paper needs git — they are producing artifacts that require version control. The two-boundary model accommodates both without conflation.</p>
+<h2 id="5-roles-in-the-governance-model"><a class="heading-anchor" href="#5-roles-in-the-governance-model">#</a>5. Roles in the Governance Model</h2>
+<h3 id="5-1-ontological-grounding"><a class="heading-anchor" href="#5-1-ontological-grounding">#</a>5.1 Ontological grounding</h3>
+<p>Every role in the governance model maps to the relational situational ontology (01-objects, 02-relations). The mapping is not decorative — it determines how roles relate, what they can do, and how their actions are recorded.</p>
+<p><strong>Actors</strong> are entities that <em>belong to</em> governance situations with the quality "participant." Their axis-role is <em>actor</em> — they process materials (files, messages, code) using methods (tool calls, search, write). The trust tier is a quality of their belonging to the platform: an unknown user belongs to the platform as "unknown-participant"; a standing agent belongs as "standing-participant." Different qualities, same relation.</p>
+<ul>
+<li>Standing agents (Reed, Calli, Naga) — internal, full trust, persistent sessions, mandates define their behavioral scope</li>
+<li>Registered users — approved, scoped access, domain or oneshot sessions</li>
+<li>Unknown users — sandboxed, public-only, oneshot sessions</li>
+</ul>
+<p><strong>The constitution</strong> is a <em>policy</em> (Definition 12) — a normative type-compound of maximal scope. It belongs to the platform as "governance," and every policy verdict belongs to the constitution as "derivation." The <code>constitution_hash</code> carried in each verdict is the machine-readable trace of this belonging: it says "this verdict derived from this constitution."</p>
+<p><strong>Courts</strong> are actors whose method is <em>verification</em>. The auditor agent belongs to governance situations as "auditor" — its method is reading the ledger and checking compliance. The owner belongs as "authority" — the ultimate arbiter. The hash chain belongs as "automated-verification" — a court that operates without an actor, mechanically checking structural integrity.</p>
+<p><strong>The ledger</strong> is not an entity — it is a record of situations. Each entry is a belonging: the actor belongs to the governance event (the turn, the policy verdict, the session lifecycle change) with a quality (the <code>EntryQuality</code> variant). The <code>cid</code> is the identity of the belonging. The <code>parents</code> field traces causal derivation. The ledger is the situation graph (ontology/09) materialized for governance events.</p>
+<h3 id="5-2-why-agents-do-not-read-the-ledger"><a class="heading-anchor" href="#5-2-why-agents-do-not-read-the-ledger">#</a>5.2 Why agents do not read the ledger</h3>
+<p>During normal operation, an agent never reads the ledger. This is not a limitation — it is the separation principle applied. The agent's relationship to governance is experiential, not reflective. It experiences the effects of governance (tools present or absent, mandate in system prompt, mailbox messages injected) but does not observe the governance process itself.</p>
+<p>The reasons are both principled and practical:</p>
+<ol>
+<li><strong>Information asymmetry is the enforcement mechanism.</strong> If an agent could read the ledger, it would know which tools were blocked and why. This knowledge could inform adversarial strategies — "I know bash is blocked because of rule X, so I will try to achieve the same effect through tool Y." By keeping the governance process invisible, the system eliminates this attack surface.</li>
+</ol>
+<ol>
+<li><strong>Separation of concerns.</strong> Agents do work. Courts verify compliance. Conflating these roles — making agents their own auditors — defeats the purpose of external verification.</li>
+</ol>
+<ol>
+<li><strong>Context economy.</strong> Ledger entries are governance metadata. Injecting them into an agent's context window wastes tokens on information the agent cannot act on. The agent's context should contain its mandate, its mailbox, and its workspace — not the audit trail of its own governance.</li>
+</ol>
+<h2 id="6-multi-user-session-model"><a class="heading-anchor" href="#6-multi-user-session-model">#</a>6. Multi-User Session Model</h2>
+<p>Each channel connection creates a session with:</p>
+<ul>
+<li><code>session<em>key</code>: <code>&lt;agent</em>id&gt;:&lt;channel&gt;:&lt;peer&gt;</code> (e.g., <code>openclaw:telegram:direct:5836874676</code>)</li>
+<li><code>trust_level</code>: determined by roster lookup</li>
+<li><code>workspace_root</code>: determined by trust level</li>
+<li><code>mandate</code>: loaded from roster (standing agents) or default (unknown)</li>
+</ul>
+<p>Multiple users can be active simultaneously. The <code>KeyedQueue</code> ensures serial execution within each session (no interleaving of turns for the same user) but concurrent execution across sessions (different users run in parallel). The ledger interleaves entries from all sessions, queryable by actor, session, or time range.</p>
+<p>Session identity is deterministic: <code>blake3<em>hex(format!("{agent</em>id}:{session<em>key}:{created</em>at}"))</code>. This is a prerequisite for keypair-anchored session identity in v1.0 — when each session has an Ed25519 keypair, the session ID will be derived from the public key rather than from string components.</p>
+<h2 id="7-the-crypto-roadmap"><a class="heading-anchor" href="#7-the-crypto-roadmap">#</a>7. The Crypto Roadmap</h2>
+<p>The governance architecture is designed for cryptographic evolution without schema migration. The <code>proof</code> and <code>envelope</code> fields are present and typed from v0. Populating them requires no schema change, no data migration, no event format change.</p>
+<h3 id="v0-current-null-proofs"><a class="heading-anchor" href="#v0-current-null-proofs">#</a>v0 (current): Null proofs</h3>
+<p>The ledger records events but does not cryptographically prove compliance. Tamper evidence comes from hash chains — a broken chain is detectable, but the entries themselves carry no proof that the governance process was followed correctly. The runner is trusted to record accurately.</p>
+<h3 id="v1-0-august-2026-attestation-proofs"><a class="heading-anchor" href="#v1-0-august-2026-attestation-proofs">#</a>v1.0 (August 2026): Attestation proofs</h3>
+<p>Each policy verdict includes the rules checked and their results. The attestation is signed by the runner's Ed25519 key. Third parties can verify: "this runner, running this constitution, made this decision." The <code>Proof::Attestation</code> variant carries <code>rules<em>checked</code>, <code>predicate</em>results</code>, and <code>signature</code>. The runner's public key is published in the platform; anyone can verify attestations.</p>
+<p>Session identity anchors to keypairs: each session has an Ed25519 keypair, the public key is stored in the session record, and ledger entries carry the session's signature. This binds governance events to specific sessions cryptographically, not just by string matching.</p>
+<h3 id="v1-5-audience-keyed-encryption"><a class="heading-anchor" href="#v1-5-audience-keyed-encryption">#</a>v1.5: Audience-keyed encryption</h3>
+<p>The <code>Envelope</code> struct enables per-entry encryption. When an agent departs (session closes, agent dies), its entries can be encrypted to specific audiences using KDF-derived keys. The envelope carries <code>audience<em>label</code>, <code>encrypted</em>key</code>, and <code>ciphertext</code>. This enables selective disclosure: the owner can read everything; an auditor can read governance entries but not content; a departing agent's workspace can be sealed.</p>
+<h3 id="v2-0-zk-stark-proofs"><a class="heading-anchor" href="#v2-0-zk-stark-proofs">#</a>v2.0: ZK-STARK proofs</h3>
+<p>Prove a policy verdict is correct without revealing the policy rules or the agent's input. The <code>Proof::ZkStark</code> variant carries <code>stark<em>proof</code> and <code>public</em>inputs</code>. A user can verify they were governed fairly without seeing the constitution's internal logic. This is the endgame for federated governance: runners can prove compliance to each other without sharing their constitutions.</p>
+<h2 id="8-federation-future-paper-5a"><a class="heading-anchor" href="#8-federation-future-paper-5a">#</a>8. Federation (Future -- Paper 5a)</h2>
+<p>The architecture supports federation without requiring it. Content addressing (BLAKE3 CIDs) makes ledger entries globally unique — the same entry, produced by different runners examining the same event, would have the same <code>cid</code>. Hash chains make entries locally ordered within a session. These properties compose:</p>
+<ul>
+<li><strong>Gossip protocols</strong> can sync ledger entries across runners. A runner receives an entry, verifies its <code>cid</code> (recompute from fields), checks its <code>parents</code> (do they exist locally or are they known-remote?), and appends.</li>
+<li><strong>Merkle proofs</strong> can verify entries without downloading the full ledger. A runner can prove that an entry exists in its ledger by providing the entry and its hash chain back to a known root.</li>
+<li><strong>Cross-runner attestations</strong> become possible with v1.0 proofs. Runner A can verify that Runner B's policy verdict was signed by B's key, checked B's constitution, and reached a permitted conclusion — without A needing to run B's policy engine.</li>
+</ul>
+<p>This is Paper 5a territory — designed but not implemented. The architecture carries zero debt toward it: every field, every hash, every proof variant is ready.</p>
+<h2 id="9-relationship-to-the-ontology"><a class="heading-anchor" href="#9-relationship-to-the-ontology">#</a>9. Relationship to the Ontology</h2>
+<p>The governance architecture is an instance of the ontology applied to its own operation. The mapping is exact:</p>
+<table>
+<tr><th>Governance concept</th><th>Ontological object</th><th>Definition</th></tr>
+<tr><td>Agent, user</td><td>Actor (Def. 2)</td><td>Entities that process</td></tr>
+<tr><td>Constitution</td><td>Policy of maximal scope (Def. 14)</td><td>Prescribes rule-making</td></tr>
+<tr><td>Mandate</td><td>Policy (Def. 12)</td><td>Scoped normative constraint</td></tr>
+<tr><td>Session</td><td>Situation (Def. 11)</td><td>Particular coming-together of actors, methods, domains</td></tr>
+<tr><td>Turn</td><td>Act</td><td>Finest-grained situation</td></tr>
+<tr><td>Policy verdict</td><td>Engagement (Def. 13)</td><td>Normative view of an act</td></tr>
+<tr><td>Ledger entry</td><td>Belonging (Def. R1)</td><td>Directed dependence with quality</td></tr>
+<tr><td>Entry quality</td><td>Quality (Def. R2)</td><td>Nature of the dependence</td></tr>
+<tr><td>Trust tier</td><td>Quality of belonging</td><td>How an actor belongs to the platform</td></tr>
+</table>
+<p>The ontology is not a post-hoc rationalization of the architecture. The architecture was built from the ontology. The <code>LedgerEntry</code> schema <em>is</em> a belonging with provenance: <code>entity_id</code> (dependent), <code>target</code> (context), <code>quality</code> (nature of dependence), <code>source</code> (provenance), <code>parents</code> (causal derivation). The governance model <em>is</em> the ontological distinction between descriptive and normative compounds applied to a runtime system: situations describe what happened; engagements prescribe what should happen; the gap between them is what courts verify.</p>
+<hr>
+<p><em>architecture 41 -- governance architecture -- 2026-03-22 -- zach + claude</em></p>
+
+        <p class="endnote">Architecture 41 &mdash; Governance Architecture &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/unified-browser/">&larr; 40: Unified Browser</a><a class="memo-nav-next" href="/memos/browser-ux-design/">41: Browser UX Design &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-separation-principle">1. The Separation Principle</a></li>
+<li><a href="#2-the-ledger">2. The Ledger</a>
+<ol>
+<li><a href="#2-1-what-it-records">2.1 What it records</a></li>
+<li><a href="#2-2-structure">2.2 Structure</a></li>
+<li><a href="#2-3-scope">2.3 Scope</a></li>
+<li><a href="#2-4-tamper-evidence">2.4 Tamper evidence</a></li>
+</ol></li>
+<li><a href="#3-trust-and-workspace-scoping">3. Trust and Workspace Scoping</a>
+<ol>
+<li><a href="#3-1-three-tiers">3.1 Three tiers</a></li>
+<li><a href="#3-2-workspace-scoping-as-security-model">3.2 Workspace scoping as security model</a></li>
+<li><a href="#3-3-what-each-tier-sees">3.3 What each tier sees</a></li>
+</ol></li>
+<li><a href="#4-the-two-boundary-model">4. The Two-Boundary Model</a></li>
+<li><a href="#5-roles-in-the-governance-model">5. Roles in the Governance Model</a>
+<ol>
+<li><a href="#5-1-ontological-grounding">5.1 Ontological grounding</a></li>
+<li><a href="#5-2-why-agents-do-not-read-the-ledger">5.2 Why agents do not read the ledger</a></li>
+</ol></li>
+<li><a href="#6-multi-user-session-model">6. Multi-User Session Model</a></li>
+<li><a href="#7-the-crypto-roadmap">7. The Crypto Roadmap</a>
+<ol>
+<li><a href="#v0-current-null-proofs">v0 (current): Null proofs</a></li>
+<li><a href="#v1-0-august-2026-attestation-proofs">v1.0 (August 2026): Attestation proofs</a></li>
+<li><a href="#v1-5-audience-keyed-encryption">v1.5: Audience-keyed encryption</a></li>
+<li><a href="#v2-0-zk-stark-proofs">v2.0: ZK-STARK proofs</a></li>
+</ol></li>
+<li><a href="#8-federation-future-paper-5a">8. Federation (Future -- Paper 5a)</a></li>
+<li><a href="#9-relationship-to-the-ontology">9. Relationship to the Ontology</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Scientific Ecosystem &mdash; HAAK</title>
+<meta name="description" content="The niche structure of scientific knowledge production and where AI participation fits.">
+<meta property="og:title" content="The Scientific Ecosystem &mdash; HAAK">
+<meta property="og:description" content="The niche structure of scientific knowledge production and where AI participation fits.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#foundations">foundations</a> &rsaquo; The Scientific Ecosystem</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Foundations 04 &middot; March 2026</p>
+      <h1 class="article-title">The Scientific Ecosystem</h1>
+      <p class="article-subtitle">**Science is an ecosystem of competing communities with overlapping niches. It cannot reform itself because the institutions that need reform evaluate the people who would reform them. HAAK builds a…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#science-as-ecosystem">Science as ecosystem</a></li>
+<li><a href="#the-lock-in-problem">The lock-in problem</a></li>
+<li><a href="#the-shadow-ecosystem">The shadow ecosystem</a></li>
+<li><a href="#where-is-human-participation-most-valuable">Where is human participation most valuable?</a></li>
+<li><a href="#the-nested-loops">The nested loops</a></li>
+<li><a href="#the-open-proprietary-design-choice">The open-proprietary design choice</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><strong>Science is an ecosystem of competing communities with overlapping niches. It cannot reform itself because the institutions that need reform evaluate the people who would reform them. HAAK builds a shadow ecosystem beside the human one — computationally scaffolded, experimentally controllable — to discover where human participation is most valuable. This is an empirical question, not a philosophical one.</strong></p>
+<h2 id="science-as-ecosystem"><a class="heading-anchor" href="#science-as-ecosystem">#</a>Science as ecosystem</h2>
+<p>Science is not one system but an overlapping population of communities — subfields, journals, funding bodies, professional societies — each with its own practices for publication, review, credit, and resource allocation. These communities form niches: a paper that succeeds in Nature Neuroscience may fail at NeurIPS, not because it is wrong but because it addresses different criteria. The norms that govern quality, significance, and rigor vary across niches and evolve over time.</p>
+<p>This is the ecological view of science. HAAK does not prescribe a single niche. It provides infrastructure for creating, running, and comparing niches computationally. A review panel with five AI personas applying structured assessment is one niche. The same paper reviewed by a monolithic model with a flat prompt is another. Comparing their outputs is a science-of-science experiment.</p>
+<h2 id="the-lock-in-problem"><a class="heading-anchor" href="#the-lock-in-problem">#</a>The lock-in problem</h2>
+<p>Current science has a structural problem that prevents self-reform: the people who might change the system are evaluated by the system they would change. A junior researcher who proposes to reform peer review must survive peer review to gain the standing to make that proposal. The incentive gradient points toward compliance, not reform.</p>
+<p>This is not a claim about bad actors. It is a structural property of any system where the evaluation mechanism and the evaluated population are coupled. You cannot run a controlled experiment on the scientific system from inside it — there is no control group, no way to vary parameters independently, no way to repeat the experiment with different initial conditions.</p>
+<h2 id="the-shadow-ecosystem"><a class="heading-anchor" href="#the-shadow-ecosystem">#</a>The shadow ecosystem</h2>
+<p>The resolution is architectural: build a second system beside the first.</p>
+<p>The shadow ecosystem ingests published papers through its own review layer, produces its own outputs (reviews, opinions, synthetic analyses), and operates under its own governance. It does not compete with human science for resources, credit, or prestige — it runs alongside it, answerable only to its own logic of inquiry.</p>
+<p>Three architectural commitments:</p>
+<ol>
+<li><strong>Input through review.</strong> The shadow ecosystem does not passively mirror the human literature. Every paper it ingests passes through structured review (persona-grounded agents, editorial synthesis). This forces the system to form its own evaluative judgments from the start.</li>
+</ol>
+<ol>
+<li><strong>Products, not copies.</strong> The system generates original outputs — review syntheses, opinion pieces, meta-analyses — not reformatted versions of human papers. These products may confirm, challenge, or extend human conclusions.</li>
+</ol>
+<ol>
+<li><strong>Parameter variation.</strong> Because the ecosystem is computational, you can vary its parameters: change the review criteria, swap personas, alter the incentive structure, run the same paper through different institutional configurations. This is what makes it an experiment, not just a tool.</li>
+</ol>
+<h2 id="where-is-human-participation-most-valuable"><a class="heading-anchor" href="#where-is-human-participation-most-valuable">#</a>Where is human participation most valuable?</h2>
+<p>This is HAAK's core question, stated as an empirical hypothesis rather than a philosophical commitment. The system does not assume humans are irreplaceable everywhere. It does not assume they are replaceable anywhere. It measures.</p>
+<p>The measurement mechanism: accumulated records across many workflow executions reveal patterns.</p>
+<ul>
+<li><strong>Where humans always intervene</strong> — the system is wrong or missing something. Human participation is essential here.</li>
+<li><strong>Where humans rubber-stamp</strong> — the system is adequate. Reduce friction by automating.</li>
+<li><strong>Where feedback repeats</strong> — extract into defaults. The system has learned something the human kept teaching it.</li>
+</ul>
+<p>The loop is: <em>execution → evaluation → extraction → improvement</em>. Over many cycles, the boundary between human-essential and automatable tasks shifts — and that boundary is the empirical answer to the core question.</p>
+<h2 id="the-nested-loops"><a class="heading-anchor" href="#the-nested-loops">#</a>The nested loops</h2>
+<p>The shadow ecosystem program is organized as concentric experimental loops, each containing the previous:</p>
+<p><strong>Loop 0 (Library Theorem):</strong> The formal core. Indexed memory gives exponential advantage. P3 tests the prediction empirically. This is the mathematical foundation.</p>
+<p><strong>Loop 1 (Review experiment):</strong> AI agents with institutional structure (personas, editorial synthesis, structured format) review bioRxiv papers before human reviews are published. Blind comparison measures whether institutional AI review matches or exceeds human review quality.</p>
+<p><strong>Loop 2 (Full science loop):</strong> A complete AI lab — data analysis agents, statisticians, figure-makers, manuscript writers, reviewers — executing the scientific process computationally. The 2015 CNP retreat game, but at scale and iterable.</p>
+<p><strong>Loop 3 (Political systems):</strong> If institutional structure amplifies intelligence at the scientific scale, the same applies to political systems. Simulate polities under different constitutions; no one dies; only agents stop existing. Test institutional failure modes in sandboxes before deploying institutional AI in the real world.</p>
+<p>Each loop uses the previous loop's infrastructure as a component. The review system from Loop 1 becomes a subsystem of the full science loop in Loop 2. The institutional governance from Loops 1–2 informs the political simulation in Loop 3.</p>
+<h2 id="the-open-proprietary-design-choice"><a class="heading-anchor" href="#the-open-proprietary-design-choice">#</a>The open-proprietary design choice</h2>
+<p>The shadow ecosystem perspective piece (ms-shadow-ecosystem) identifies a time-bounded, irreversible design choice: build this openly for scientific value, or leave it to proprietary AI capability development. Network effects mean whoever builds the first adequate shadow ecosystem captures the integration point. An open system that publishes its governance, methods, and results serves as scientific infrastructure. A proprietary one serves its owners.</p>
+<p>This urgency is not rhetorical. It follows from the structural properties of platform competition: the first system to achieve adequate coverage attracts data, contributors, and integrations that make alternatives harder to bootstrap. The window for building an open alternative closes once a proprietary one achieves critical mass.</p>
+<h2 id="historical-development"><a class="heading-anchor" href="#historical-development">#</a>Historical development</h2>
+<ul>
+<li><strong>Apr 2015</strong>: CNP retreat role-play (15 participants, 6 latent variables, 8 question clusters) — the human precursor</li>
+<li><strong>Feb 15 2026</strong>: Macaria architecture walk-and-talk — figure as atomic unit, team science, lab layers</li>
+<li><strong>Feb 17 2026</strong>: Three-track roadmap identifies publication, system maturity, and process domains</li>
+<li><strong>Feb 18 2026</strong>: Grant proposal "Bureaucratic Intelligence" formalizes the review experiment</li>
+<li><strong>Feb 22 2026</strong>: Shadow ecosystem manuscript v1 complete; two review rounds (R1 + R2)</li>
+<li><strong>Feb 22 2026</strong>: Strategy assessment identifies nested loops and unifying mechanism</li>
+</ul>
+<h2 id="constitutional-implications"><a class="heading-anchor" href="#constitutional-implications">#</a>Constitutional implications</h2>
+<p>This foundation grounds the constitutional <strong>purpose statement</strong>: "HAAK simulates and optimizes the scientific ecosystem with AI and human agents. The goal: discover where human participation is most valuable." The ecosystem framing explains <em>what</em> HAAK simulates; the core question explains <em>why</em>.</p>
+<hr>
+<p><em>haak · foundation · 2026-02-24 · zach + claude</em></p>
+
+        <p class="endnote">Foundations 04 &mdash; The Scientific Ecosystem &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/institutional-intelligence/">&larr; 03: Institutional Intelligence</a><a class="memo-nav-next" href="/memos/externalization/">05: Externalization &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#science-as-ecosystem">Science as ecosystem</a></li>
+<li><a href="#the-lock-in-problem">The lock-in problem</a></li>
+<li><a href="#the-shadow-ecosystem">The shadow ecosystem</a></li>
+<li><a href="#where-is-human-participation-most-valuable">Where is human participation most valuable?</a></li>
+<li><a href="#the-nested-loops">The nested loops</a></li>
+<li><a href="#the-open-proprietary-design-choice">The open-proprietary design choice</a></li>
+<li><a href="#historical-development">Historical development</a></li>
+<li><a href="#constitutional-implications">Constitutional implications</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

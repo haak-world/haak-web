@@ -12,6 +12,7 @@ Usage:
 
 import sys, re, time, subprocess
 from pathlib import Path
+from link_resolver import LinkResolver
 
 try:
     from ruamel.yaml import YAML
@@ -32,9 +33,13 @@ except ImportError:
     YAML_ENGINE = 'pyyaml'
 
 BASE = Path(__file__).resolve().parent.parent.parent.parent  # workspaces/zach
-PROJECTS_DIR = BASE / 'projects' / 'mainen-lab' / 'projects'
-PUBS_DIR = BASE / 'projects' / 'mainen-lab' / 'publications'
-TAXONOMY_PATH = BASE / 'projects' / 'mainen-lab' / 'taxonomy.yaml'
+LAB_ROOT = BASE / 'projects' / 'mainen-lab'
+PROJECTS_DIR = LAB_ROOT / 'projects'
+PUBS_DIR = LAB_ROOT / 'publications'
+TAXONOMY_PATH = LAB_ROOT / 'taxonomy.yaml'
+
+# Global link resolver instance (initialized in main)
+_resolver = None
 
 # -- Abbreviation expansions --
 
@@ -128,7 +133,8 @@ def sanitize_description(text):
     """Apply strict rules: expand abbreviations, remove forbidden content."""
     for abbr, expansion in ABBREVIATIONS.items():
         text = re.sub(r'\b' + re.escape(abbr) + r'\b', expansion, text)
-    text = re.sub(r'https?://\S+', '', text)
+    # Strip URLs except DOI links (which are legitimate citations)
+    text = re.sub(r'https?://(?!doi\.org/)\S+', '', text)
     text = re.sub(r'(?:projects/|data/|gdrive|google\s*drive)\S*', '', text, flags=re.IGNORECASE)
     text = re.sub(r'\b\w+/\w+(?:/\w+)+\b', '', text)
     text = re.sub(r'\b(?:funded by|grant|ERC|FCT|NIH|NSF|HHMI|Simons|funded|funding)\b\s*[^.]*\.?', '', text, flags=re.IGNORECASE)
@@ -181,7 +187,15 @@ STYLE:
 - 2-3 sentences maximum
 
 ADDITIONAL RULES:
-- Always use first person plural (we/our), never third person (researchers/the team/scientists)"""
+- Always use first person plural (we/our), never third person (researchers/the team/scientists)
+
+LINKING RULES:
+- When citing a published paper, use markdown link format: [Author et al., Year](https://doi.org/DOI)
+- When referencing another lab project, link to it: [project name](#project-slug)
+- When referencing a research theme, link to it: [theme](#themes=slug)
+- Only link papers that have DOIs (provided in the context below)
+- First mention only -- don't re-link the same entity
+- If a paper has no DOI, it is unpublished -- describe the question, not the findings"""
 
 # -- Description generation --
 
@@ -231,13 +245,22 @@ def generate_description(slug, taxonomy):
         parts.append(f"Organisms: {join_natural(organism_labels)}")
     if paper_info:
         parts.append(f"Key publications: {'; '.join(paper_info)}")
+    # Add available papers and projects for linking
+    if _resolver:
+        papers_table = _resolver.available_papers_table()
+        projects_table = _resolver.available_projects_table()
+        if papers_table:
+            parts.append(f"\nAVAILABLE PAPERS WITH DOIs (use these for citations):\n{papers_table}")
+        if projects_table:
+            parts.append(f"\nAVAILABLE PROJECTS (use these for cross-references):\n{projects_table}")
+
     parts.append("\nGenerate only the description text, nothing else.")
 
     user_prompt = '\n'.join(parts)
 
     client = get_client()
     response = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-opus-4-20250514",
         max_tokens=300,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_prompt}],
@@ -281,8 +304,11 @@ def main():
     if not args.slug and not args.all:
         parser.error('Provide a project slug or --all')
 
+    global _resolver
     taxonomy = load_taxonomy()
+    _resolver = LinkResolver(LAB_ROOT)
     print(f"YAML engine: {YAML_ENGINE}")
+    print(f"Link resolver: {len(_resolver._papers)} papers with DOIs, {len(_resolver._projects)} projects")
 
     if args.all:
         count = 0

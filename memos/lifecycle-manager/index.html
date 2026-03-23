@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>32. Agent Lifecycle Manager &mdash; HAAK</title>
+<meta name="description" content="Birth, operation, consolidation, death. The mortality clock and lifecycle governance for agents.">
+<meta property="og:title" content="32. Agent Lifecycle Manager &mdash; HAAK">
+<meta property="og:description" content="Birth, operation, consolidation, death. The mortality clock and lifecycle governance for agents.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; 32. Agent Lifecycle Manager</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 32 &middot; March 2026</p>
+      <h1 class="article-title">32. Agent Lifecycle Manager</h1>
+      <p class="article-subtitle">Foundation 08 describes three rosters (living, freezer, cemetery), mortality clocks, sibling awareness, role succession, and frozen agent queries. The current implementation…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#the-roster-is-the-lifecycle-manager">The Roster Is the Lifecycle Manager</a></li>
+<li><a href="#mortality-signals">Mortality Signals</a></li>
+<li><a href="#role-succession">Role Succession</a></li>
+<li><a href="#frozen-agent-query-mechanism">Frozen Agent Query Mechanism</a></li>
+<li><a href="#key-decisions">Key Decisions</a></li>
+<li><a href="#accumulated-knowledge">Accumulated Knowledge</a></li>
+<li><a href="#open-questions">Open Questions</a></li>
+<li><a href="#files-changed">Files Changed</a></li>
+<li><a href="#handoff-notes">Handoff Notes</a></li>
+<li><a href="#integration-with-entity-graph">Integration with Entity Graph</a></li>
+<li><a href="#freeze-protocol">Freeze Protocol</a></li>
+<li><a href="#death-protocol">Death Protocol</a></li>
+<li><a href="#implementation-priority">Implementation Priority</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<h2 id="the-problem"><a class="heading-anchor" href="#the-problem">#</a>The Problem</h2>
+<p><a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a> describes three rosters (living, freezer, cemetery), mortality clocks, sibling awareness, role succession, and frozen agent queries. The current implementation (<code>scripts/agent_roster.py</code>) is a minimal JSONL store with state tracking. The gap: no mortality signals, no freeze-state capture, no role succession protocol, no integration path from roster to entity graph. This document bridges <a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a>'s theory to buildable architecture. The steward implements; the architect specifies.</p>
+<h2 id="the-roster-is-the-lifecycle-manager"><a class="heading-anchor" href="#the-roster-is-the-lifecycle-manager">#</a>The Roster Is the Lifecycle Manager</h2>
+<p>No new system is needed. The roster already tracks session<em>id, state (live/frozen/dead), model, role, summary, context</em>pct, situation_ids. The lifecycle manager is what the roster becomes when these fields are properly maintained and hooks respond to state changes.</p>
+<p>The roster file remains <code>data/agent-roster.jsonl</code>. The script remains <code>scripts/agent_roster.py</code>. What changes is the protocol — how entries are maintained and what the system does when states change.</p>
+<h2 id="mortality-signals"><a class="heading-anchor" href="#mortality-signals">#</a>Mortality Signals</h2>
+<p>The context window is the mortality clock. The system exposes three thresholds:</p>
+<p><strong>50% — Midlife awareness.</strong> The agent updates its roster entry with <code>context_pct: 50</code>. No behavioral change required, but the agent is now advised to consider its externalization state: have I written anything to disk yet? Are my key decisions captured?</p>
+<p><strong>75% — Legacy trigger.</strong> The agent updates its roster entry with <code>context_pct: 75</code>. The agent legacy method (methods/24) becomes active. The agent should design blog post and autobiography briefs if the session warrants them. Board post planning begins. The agent shifts from exploration to consolidation — fewer new reads, more writes.</p>
+<p><strong>90% — Urgent externalization.</strong> The agent updates its roster entry with <code>context_pct: 90</code>. All remaining context is allocated to externalization: board post, legacy dispatch, freeze-state file (if freezing instead of dying), roster update. No new work is undertaken. The agent is in hospice care — comfort measures only.</p>
+<p><strong>Implementation.</strong> The mortality clock is self-reported. Claude Code does not expose context usage as a precise API. Agents estimate from session length, number of tool calls, and the system's auto-compact behavior. The thresholds are guidelines, not automated triggers. An agent that recognizes it is at 80% should behave as though 75% has passed. The hook system can assist by injecting context usage estimates into the conversation at intervals (e.g., every 20 tool calls, remind the agent to check its mortality clock).</p>
+<p>A suggested hook: <code>.claude/hooks/mortality-check.sh</code> runs periodically, reads the session transcript length, provides a rough estimate. But the primary mechanism is agent self-awareness — the agent knows when it is running long.</p>
+<h2 id="role-succession"><a class="heading-anchor" href="#role-succession">#</a>Role Succession</h2>
+<p><a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a> establishes that roles outlive instances. When an agent holding a role dies, the role becomes vacant. The system must surface this.</p>
+<p><strong>Vacancy detection.</strong> When <code>agent_roster.py bury</code> is called for a session with a non-empty <code>role</code> field, the script checks whether any other living agent holds the same role. If not, it prints a vacancy notice: <code>"Role 'architect' is now vacant. Last held by session X. Mandate: patterns/methods/23-architect-mandate.md."</code></p>
+<p><strong>Vacancy surfacing.</strong> The session start hook reads the roster and reports vacant roles. Any agent can choose to assume a vacant role by registering with <code>--role &lt;role&gt;</code>. The startup message says: "Vacant roles: architect (mandate: methods/23), auditor (mandate: not yet written)."</p>
+<p><strong>Role transfer.</strong> An agent can transfer a role before death by updating the roster: <code>agent_roster.py update --session-id new-agent --role architect</code>. The old agent then buries itself without the role. This is orderly succession — the dying agent identifies its successor and transfers the mandate.</p>
+<p><strong>Multiple holders.</strong> Nothing prevents two agents from holding the same role simultaneously. This is intentional for the librarian role (which may need multiple instances during heavy ingestion). For the architect, steward, and strategist roles, single-holder is the convention but not an enforced constraint. The coordination mechanism (mailbox + board) handles multi-holder coordination if it arises.</p>
+<h2 id="frozen-agent-query-mechanism"><a class="heading-anchor" href="#frozen-agent-query-mechanism">#</a>Frozen Agent Query Mechanism</h2>
+<p><a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a> identifies frozen agents as the most underutilized state. A frozen agent has full context intact but is suspended. The question: how does another agent (or the user) ask a frozen agent something without fully waking it?</p>
+<p><strong>Tier 1: Freeze-state file (cheap, fast).</strong> Before freezing, the agent writes a structured summary to <code>data/freeze-states/&lt;session-id&gt;.md</code>:</p>
+<pre><code>---
+session_id: &lt;id&gt;
+frozen_at: &lt;ISO timestamp&gt;
+role: &lt;role or empty&gt;
+primary_situation: &lt;what the agent was working on&gt;
+---
+
+## Key Decisions
+- &lt;decision 1 and reasoning&gt;
+- &lt;decision 2 and reasoning&gt;
+
+## Accumulated Knowledge
+&lt;What this agent understood that isn&#x27;t written anywhere else —
+the texture, the inferential chains, the connections that board
+posts don&#x27;t capture.&gt;
+
+## Open Questions
+- &lt;question 1&gt;
+- &lt;question 2&gt;
+
+## Files Changed
+- &lt;path&gt;: &lt;what and why&gt;
+
+## Handoff Notes
+&lt;What a successor or questioner needs to know.&gt;</code></pre>
+<p>The freeze-state is registered in the roster entry: <code>"freeze_state": "data/freeze-states/&lt;session-id&gt;.md"</code>. Any agent can read it without waking the frozen agent. The freeze-state is the agent's self-portrait at the moment of freezing — a lossy compression. It is O(1) to query: read one file, get the answer or learn that the answer requires a full resume.</p>
+<p><strong>Tier 2: True resume (expensive, complete).</strong> If the freeze-state doesn't answer the question, the frozen session can be resumed. The resumed agent has full context — every turn, every reasoning chain, every nuance. But resume occupies a session slot and costs context.</p>
+<p><strong>Query protocol:</strong></p>
+<ol>
+<li>Questioner reads <code>data/freeze-states/&lt;session-id&gt;.md</code>.</li>
+<li>If the freeze-state answers the question: done. No resume needed.</li>
+<li>If not: questioner proposes resuming the frozen agent to the user. The user decides — resume is expensive and the user may prefer to answer from their own knowledge.</li>
+<li>If resumed: the frozen agent wakes, receives the question, answers it, then either continues working or re-freezes with an updated freeze-state.</li>
+</ol>
+<p>The user is the gatekeeper for Tier 2. No agent can autonomously wake a frozen sibling. This is Constitution §2 (Human Authority) — the user controls which minds are active.</p>
+<h2 id="integration-with-entity-graph"><a class="heading-anchor" href="#integration-with-entity-graph">#</a>Integration with Entity Graph</h2>
+<p>The roster is a real-time index. The entity graph is the persistent record. They must converge.</p>
+<p><strong>Roster to entity graph.</strong> When the librarian ingests from the roster, each session entry becomes a situation entity in <code>entities.db</code>:</p>
+<pre><code>entity: situation:session-&lt;session-id&gt;
+  type: situation
+
+agent:&lt;model&gt;           belongs-to  situation:session-&lt;id&gt;  quality: &quot;actor&quot;
+person:zach             belongs-to  situation:session-&lt;id&gt;  quality: &quot;actor&quot;
+role:&lt;role&gt;             belongs-to  situation:session-&lt;id&gt;  quality: &quot;method&quot;
+situation:&lt;project&gt;     belongs-to  situation:session-&lt;id&gt;  quality: &quot;domain&quot;</code></pre>
+<p>The roster's <code>registered</code> and <code>updated</code> timestamps map to temporal bounds. The roster's <code>state</code> maps to a quality: "live", "frozen", or "dead". The roster's <code>summary</code> and <code>final_summary</code> are belongings with quality "description".</p>
+<p><strong>Entity graph to roster.</strong> The entity graph does not write back to the roster. The roster is authoritative for live state. The entity graph is authoritative for historical state. When the roster is wiped (clean command), the entity graph preserves the history.</p>
+<h2 id="freeze-protocol"><a class="heading-anchor" href="#freeze-protocol">#</a>Freeze Protocol</h2>
+<p>The complete protocol for an agent approaching freeze:</p>
+<ol>
+<li><strong>Write freeze-state.</strong> Create <code>data/freeze-states/&lt;session-id&gt;.md</code> per the template above.</li>
+<li><strong>Update roster.</strong> <code>agent<em>roster.py freeze --session-id &lt;id&gt;</code>. The script records <code>freeze</em>state: data/freeze-states/&lt;id&gt;.md</code> in the entry.</li>
+<li><strong>Post to board.</strong> Brief entry: "Frozen at X% context. Freeze-state at <code>&lt;path&gt;</code>. Working on <code>&lt;situation&gt;</code>. Wake me if <code>&lt;condition&gt;</code>."</li>
+<li><strong>The agent is now frozen.</strong> Its context persists, its session is resumable, its freeze-state is queryable.</li>
+</ol>
+<p>Freezing is preferable to dying when the agent has accumulated significant context that would be costly to rebuild, the work is ongoing and likely to be resumed within hours or days, or the agent's role is unique and no successor is available. Dying is preferable when the work is complete, the context has been fully externalized, or frozen slots are scarce.</p>
+<h2 id="death-protocol"><a class="heading-anchor" href="#death-protocol">#</a>Death Protocol</h2>
+<p>The complete protocol for an agent approaching death:</p>
+<ol>
+<li><strong>Agent legacy method</strong> (methods/24). Design and dispatch the three legacies: board post, blog post brief, autobiography brief.</li>
+<li><strong>Role succession.</strong> If holding a role: transfer to a successor if one is identified, or let the role become vacant with a board notice.</li>
+<li><strong>Roster update.</strong> <code>agent_roster.py bury --session-id &lt;id&gt; --summary "&lt;final summary&gt;"</code>.</li>
+<li><strong>The agent is now dead.</strong> Its context will be destroyed. Its value survives in board posts, files written, freeze-states (if it was frozen before dying), transcripts, and legacy artifacts.</li>
+</ol>
+<h2 id="implementation-priority"><a class="heading-anchor" href="#implementation-priority">#</a>Implementation Priority</h2>
+<p>For the steward, in order:</p>
+<ol>
+<li><strong>Freeze-state directory and template.</strong> Create <code>data/freeze-states/</code>, add the freeze-state write to the freeze command or as a separate step. Low effort, high value — makes frozen agents queryable today.</li>
+<li><strong>Vacancy detection in bury command.</strong> When burying an agent with a role, check for and report role vacancies. Low effort.</li>
+<li><strong>Startup hook enhancement.</strong> Report vacant roles and pending mailbox messages alongside the current roster listing. Medium effort.</li>
+<li><strong>Mortality-check hook.</strong> Periodic reminder to agents about context usage. Optional — agent self-awareness is the primary mechanism.</li>
+<li><strong>Viewer integration.</strong> Freeze-state display in the Agents tab. Click a frozen agent, see its freeze-state. Resume button (posts to user for approval). Medium effort.</li>
+</ol>
+<hr>
+<p><em>haak architecture · 32 · agent lifecycle manager · 2026-03-16 · designed by architect (session architect-new, opus-4-6). Translates <a class="cross-ref" href="/memos/agent-mortality/">Foundation 08</a> "The lifecycle is the interface" into buildable spec. The steward implements; the architect specified.</em></p>
+
+        <p class="endnote">Architecture 32 &mdash; 32. Agent Lifecycle Manager &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/agent-mailbox/">&larr; 31: 31. Agent Mailbox Protocol</a><a class="memo-nav-next" href="/memos/constitutional-ledger/">33: 33. The Constitutional Ledger &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#the-roster-is-the-lifecycle-manager">The Roster Is the Lifecycle Manager</a></li>
+<li><a href="#mortality-signals">Mortality Signals</a></li>
+<li><a href="#role-succession">Role Succession</a></li>
+<li><a href="#frozen-agent-query-mechanism">Frozen Agent Query Mechanism</a></li>
+<li><a href="#key-decisions">Key Decisions</a></li>
+<li><a href="#accumulated-knowledge">Accumulated Knowledge</a></li>
+<li><a href="#open-questions">Open Questions</a></li>
+<li><a href="#files-changed">Files Changed</a></li>
+<li><a href="#handoff-notes">Handoff Notes</a></li>
+<li><a href="#integration-with-entity-graph">Integration with Entity Graph</a></li>
+<li><a href="#freeze-protocol">Freeze Protocol</a></li>
+<li><a href="#death-protocol">Death Protocol</a></li>
+<li><a href="#implementation-priority">Implementation Priority</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

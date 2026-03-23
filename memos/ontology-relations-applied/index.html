@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relations Applied &mdash; HAAK</title>
+<meta name="description" content="Practical companion: epistemic gradient, materialization vs. evidence, extraction as situation. The system documents its own documentation.">
+<meta property="og:title" content="Relations Applied &mdash; HAAK">
+<meta property="og:description" content="Practical companion: epistemic gradient, materialization vs. evidence, extraction as situation. The system documents its own documentation.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#ontology">ontology</a> &rsaquo; Relations Applied</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Ontology 10 &middot; March 2026</p>
+      <h1 class="article-title">Relations Applied</h1>
+      <p class="article-subtitle">Practical companion to [[02-relations]]. That document establishes the theoretical foundation: one relation (belongs-to), the quality mechanism, meta-qualities, reflexive closure. This document…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-epistemic-gradient">1. The Epistemic Gradient</a></li>
+<li><a href="#2-materialization-vs-evidence">2. Materialization vs. Evidence</a></li>
+<li><a href="#3-extraction-as-situation">3. Extraction as Situation</a></li>
+<li><a href="#4-ostensive-inference-and-relevance">4. Ostensive Inference and Relevance</a></li>
+<li><a href="#5-multi-agent-provenance">5. Multi-Agent Provenance</a></li>
+<li><a href="#6-quality-assignment-rules">6. Quality Assignment Rules</a></li>
+<li><a href="#7-domain-database-convergence">7. Domain Database Convergence</a></li>
+<li><a href="#8-session-memory-save-reconstruct-compare">8. Session Memory: Save, Reconstruct, Compare</a></li>
+<li><a href="#9-scope">9. Scope</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p>Practical companion to [[02-relations]]. That document establishes the theoretical foundation: one relation (belongs-to), the quality mechanism, meta-qualities, reflexive closure. This document applies the framework to the systems that implement it: how the entity graph gets populated, how qualities are assigned, what epistemic status the resulting assertions carry, and how the system's own operations become auditable entries in the graph it produces.</p>
+<p>The central result: every act of extraction — mining a filesystem, reading a transcript, indexing a document — is itself a situation in the ontology. The extraction situation has actors (agents, humans), methods (models, prompts, context), materials (the documents processed), and products (the entities and belongings created). These products link back to the extraction that produced them via provenance qualities. The system documents its own documentation, all the way back to the code that wrote the code.</p>
+<hr>
+<h2 id="1-the-epistemic-gradient"><a class="heading-anchor" href="#1-the-epistemic-gradient">#</a>1. The Epistemic Gradient</h2>
+<p>The entity graph contains assertions of varying epistemic status. These are not different kinds of data — they are all belongings with qualities — but they differ in how they were produced and therefore in how much confidence they warrant.</p>
+<p><strong>Structural assertions.</strong> A file is in a directory. The belonging (file belongs-to directory, quality: "part-of") is true by construction. The filesystem is the fact. These assertions are the ground floor — they cannot be wrong unless the filesystem itself is corrupt.</p>
+<p><strong>Declared assertions.</strong> A document's frontmatter says <code>status: active</code> or <code>related: <a class="cross-ref" href="/memos/ontology-objects/">ontology-objects</a></code>. The author asserted the relationship. It could be outdated or mistaken, but it was intentional. Source: <code>frontmatter</code>.</p>
+<p><strong>Extracted assertions.</strong> A regex matched <code>[[01-objects]]</code> in the body of a document. Syntactic evidence of a reference. The document's author probably intended the dependency, but the extraction is mechanical — it cannot distinguish a genuine intellectual dependency from a passing mention. Source: <code>mine:haak-filesystem</code>.</p>
+<p><strong>Inferred assertions.</strong> An LLM reads a transcript and extracts "Zach proposed database-driven triage rules." This is a propositional claim about a situation that probably occurred. The claim is shaped by the LLM's interpretive frame — which model ran, what context was loaded, what domain was active. Source: the extraction situation itself (see §3).</p>
+<p>All four produce the same data structure. The <code>source</code> field and the provenance chain distinguish them. Downstream consumers — queries, visualizations, inference engines — can filter by epistemic level as needed.</p>
+<hr>
+<h2 id="2-materialization-vs-evidence"><a class="heading-anchor" href="#2-materialization-vs-evidence">#</a>2. Materialization vs. Evidence</h2>
+<p>When a belonging links an entity to a source document, two provenance qualities do different work:</p>
+<p><strong>Materialization.</strong> The artifact IS the thing. An email is a materialization of a communicative act — the email doesn't report the communication, it constitutes it. A commit is a materialization of a code change. A WhatsApp message is a materialization of a request. The artifact and the act are the same event viewed from different angles.</p>
+<p><strong>Evidence.</strong> The artifact WITNESSED the thing. A Zoom transcript is evidence of a meeting — the meeting happened in real time; the transcript is a record produced afterward. A handwritten note is evidence of an insight. A photo is evidence of a scene. The artifact and the event are distinct; the artifact is a trace.</p>
+<p>The distinction matters because materialization is definitional (if the email exists, the communicative act occurred) while evidence is defeasible (the transcript might be garbled, the note might be misread, the photo might be staged).</p>
+<p>Some artifacts carry both qualities simultaneously. A published paper materializes the act of writing AND evidences the scientific findings reported within. These are two belongings with different qualities between the same pair of entities, or between the paper and two different situation entities (the writing situation and the experimental situation).</p>
+<table>
+<tr><th>Source artifact is...</th><th>Quality</th><th>Defeasible?</th></tr>
+<tr><td>The event itself</td><td>materialization</td><td>No — artifact = act</td></tr>
+<tr><td>A record of an event</td><td>evidence</td><td>Yes — record ≠ event</td></tr>
+<tr><td>A report about an event</td><td>evidence (nested)</td><td>Yes — chain of custody</td></tr>
+<tr><td>An intellectual product</td><td>both</td><td>Materialization: no; Evidence: yes</td></tr>
+</table>
+<hr>
+<h2 id="3-extraction-as-situation"><a class="heading-anchor" href="#3-extraction-as-situation">#</a>3. Extraction as Situation</h2>
+<p>Every act of populating the entity graph is itself a situation. When an agent reads a transcript and creates situation entities, the agent is an actor in an extraction situation whose material is the transcript and whose products are the new graph entries.</p>
+<pre><code>situation:extraction-run-2026-03-10     (type: situation)
+  belongs-to  agent:opus-4-6             quality: &quot;actor&quot;
+  belongs-to  transcript:2026-01-27      quality: &quot;material&quot;
+  belongs-to  project:5ht-novelty        quality: &quot;domain&quot;
+  belongs-to  method:deep-extraction-v1  quality: &quot;method&quot;
+
+situation:adam-contradiction-claim       (type: situation)
+  belongs-to  transcript:2026-01-27      quality: &quot;evidence&quot;
+  belongs-to  situation:extraction-run   quality: &quot;derived-from&quot;</code></pre>
+<p>The <code>derived-from</code> link is the epistemic chain. It says: this inferred situation was produced by that extraction run. The extraction run's belongings record who ran it (actor), what was processed (material), under what interpretive frame (domain), and with what procedure (method).</p>
+<p><strong>The method entity</strong> captures the full extraction context:</p>
+<pre><code>method:deep-extraction-v1               (type: method)
+  belongs-to  agent:opus-4-6             quality: &quot;actor&quot;
+  belongs-to  skill:capture              quality: &quot;implements&quot;
+  belongs-to  prompt:entity-extraction   quality: &quot;method&quot;</code></pre>
+<p>Different methods produce different results from the same material. A Haiku scan of a transcript yields coarse-grained situations (who spoke, what topics). An Opus deep read yields fine-grained situations (what was argued, what was implied, what was left unsaid). The method entity's qualities formally distinguish these — not as labels but as structural differences in the graph.</p>
+<hr>
+<h2 id="4-ostensive-inference-and-relevance"><a class="heading-anchor" href="#4-ostensive-inference-and-relevance">#</a>4. Ostensive Inference and Relevance</h2>
+<p>Extracting situations from unstructured text is not decoding. It is ostensive inference (Sperber &amp; Wilson, 1986): the extractor infers what the speaker <em>meant to make relevant</em>, not just what they said.</p>
+<p>"I've been thinking about database-driven triage" — propositional content: a mental state report. Ostensive meaning: a design proposal. The situation to extract is not "Zach had a thought" but "Zach proposes database-driven triage rules for the storage pipeline."</p>
+<p>The quality assignment on every extracted belonging is an act of ostensive inference. When Adam says "Gonçalo's paper contradicts the serotonin hypothesis," the extractor must judge: is Adam an <code>actor</code> (making an argument), a <code>source</code> (reporting what he read), or a <code>sender</code> (alerting Zach to a problem)? The quality depends on communicative intent, which depends on context — the project domain, the conversational history, the relationship between the speakers.</p>
+<p>This means every extraction carries an implicit <strong>theory of relevance</strong> that shaped which situations were extracted, which entities were identified, and which qualities were assigned. The theory is not declared — it is embodied in the extraction method's belongings: which model ran, what domain was active, what persona was loaded.</p>
+<p>The <code>domain</code> belonging on the extraction situation IS the relevance frame. It says: "this extraction was performed in the context of the 5HT project, which determined what counted as salient." A different domain — say, the lab governance project — would extract different situations from the same transcript. Both are valid; neither is complete. This is withdrawal ([[02-relations]] §7) applied to the extraction process itself.</p>
+<hr>
+<h2 id="5-multi-agent-provenance"><a class="heading-anchor" href="#5-multi-agent-provenance">#</a>5. Multi-Agent Provenance</h2>
+<p>In a running system, multiple agents and multiple humans contribute to the entity graph concurrently. Each contribution is a situation with its own actors, methods, and provenance.</p>
+<p>A Haiku agent triages incoming files — creates belongings with quality "stored-in" and "instance" (tagging). An Opus agent indexes a newly arrived PDF — creates situation entities with quality "evidence" linking back to the PDF. A human reviews the Opus output and corrects a quality assignment — that correction is itself a situation with the human as actor and the Opus extraction as material.</p>
+<p>The graph does not privilege human over agent contributions. Both produce belongings; both are tracked through extraction situations; both carry provenance chains. The difference is in the method entity's qualities — a human correction carries different epistemic weight than an automated scan, and that difference is recorded structurally, not as a special case.</p>
+<p>This extends to collaboration. When Zach and Opus co-author a document ([[06-ai-writing-scenario]]), the writing situation has two actors with different qualities: Zach as <code>actor</code> (steering the argument) and Opus as <code>actor</code> (generating text). The document materializes their joint production. The provenance chain records both contributions — who wrote the code that wrote the code, who shaped the ontology that shaped the extraction, who corrected the error that changed the graph.</p>
+<hr>
+<h2 id="6-quality-assignment-rules"><a class="heading-anchor" href="#6-quality-assignment-rules">#</a>6. Quality Assignment Rules</h2>
+<p>The filesystem miner (<code>scripts/mine<em>haak</em>graph.py</code>) assigns qualities based on the structural relationship between source and target entity types:</p>
+<table>
+<tr><th>Source type</th><th>Target type</th><th>Quality</th><th>Rationale</th></tr>
+<tr><td>any</td><td>same type</td><td>extends</td><td>Peer documents build on each other</td></tr>
+<tr><td>any</td><td>foundation, ontology</td><td>grounds</td><td>Theoretically grounded in</td></tr>
+<tr><td>architecture, method, policy</td><td>foundation</td><td>implements</td><td>Makes operational a theoretical claim</td></tr>
+<tr><td>any</td><td>method, pattern</td><td>method</td><td>Uses as procedure</td></tr>
+<tr><td>any</td><td>project</td><td>subject</td><td>Is about</td></tr>
+<tr><td>any</td><td>policy</td><td>governs</td><td>Normative constraint</td></tr>
+<tr><td>file path</td><td>entity</td><td>materialization</td><td>File is physical trace of entity</td></tr>
+<tr><td>frontmatter</td><td>status value</td><td>status</td><td>Lifecycle state</td></tr>
+<tr><td>frontmatter</td><td>predecessor</td><td>supersedes</td><td>Version replacement</td></tr>
+<tr><td>frontmatter</td><td>related path</td><td>depends-on</td><td>Generic intellectual dependency</td></tr>
+<tr><td>directory</td><td>parent</td><td>part-of</td><td>Containment</td></tr>
+</table>
+<p>These rules are the miner's theory of relevance (§4). They are explicit, auditable, and revisable. When a quality assignment is wrong, the rule that produced it is identifiable and correctable — and the correction itself becomes a situation in the graph.</p>
+<hr>
+<h2 id="7-domain-database-convergence"><a class="heading-anchor" href="#7-domain-database-convergence">#</a>7. Domain Database Convergence</h2>
+<p>The entity graph subsumes six domain-specific databases, each a system of record for its domain:</p>
+<table>
+<tr><th>Domain DB</th><th>Entity types</th><th>Key qualities</th></tr>
+<tr><td>music.db</td><td>track, artist, album, genre, crate</td><td>track-on, author, instance, part-of</td></tr>
+<tr><td>papers.db</td><td>paper, person, journal, doi</td><td>author, published-in, cites, cited-by</td></tr>
+<tr><td>books.db</td><td>book, person, genre</td><td>author, instance, status</td></tr>
+<tr><td>contacts.db</td><td>person, org</td><td>member-of, collaborator</td></tr>
+<tr><td>files.db</td><td>file, bucket, tag</td><td>stored-in, instance, materialization</td></tr>
+<tr><td>public-archives.db</td><td>document, person, org</td><td>evidence, participant, source</td></tr>
+</table>
+<p>The domain DBs remain systems of record — they are not replaced. Schema mappings (declarative transformations) project domain-specific records into the entity graph as entities and belongings with appropriate qualities. The mappings are themselves methods: they have actors (the mapping script), materials (the domain DB), and products (the graph entries). The mapping run is a situation.</p>
+<hr>
+<h2 id="8-session-memory-save-reconstruct-compare"><a class="heading-anchor" href="#8-session-memory-save-reconstruct-compare">#</a>8. Session Memory: Save, Reconstruct, Compare</h2>
+<p>Multi-agent coordination requires that the system's memory is consistent regardless of which agent reads it, when. The test: ask "where are we?" before closing a session, clear context, ask again. The answer must be identical. If it diverges, the memory system is broken.</p>
+<p>Three operations achieve this:</p>
+<p><strong>Save.</strong> At every checkpoint, the session writes its state as a situation in the entity graph:</p>
+<pre><code>situation:session-2026-03-10-quality-graph    (type: session)
+  belongs-to  agent:opus-4-6                   quality: &quot;actor&quot;
+  belongs-to  ontology:10-relations-applied    quality: &quot;created&quot;
+  belongs-to  script:mine-haak-graph           quality: &quot;created&quot;
+  belongs-to  entities.db                      quality: &quot;material&quot;
+  belongs-to  situation:session-prev           quality: &quot;predecessor&quot;
+  belongs-to  fingerprint:abc123               quality: &quot;materialization&quot;</code></pre>
+<p>The fingerprint is a hash of the session's outputs: entity count, belonging count, quality distribution, files modified, git HEAD. It captures the state in a single comparable value.</p>
+<p><strong>Reconstruct.</strong> Any agent — fresh session, different model, no prior context — queries the graph to derive the current state:</p>
+<pre><code>SELECT * FROM belongings
+WHERE entity_id LIKE &#x27;situation:session-%&#x27;
+ORDER BY start_date DESC LIMIT 10</code></pre>
+<p>The result is the same regardless of who asks. No board to skim, no text to interpret. The graph is the memory.</p>
+<p><strong>Compare.</strong> At session start, the agent reconstructs the state from the graph and compares it to the most recent saved fingerprint. If they match, the graph is consistent. If they diverge, something mutated state without recording it — a rogue process, a concurrent write, a schema-breaking rebuild. The divergence is the alarm.</p>
+<p>This is the Library Theorem applied to the system's own coordination. Without the entity graph, "where are we?" requires a linear scan of board.md — O(N) in the number of past sessions, and fragile (agents skim text, miss entries, interpret differently). With it, reconstruction is a structured query over indexed situations — O(log N), deterministic, auditable. The indexed condition should outperform the flat condition measurably, and the save-compare loop is the integrity mechanism that detects when it doesn't.</p>
+<p><strong>Board.md becomes a view.</strong> The board is currently HAAK's last unstructured coordination channel — the equivalent of a WhatsApp group chat between agents. Under this model, it becomes a generated view over session situations, like Apple Contacts is a view over contacts.db. The file can still exist for human readability, but the source of truth is the graph. An agent that reads only the graph and an agent that reads the board should reach the same conclusions — and the comparison proves it.</p>
+<hr>
+<h2 id="9-scope"><a class="heading-anchor" href="#9-scope">#</a>9. Scope</h2>
+<p>This document covers the applied framework: epistemic gradient, materialization vs. evidence, extraction as situation, ostensive inference, multi-agent provenance, quality assignment rules, domain convergence, and session memory. It does not cover the theoretical foundations (see [[02-relations]]), the situation-graph query model (see [[09-situation-graph]]), or the data model implementation (see [[22-lifecycle]]).</p>
+<p>The next step is implementation: building the extraction pipeline that reads documents, creates situation entities, records its own extraction situations, and populates the graph with auditable provenance chains. The pipeline's design is shaped by this document; this document was shaped by the ontological discussion that produced it; that discussion is itself a situation in the graph.</p>
+<hr>
+<p><em>ontology · 10 · relations-applied · 2026-03-10 · zach + claude</em></p>
+
+        <p class="endnote">Ontology 10 &mdash; Relations Applied &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/ontology-situation-graph/">&larr; 09: The Situation Graph</a><a class="memo-nav-next" href="/memos/ontology-identity/">11: Identity as Belonging &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#1-the-epistemic-gradient">1. The Epistemic Gradient</a></li>
+<li><a href="#2-materialization-vs-evidence">2. Materialization vs. Evidence</a></li>
+<li><a href="#3-extraction-as-situation">3. Extraction as Situation</a></li>
+<li><a href="#4-ostensive-inference-and-relevance">4. Ostensive Inference and Relevance</a></li>
+<li><a href="#5-multi-agent-provenance">5. Multi-Agent Provenance</a></li>
+<li><a href="#6-quality-assignment-rules">6. Quality Assignment Rules</a></li>
+<li><a href="#7-domain-database-convergence">7. Domain Database Convergence</a></li>
+<li><a href="#8-session-memory-save-reconstruct-compare">8. Session Memory: Save, Reconstruct, Compare</a></li>
+<li><a href="#9-scope">9. Scope</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

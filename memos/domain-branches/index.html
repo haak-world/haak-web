@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Domain Branches &mdash; HAAK</title>
+<meta name="description" content="Data as selectable domain branches: core, personal, work, reference. Manifest-driven installs.">
+<meta property="og:title" content="Domain Branches &mdash; HAAK">
+<meta property="og:description" content="Data as selectable domain branches: core, personal, work, reference. Manifest-driven installs.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#architecture">architecture</a> &rsaquo; Domain Branches</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Architecture 26 &middot; March 2026</p>
+      <h1 class="article-title">Domain Branches</h1>
+      <p class="article-subtitle">Architecture 02 (forkability) distinguishes two layers: the system layer (portable) and the data layer (instance-specific). This document subdivides the data layer into **domain branches** —…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#branch-definitions">Branch Definitions</a>
+<ol>
+<li><a href="#core">Core</a></li>
+<li><a href="#personal">Personal</a></li>
+<li><a href="#work">Work</a></li>
+<li><a href="#reference">Reference</a></li>
+</ol></li>
+<li><a href="#branch-manifest">Branch Manifest</a></li>
+<li><a href="#deployment-topology">Deployment Topology</a></li>
+<li><a href="#vault-integration">Vault Integration</a></li>
+<li><a href="#forkability-revisited">Forkability Revisited</a></li>
+<li><a href="#branch-dependencies">Branch Dependencies</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><a class="cross-ref" href="/memos/forkability/">Architecture 02</a> (forkability) distinguishes two layers: the system layer (portable) and the data layer (instance-specific). This document subdivides the data layer into <strong>domain branches</strong> — independently selectable bundles of databases, projects, and configuration that different installations opt into. A branch is not a git branch. It is a domain in the ontological sense: a context that determines which materials exist and which services run.</p>
+<hr>
+<h2 id="the-problem"><a class="heading-anchor" href="#the-problem">#</a>The Problem</h2>
+<p>HAAK's data layer has grown from a handful of project directories to 25+ databases totaling 10+ GB, soon 500+ GB with reference corpora. These databases serve radically different purposes: some are private communications, some are institutional work products, some are public reference data. They belong to different contexts, different access policies, different infrastructure, and different people.</p>
+<p>A fork of HAAK — someone cloning the repo to run their own instance — should not need to install Semantic Scholar's 200 GB academic graph if they're a musician. A scientist should not need Discogs. Everyone needs identity resolution. No one outside the original author needs their WhatsApp history.</p>
+<p>The data layer is not one thing. It is a collection of domains, each independently present or absent.</p>
+<hr>
+<h2 id="branch-definitions"><a class="heading-anchor" href="#branch-definitions">#</a>Branch Definitions</h2>
+<h3 id="core"><a class="heading-anchor" href="#core">#</a>Core</h3>
+<p>Present in every HAAK install. The coordination infrastructure — without these, the system cannot maintain identity, track state, or discover its own contents.</p>
+<table>
+<tr><th>Database</th><th>What</th><th>Size</th></tr>
+<tr><td>entities.db</td><td>Identity graph, belongings, entity_identifiers</td><td>283 MB</td></tr>
+<tr><td>vault.db</td><td>Credentials, services, database registry</td><td>128 KB</td></tr>
+<tr><td>todos.db</td><td>Action items</td><td>704 KB</td></tr>
+<tr><td>files.db</td><td>Filesystem index</td><td>63 MB</td></tr>
+<tr><td>threads.db</td><td>Conceptual thread graph</td><td>2 MB</td></tr>
+<tr><td>storage.db</td><td>Cloud storage index</td><td>20 KB</td></tr>
+</table>
+<p>Plus: <code>patterns/</code>, <code>.claude/</code>, <code>CLAUDE.md</code>, <code>ontology/</code>, <code>foundations/</code> — the system layer from architecture 02.</p>
+<h3 id="personal"><a class="heading-anchor" href="#personal">#</a>Personal</h3>
+<p>Private life. Belongs to the individual, never shared, never on institutional infrastructure. Deploys to: personal server (for always-on access) and personal machine.</p>
+<table>
+<tr><th>Database</th><th>What</th><th>Size</th></tr>
+<tr><td>contacts.db</td><td>Deduplicated contacts</td><td>3 MB</td></tr>
+<tr><td>gateway.db</td><td>Unified messaging (all channels)</td><td>100 MB</td></tr>
+<tr><td>whatsapp/messages.db</td><td>WhatsApp history</td><td>93 MB</td></tr>
+<tr><td>signal/messages.db</td><td>Signal history</td><td>varies</td></tr>
+<tr><td>matrix/messages.db</td><td>Matrix history</td><td>varies</td></tr>
+<tr><td>google_personal.db</td><td>Personal email + Drive</td><td>604 MB</td></tr>
+<tr><td>notes.db</td><td>Apple Notes</td><td>56 MB</td></tr>
+<tr><td>arc.db</td><td>Browser history</td><td>63 MB</td></tr>
+<tr><td>music.db</td><td>Music library + DJ sets</td><td>4 MB</td></tr>
+<tr><td>spotify.db</td><td>Listening history</td><td>256 KB</td></tr>
+<tr><td>events.db</td><td>Calendar events</td><td>2 MB</td></tr>
+<tr><td>conversations.db</td><td>ChatGPT archive</td><td>45 MB</td></tr>
+</table>
+<p>Plus: personal projects, personal personas, any <code>strategy/</code> docs that are life-planning rather than work.</p>
+<h3 id="work"><a class="heading-anchor" href="#work">#</a>Work</h3>
+<p>Professional/institutional context. Bound to a specific employer or collaboration. Deploys to: work infrastructure (institutional cloud, lab server) and work machine. Credentials come from the institution.</p>
+<table>
+<tr><th>Database</th><th>What</th><th>Size</th></tr>
+<tr><td>google_work.db</td><td>Work email + Drive</td><td>3.7 GB</td></tr>
+<tr><td>papers.db</td><td>Curated paper collection (eLife corpus)</td><td>481 MB</td></tr>
+<tr><td>repos.db</td><td>GitHub repo mirror</td><td>192 KB</td></tr>
+<tr><td>transcripts.db</td><td>Meeting transcripts</td><td>10 MB</td></tr>
+</table>
+<p>Plus: work projects (manuscripts, grants, reviews), work personas (colleagues, reviewers), lab-specific configuration.</p>
+<p>The work branch is institution-specific. A Champalimaud researcher and a CSHL researcher would have different work branches with different Google accounts, different repos, different paper collections. The system layer is the same; the work data is local to each institution.</p>
+<h3 id="reference"><a class="heading-anchor" href="#reference">#</a>Reference</h3>
+<p>Large public corpora. Opt-in by topic. Each sub-branch is independently installable. Deploys to: wherever has the disk and compute (typically a cloud instance, since these are too large for most laptops to carry permanently).</p>
+<table>
+<tr><th>Sub-branch</th><th>Databases</th><th>Combined size</th><th>Source</th></tr>
+<tr><td><strong>reference:academic</strong></td><td>s2ag.db, dblp.db</td><td>~205 GB</td><td>Semantic Scholar, DBLP</td></tr>
+<tr><td><strong>reference:music</strong></td><td>discogs.db, musicbrainz.db</td><td>~45 GB</td><td>Discogs, MusicBrainz</td></tr>
+<tr><td><strong>reference:cultural</strong></td><td>imdb.db</td><td>~10 GB</td><td>IMDb</td></tr>
+<tr><td><strong>reference:crosswalk</strong></td><td>wikidata.db</td><td>~70 GB</td><td>Wikidata (filtered)</td></tr>
+<tr><td><strong>reference:investigative</strong></td><td>public-archives.db, reference.db</td><td>~17 GB</td><td>DOJ, WikiLeaks, ICIJ</td></tr>
+</table>
+<p>Reference branches are read-mostly. They get bulk-ingested on a schedule (weekly for S2AG, monthly for Discogs, etc.) and queried by enrichment scripts and agents. They are the library — public knowledge loaded locally for fast access.</p>
+<hr>
+<h2 id="branch-manifest"><a class="heading-anchor" href="#branch-manifest">#</a>Branch Manifest</h2>
+<p>Each HAAK installation declares its active branches in a manifest. The manifest lives in <code>data/manifest.toml</code>:</p>
+<pre><code>[install]
+name = &quot;haak-zach&quot;           # unique install name
+host = &quot;mac&quot;                 # mac, exoscale, gcloud, ...
+
+[branches]
+core = true                  # always true
+personal = true
+work = true
+reference = [&quot;academic&quot;, &quot;music&quot;, &quot;crosswalk&quot;, &quot;investigative&quot;]</code></pre>
+<p>Scripts, hooks, and skills read the manifest to determine what's available:</p>
+<ul>
+<li><code>check-services.sh</code> only monitors databases in active branches</li>
+<li><code>sync-dbs.sh</code> only syncs databases in active branches</li>
+<li><code>/search</code> only queries databases in active branches</li>
+<li><code>resolve_identities.py</code> only links sources in active branches</li>
+<li>Ingest scripts skip branches not in the manifest</li>
+</ul>
+<hr>
+<h2 id="deployment-topology"><a class="heading-anchor" href="#deployment-topology">#</a>Deployment Topology</h2>
+<p>For the current HAAK instance (Zach's):</p>
+<pre><code>Mac (haak-zach-mac)                 Exoscale (haak-zach-exo)           GCloud (haak-zach-gcloud)
+branches:                           branches:                          branches:
+  core ✓                              core ✓                             core ✓
+  personal ✓                           personal ✓                         work ✓
+  work ✓                              (gateway, viewer,                   reference:academic ✓
+  reference: on-demand                  bridges — always on)              reference:music ✓
+                                                                          reference:crosswalk ✓
+                                                                          reference:investigative ✓</code></pre>
+<p><strong>Sync tool:</strong> <code>scripts/sync-dbs.sh</code> — branch-aware rsync. Reads <code>manifest.toml</code> on both source and target, computes branch intersection, syncs only matching databases. Runs as cron every 5 minutes (<code>sync-dbs.sh --all</code>). Status view: <code>sync-dbs.sh --status</code>.</p>
+<p><strong>Sync flow:</strong></p>
+<ul>
+<li>entities.db (core) syncs across all three — it's the identity hub</li>
+<li>personal databases live on Mac + Exoscale, never on GCloud</li>
+<li>work databases live on Mac + GCloud, not on Exoscale</li>
+<li>reference databases live on GCloud, pulled to Mac on demand</li>
+</ul>
+<p><strong>Enrichment flow:</strong></p>
+<ul>
+<li>Enrichment scripts run on GCloud (where reference DBs live)</li>
+<li>They read s2ag.db + wikidata.db, write to entities.db</li>
+<li>entities.db syncs back to Exoscale and Mac</li>
+</ul>
+<hr>
+<h2 id="vault-integration"><a class="heading-anchor" href="#vault-integration">#</a>Vault Integration</h2>
+<p>The <code>databases</code> table in vault.db gains a <code>branch</code> column:</p>
+<pre><code>ALTER TABLE databases ADD COLUMN branch TEXT;</code></pre>
+<p>Values: <code>core</code>, <code>personal</code>, <code>work</code>, <code>reference:academic</code>, <code>reference:music</code>, <code>reference:cultural</code>, <code>reference:crosswalk</code>, <code>reference:investigative</code>.</p>
+<p>The vault refresh scan (already built) uses the branch field to:</p>
+<ul>
+<li>Report health only for active branches</li>
+<li>Flag databases present on disk but not in the manifest (orphaned)</li>
+<li>Flag databases in the manifest but missing from disk (needed)</li>
+</ul>
+<hr>
+<h2 id="forkability-revisited"><a class="heading-anchor" href="#forkability-revisited">#</a>Forkability Revisited</h2>
+<p><a class="cross-ref" href="/memos/forkability/">Architecture 02</a>'s two-layer model becomes three:</p>
+<table>
+<tr><th>Layer</th><th>What</th><th>Portable?</th><th>Example</th></tr>
+<tr><td><strong>System</strong></td><td>Skills, patterns, agents, ontology</td><td>Yes — clone and use</td><td><code>.claude/</code>, <code>patterns/</code>, <code>ontology/</code></td></tr>
+<tr><td><strong>Data: Core</strong></td><td>Identity graph, vault, coordination</td><td>Partially — schema portable, data instance-specific</td><td><code>entities.db</code>, <code>vault.db</code></td></tr>
+<tr><td><strong>Data: Branches</strong></td><td>Domain-specific databases + projects</td><td>No — selected per install, populated per user</td><td><code>s2ag.db</code>, <code>google_work.db</code>, <code>music.db</code></td></tr>
+</table>
+<p>A fresh fork starts with: system layer + empty core databases + a manifest with only <code>core = true</code>. The user adds branches as they need them. Each branch brings its own ingest scripts, sync configuration, and skill extensions.</p>
+<hr>
+<h2 id="branch-dependencies"><a class="heading-anchor" href="#branch-dependencies">#</a>Branch Dependencies</h2>
+<p>Some branches depend on others:</p>
+<table>
+<tr><th>Branch</th><th>Requires</th></tr>
+<tr><td>core</td><td>—</td></tr>
+<tr><td>personal</td><td>core</td></tr>
+<tr><td>work</td><td>core</td></tr>
+<tr><td>reference:academic</td><td>core (for entity linking)</td></tr>
+<tr><td>reference:music</td><td>core</td></tr>
+<tr><td>reference:cultural</td><td>core</td></tr>
+<tr><td>reference:crosswalk</td><td>core, plus at least one other reference branch to be useful</td></tr>
+<tr><td>reference:investigative</td><td>core</td></tr>
+</table>
+<p>The enrichment pipeline (architecture 25) operates across branches: it reads from reference branches and writes to core (entities.db). This is the only cross-branch write path.</p>
+<hr>
+<p><em>architecture · 26 · domain-branches · 2026-03-15 · zach + claude</em></p>
+
+        <p class="endnote">Architecture 26 &mdash; Domain Branches &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/identity-resolution/">&larr; 25: Identity Resolution</a><a class="memo-nav-next" href="/memos/branch-universality/">27: Branch Universality &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-problem">The Problem</a></li>
+<li><a href="#branch-definitions">Branch Definitions</a>
+<ol>
+<li><a href="#core">Core</a></li>
+<li><a href="#personal">Personal</a></li>
+<li><a href="#work">Work</a></li>
+<li><a href="#reference">Reference</a></li>
+</ol></li>
+<li><a href="#branch-manifest">Branch Manifest</a></li>
+<li><a href="#deployment-topology">Deployment Topology</a></li>
+<li><a href="#vault-integration">Vault Integration</a></li>
+<li><a href="#forkability-revisited">Forkability Revisited</a></li>
+<li><a href="#branch-dependencies">Branch Dependencies</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

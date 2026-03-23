@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Situation Graph &mdash; HAAK</title>
+<meta name="description" content="Situations as the primitive unit of social knowledge. Relationships derived, never stored. Five-phase mapping engine pattern.">
+<meta property="og:title" content="The Situation Graph &mdash; HAAK">
+<meta property="og:description" content="Situations as the primitive unit of social knowledge. Relationships derived, never stored. Five-phase mapping engine pattern.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #080C0C;
+  --cream:    #DFE6E4;
+  --cream2:   #7A8C88;
+  --gold:     #2E9696;
+  --gold-dim: #0C2828;
+  --silver:   #8A7898;
+  --line:     #101C1C;
+  --line2:    #1A2E2E;
+}
+
+[data-theme="light"] {
+  --bg:       #E8F0EE;
+  --cream:    #101A18;
+  --cream2:   #3A5050;
+  --gold:     #1A6E6E;
+  --gold-dim: #2E9696;
+  --silver:   #685878;
+  --line:     #C8D8D4;
+  --line2:    #B0C8C4;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--cream);
+  font-family: 'Crimson Pro', Georgia, serif;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+a { color: var(--gold); text-decoration: none; transition: opacity 0.2s; }
+a:hover { opacity: 0.8; }
+
+.wrapper {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  gap: 48px;
+}
+
+.main-content {
+  max-width: 720px;
+  flex: 1;
+  min-width: 0;
+}
+
+nav.top-nav {
+  padding: 28px 32px;
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-home {
+  font-family: 'Gloock', serif;
+  font-size: 20px;
+  color: var(--cream);
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.nav-links a, .nav-links button {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-links a:hover, .nav-links button:hover { color: var(--gold); }
+
+.breadcrumb {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+  padding: 40px 0 0;
+}
+.breadcrumb a { color: var(--cream2); }
+.breadcrumb a:hover { color: var(--gold); }
+
+article { padding: 20px 0 60px; }
+
+.article-meta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.article-meta a { color: var(--silver); }
+.article-meta a:hover { color: var(--gold); }
+
+.article-title {
+  font-family: 'Gloock', serif;
+  font-size: clamp(32px, 5vw, 48px);
+  font-weight: 400;
+  line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 12px;
+}
+
+.article-subtitle {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 2vw, 23px);
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--cream2);
+  margin-bottom: 48px;
+}
+
+.article-body {
+  font-family: 'Crimson Pro', serif;
+  font-size: clamp(18px, 1.8vw, 21px);
+  font-weight: 300;
+  line-height: 1.78;
+  color: var(--cream2);
+}
+
+.article-body p { margin-bottom: 1.4em; }
+
+.article-body h2 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(24px, 3vw, 32px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2.8em;
+  margin-bottom: 0.8em;
+  line-height: 1.15;
+  position: relative;
+}
+
+.article-body h3 {
+  font-family: 'Gloock', serif;
+  font-size: clamp(19px, 2.2vw, 24px);
+  font-weight: 400;
+  color: var(--cream);
+  margin-top: 2em;
+  margin-bottom: 0.6em;
+  line-height: 1.2;
+  position: relative;
+}
+
+.article-body h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--cream);
+  margin-top: 1.6em;
+  margin-bottom: 0.5em;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.2em;
+  color: var(--line2);
+  text-decoration: none;
+  font-size: 0.7em;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.article-body h2:hover .heading-anchor,
+.article-body h3:hover .heading-anchor,
+.article-body h4:hover .heading-anchor { opacity: 1; color: var(--gold); }
+
+.article-body em { font-style: italic; color: var(--cream); }
+.article-body strong { font-weight: 400; color: var(--cream); }
+
+.article-body ul, .article-body ol {
+  padding-left: 1.2em;
+  margin-bottom: 1.4em;
+}
+.article-body ul li, .article-body ol li { margin-bottom: 0.5em; }
+
+.article-body code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.85em;
+  background: var(--gold-dim);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--gold);
+}
+
+.article-body pre {
+  background: var(--gold-dim);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  padding: 20px 24px;
+  margin: 1.6em 0;
+  overflow-x: auto;
+}
+.article-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.82em;
+  line-height: 1.6;
+  color: var(--cream2);
+}
+
+.article-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.6em 0;
+  font-size: 0.9em;
+}
+.article-body th, .article-body td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--line2);
+}
+.article-body th {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.8em;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--silver);
+  font-weight: 400;
+}
+
+.article-body hr {
+  border: none;
+  border-top: 1px solid var(--line2);
+  margin: 2em 0;
+}
+
+/* Cross-reference links */
+a.cross-ref {
+  color: var(--gold);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--gold);
+  padding-bottom: 1px;
+}
+a.cross-ref:hover {
+  border-bottom-style: solid;
+  opacity: 0.9;
+}
+
+/* TOC — sidebar on wide, inline on narrow */
+.toc-sidebar {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .wrapper { max-width: 1200px; }
+  .toc-sidebar {
+    display: block;
+    width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 80px;
+    align-self: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-top: 100px;
+  }
+  .toc-inline { display: none; }
+}
+
+.toc {
+  padding: 20px 24px;
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  margin-bottom: 48px;
+}
+.toc-sidebar .toc {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-title {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--silver);
+  margin-bottom: 12px;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+}
+.toc li {
+  padding: 4px 0;
+  font-family: 'Crimson Pro', serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--cream2);
+}
+.toc li a { color: var(--cream2); }
+.toc li a:hover { color: var(--gold); }
+.toc ol ol {
+  padding-left: 16px;
+}
+.toc ol ol li {
+  font-size: 14px;
+}
+
+/* Prev/Next navigation */
+.memo-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32px 0;
+  border-top: 1px solid var(--line2);
+  margin-top: 48px;
+  gap: 24px;
+}
+.memo-nav a, .memo-nav span {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--cream2);
+}
+.memo-nav a:hover { color: var(--gold); }
+.memo-nav-next { text-align: right; }
+
+.endnote {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--silver);
+  font-style: italic;
+  margin-top: 3em;
+  padding-top: 2em;
+  border-top: 1px solid var(--line2);
+}
+
+footer {
+  border-top: 1px solid var(--line2);
+  padding: 28px 0 40px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 32px;
+}
+.footer-side {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: #3A3D50;
+}
+.footer-side a { color: #3A3D50; }
+.footer-side a:hover { color: var(--gold); }
+
+@media print {
+  :root { --bg: #fff; --cream: #111; --cream2: #333; --gold: #1A6E6E; --silver: #555; --line: #ccc; --line2: #ddd; --gold-dim: #eef5f5; }
+  body { background: #fff; color: #111; }
+  nav.top-nav, .nav-links, .toc-sidebar { display: none; }
+  .wrapper { max-width: 100%; padding: 0 1cm; }
+  article { padding: 0; }
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="https://haak.world" class="nav-home">HAAK</a>
+  <div class="nav-links">
+    <a href="https://haak.world/memos/">memos</a>
+    <a href="https://haak.world">home</a>
+    <button id="theme-toggle">day</button>
+  </div>
+</nav>
+
+<div class="wrapper">
+  <div class="main-content">
+    <nav class="breadcrumb"><a href="/">haak</a> &rsaquo; <a href="/memos/">memos</a> &rsaquo; <a href="/memos/#ontology">ontology</a> &rsaquo; The Situation Graph</nav>
+    <article>
+      <p class="article-meta">Zachary F. Mainen &middot; HAAK &middot; Ontology 09 &middot; March 2026</p>
+      <h1 class="article-title">The Situation Graph</h1>
+      <p class="article-subtitle">*This essay argues that situations — not relationships — are the primitive unit of social knowledge. It develops the claim from the relational situational ontology of this system, shows how it maps…</p>
+
+      <div class="toc-inline">
+        <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-claim">The Claim</a></li>
+<li><a href="#situations-as-entities">Situations as Entities</a></li>
+<li><a href="#relationships-as-queries">Relationships as Queries</a></li>
+<li><a href="#inference">Inference</a></li>
+<li><a href="#the-mapping-engine-pattern">The Mapping Engine Pattern</a></li>
+<li><a href="#the-epstein-files-as-first-instance">The Epstein Files as First Instance</a></li>
+<li><a href="#generalization">Generalization</a></li>
+</ol></nav>
+      </div>
+
+      <div class="article-body">
+<p><em>This essay argues that situations — not relationships — are the primitive unit of social knowledge. It develops the claim from the relational situational ontology of this system, shows how it maps to the entity/belonging data model, derives social relationships as queries over co-participation patterns, and demonstrates the approach against a concrete corpus: 2.36 million documents from the Epstein public archives. The argument generalizes to any corpus where the question is "who knew whom, and how do we know?"</em></p>
+<hr>
+<h2 id="the-claim"><a class="heading-anchor" href="#the-claim">#</a>The Claim</h2>
+<p>Social knowledge is conventionally stored as relationships. A contact database records that Epstein emailed Nikolic 680 times. A social network graph connects person A to person B with a labeled edge: "colleague," "correspondent," "business partner." These are summaries — aggregate descriptions of patterns that someone has already extracted from the underlying evidence and frozen into a static claim. The relationship becomes a fact in the database, and the evidence that warranted it recedes into the background or disappears entirely.</p>
+<p>This is ontologically backwards. The relationship is not the primitive. The primitive is the situation.</p>
+<p>Definition 11 of this system's ontology defines a situation as "a particular, ongoing coming-together of actors, methods, and domains around materials." Every social fact — every communication, every meeting, every co-signed document, every shared flight — is a situation in this sense. Participants are actors. The mode of interaction (email, meeting, flight, payment) is the method. The institutional or physical context is the domain. The evidence (the email itself, the flight manifest, the wire transfer record) is the material.</p>
+<p>A relationship between two people is not a thing that exists in the world. It is a pattern that we observe when two people participate in many situations together. The pattern may be strong or weak, enduring or brief, confined to one method or spanning several. But the pattern is always derived from the situations, never the other way around. You cannot point to a relationship the way you can point to an email. You can only point to the emails, the meetings, the documents, and observe that the same two names keep appearing together.</p>
+<p>This is the relational ground (ontology/08) applied to social networks. Objects come together in situations, which reveal a subset of their relations to one another. The social graph is not a thing to be stored; it is a view to be computed. Storing it directly — as the current contacts table does, with its 2,412 aggregate edges — is a category error: it treats a derived summary as a primitive fact, losing provenance, temporal resolution, and the capacity for re-derivation under different assumptions.</p>
+<hr>
+<h2 id="situations-as-entities"><a class="heading-anchor" href="#situations-as-entities">#</a>Situations as Entities</h2>
+<p>The entity/belonging model (22-lifecycle.md) provides exactly two tables: <code>entities</code> (id, type, name) and <code>belongings</code> (entity<em>id, target, start</em>date, end_date, source). One relation: belongs-to. No role types, no relation labels. The target's identity carries the semantics.</p>
+<p>This austere model accommodates situations without extension. Each event — each email, each flight, each payment, each meeting — becomes an entity of type <code>situation</code>. Participants belong to the situation. The method belongs to the situation. The evidence document belongs to the situation. Temporal bounds on the belonging record when each participant entered and left.</p>
+<p>Consider a specific email from the Epstein corpus. On January 15, 2005, Jeffrey Epstein sent an email to Boris Nikolic. The email is document EFTA-12345 in the DOJ release. In the situation graph, this becomes:</p>
+<pre><code>entity: situation:email-2005-01-15-001
+  → method:email           (NULL, NULL, epstein-doj)
+  → source:epstein-doj     (NULL, NULL, builder)
+  → document:efta-12345    (NULL, NULL, epstein-doj)
+
+person:jeffrey-epstein  → situation:email-2005-01-15-001  (2005-01-15, 2005-01-15, epstein-doj)
+person:boris-nikolic    → situation:email-2005-01-15-001  (2005-01-15, 2005-01-15, epstein-doj)</code></pre>
+<p>Notice what is absent. There is no "sender" or "receiver" label. No "from" or "to" column. The situation records that these two people participated in this email event on this date. The directionality — who sent, who received — lives in the evidence document, which is a belonging of the situation, pullable on demand from object storage. The graph records participation. The document records detail. This is not information loss; it is information stratification. The graph is the index. The document is the archive. You query the graph to find what to pull; you pull the document to learn what happened.</p>
+<p>This stratification is principled, not merely practical. Directionality, tone, content, cc lists, attachments — these are properties of the evidence, not of the participation. Two people participated in a communication event. That is the social fact. Everything else is detail about the event itself, recoverable from the evidence at any time. Storing all of it in the graph would mean duplicating the document's content in a less expressive format. Storing none of it in the graph means the graph stays clean: entities and belongings, nothing else.</p>
+<p>The same pattern applies to every kind of social event. A flight from Teterboro to the Virgin Islands on March 3, 2002, with four passengers listed on the manifest:</p>
+<pre><code>entity: situation:flight-2002-03-03-001
+  → method:flight           (NULL, NULL, epstein-doj)
+  → source:epstein-doj      (NULL, NULL, builder)
+  → document:manifest-7890  (NULL, NULL, epstein-doj)
+
+person:jeffrey-epstein  → situation:flight-2002-03-03-001  (2002-03-03, 2002-03-03, epstein-doj)
+person:ghislaine-maxwell → situation:flight-2002-03-03-001  (2002-03-03, 2002-03-03, epstein-doj)
+person:passenger-c      → situation:flight-2002-03-03-001  (2002-03-03, 2002-03-03, epstein-doj)
+person:passenger-d      → situation:flight-2002-03-03-001  (2002-03-03, 2002-03-03, epstein-doj)</code></pre>
+<p>A wire transfer, a dinner, a board meeting, a legal filing — all the same shape. Entity of type situation. Participants belong to it. Method and evidence belong to it. The only thing that varies is the method type and the number of participants. The data model does not need to know the difference between an email and a flight. It knows situations and belongings.</p>
+<hr>
+<h2 id="relationships-as-queries"><a class="heading-anchor" href="#relationships-as-queries">#</a>Relationships as Queries</h2>
+<p>If situations are the primitives and relationships are derived, then the derivation must be specified as queries. The current contacts table — with its sender, receiver, count, and summary columns — represents one particular derivation, frozen at build time. The situation graph replaces this with live computation: ask whatever question you want, and the answer is always traceable to specific situations, which are traceable to specific documents.</p>
+<p>The fundamental query is co-participation: which entities share situations with a given person?</p>
+<pre><code>-- Co-participants of person X
+SELECT b2.entity_id, COUNT(DISTINCT b1.target) as shared_situations
+FROM belongings b1
+JOIN belongings b2 ON b1.target = b2.target
+JOIN entities e1 ON b1.target = e1.id
+WHERE b1.entity_id = &#x27;person:jeffrey-epstein&#x27;
+  AND b2.entity_id != b1.entity_id
+  AND e1.type = &#x27;situation&#x27;
+GROUP BY b2.entity_id
+ORDER BY shared_situations DESC</code></pre>
+<p>This returns everyone who ever participated in a situation with Epstein, ranked by the number of shared situations. It is the contact list, but derived rather than stored, and immediately decomposable: click on any co-participant to see which specific situations you share with them.</p>
+<p>Relationship strength over time adds a temporal dimension:</p>
+<pre><code>-- Monthly co-participation between two persons
+SELECT strftime(&#x27;%Y-%m&#x27;, b1.start_date) as month,
+       COUNT(DISTINCT b1.target) as situations
+FROM belongings b1
+JOIN belongings b2 ON b1.target = b2.target
+JOIN entities e ON b1.target = e.id
+WHERE b1.entity_id = &#x27;person:jeffrey-epstein&#x27;
+  AND b2.entity_id = &#x27;person:boris-nikolic&#x27;
+  AND e.type = &#x27;situation&#x27;
+GROUP BY month
+ORDER BY month</code></pre>
+<p>This replaces the flat "680 emails" with a time series: when did communication peak, when did it drop, were there gaps? The aggregate number collapses temporal structure; the query preserves it.</p>
+<p>Relationship type — what methods dominate the shared situations — reveals the character of the connection:</p>
+<pre><code>-- Methods used in shared situations between two persons
+SELECT b_method.target as method, COUNT(*) as count
+FROM belongings b1
+JOIN belongings b2 ON b1.target = b2.target
+JOIN entities e ON b1.target = e.id
+JOIN belongings b_method ON b_method.entity_id = b1.target
+WHERE b1.entity_id = &#x27;person:jeffrey-epstein&#x27;
+  AND b2.entity_id = &#x27;person:boris-nikolic&#x27;
+  AND e.type = &#x27;situation&#x27;
+  AND b_method.target LIKE &#x27;method:%&#x27;
+GROUP BY method
+ORDER BY count DESC</code></pre>
+<p>Were they corresponding by email? Sharing flights? Co-signing documents? Attending the same events? Each method reveals a different facet of the connection. The current contacts table flattens all of this into a single row.</p>
+<p>Network neighborhood — who are the neighbors of my neighbors — is a two-hop traversal:</p>
+<pre><code>-- Second-degree connections: people who share situations with
+-- people who share situations with person X
+SELECT b4.entity_id, COUNT(DISTINCT b3.target) as situations
+FROM belongings b1
+JOIN belongings b2 ON b1.target = b2.target
+JOIN entities e1 ON b1.target = e1.id
+JOIN belongings b3 ON b2.entity_id = b3.entity_id
+JOIN belongings b4 ON b3.target = b4.target
+JOIN entities e2 ON b3.target = e2.id
+WHERE b1.entity_id = &#x27;person:jeffrey-epstein&#x27;
+  AND b2.entity_id != b1.entity_id
+  AND b4.entity_id != b2.entity_id
+  AND b4.entity_id != b1.entity_id
+  AND e1.type = &#x27;situation&#x27;
+  AND e2.type = &#x27;situation&#x27;
+GROUP BY b4.entity_id
+ORDER BY situations DESC</code></pre>
+<p>This is where the situation graph's advantage over stored relationships becomes decisive. With stored relationships, a two-hop query returns people connected to people connected to Epstein — but you cannot ask <em>through which situations</em> the connection runs. With the situation graph, every hop is grounded: you can trace the path from Epstein to a second-degree contact through specific situations, each backed by specific documents. The provenance is never lost.</p>
+<hr>
+<h2 id="inference"><a class="heading-anchor" href="#inference">#</a>Inference</h2>
+<p>The situation graph is not only an index of what was observed. Its structure supports inference about what was not observed — gaps, redactions, and cross-source identities. Three kinds of inference follow from the graph's topology.</p>
+<p><strong>Redaction inference.</strong> Many documents in the Epstein corpus contain redacted names. A flight manifest lists four passengers; one is blacked out. An email has a recipient field reading [REDACTED]. The situation exists — it was created from the document — but one participant is missing. The graph structure constrains who the missing participant could be. If the other three passengers on this flight also shared a different flight two weeks later with a fourth person, and that fourth person's schedule is consistent with the redacted date, then that person becomes a candidate. The constraint is not the document alone; it is the topology of the surrounding graph. Other situations involving the known participants, their temporal patterns, their method profiles — all of these narrow the space of candidates.</p>
+<p>This is not speculation dressed as analysis. It is constraint propagation over a structured graph, and it must be flagged as such. The system records the observed participation with full confidence and any inferred participation with a confidence strictly less than 1.0, together with the evidential chain that supports the inference. The two never merge silently. An inferred belonging carries its provenance: which situations constrained it, which graph pattern suggested it, what alternative candidates were considered. The inference is always defeasible — new evidence can raise or lower the confidence, or eliminate the candidate entirely.</p>
+<p><strong>Missing situation inference.</strong> Gaps in expected co-participation patterns are informative. If two people share situations steadily from 2005 through 2007 and then share none in 2008, the gap demands explanation. Two hypotheses compete: the relationship ended, or the documentation is incomplete. The surrounding graph distinguishes them. If person A continues sharing situations with the same circle of people through 2008, and person B disappears from all situations in that period, the gap likely reflects B's absence from the corpus, not a relationship change. If person B continues appearing in situations with others but not with A, the gap is more likely a genuine change in the relationship.</p>
+<p>The topology of the graph — not just the presence or absence of a single edge — carries the signal. This is why storing relationships directly is not just inelegant but lossy: a stored relationship either exists or doesn't. A situation graph carries the temporal and topological structure that makes gap analysis possible.</p>
+<p><strong>Cross-source triangulation.</strong> The public archives database spans four independent sources: Epstein DOJ, WikiLeaks Cablegate, ICIJ Offshore Leaks, and DDoSecrets. The same person may appear in multiple sources under different names, different transliterations, or different entity types. A person listed as a passenger on Epstein flights may also appear as an officer of an offshore company in the ICIJ data. No explicit cross-reference links them.</p>
+<p>The situation graph enables identity inference through co-participation patterns. If person A in source 1 and person B in source 2 share co-participants (people who appear in both sources and whose identity is established), have compatible temporal profiles, and appear in method-compatible situations, then A and B are candidates for the same person. This is entity resolution driven by graph structure rather than string matching. It is more robust than name matching alone — names can be transliterated differently, aliases used deliberately — and it produces hypotheses with explicit evidential support.</p>
+<p>All three kinds of inference share a discipline: they are always flagged, always traceable, always defeasible. The graph records what is observed. Inference proposes what is likely. The two occupy different epistemic strata and are never allowed to contaminate each other. This is the library theorem (foundations/02) applied to social graphs: every claim traces to evidence, and the strength of the claim is bounded by the strength of the evidence.</p>
+<hr>
+<h2 id="the-mapping-engine-pattern"><a class="heading-anchor" href="#the-mapping-engine-pattern">#</a>The Mapping Engine Pattern</h2>
+<p>Turning a document corpus into a situation graph is a repeatable procedure — a method in the sense of Definition 3. The procedure has five phases, each well-defined and independently executable.</p>
+<p><strong>Phase 1: Index.</strong> Ingest metadata. Create document entities from catalog records, file listings, or API responses. This phase touches no media — no PDFs are pulled, no emails are read. It creates the skeleton: one entity per document, with belongings to the source and to any metadata fields (date, classification, sender if available in the catalog). This phase is fast and complete. Every document in the corpus gets an entity, regardless of whether its content has been examined. In the Epstein archives, Phase 1 produced 2.36 million document entities from four sources.</p>
+<p><strong>Phase 2: Extract.</strong> Pull documents from storage and run entity recognition. This phase is expensive — it requires reading the actual media — and therefore proceeds on demand, not exhaustively. Pull a document, identify the persons, organizations, and locations mentioned in it, create entities for each, and link them to the document via belongings. The document is the evidence; the entities are what the evidence mentions. In the Epstein archives, Phase 2 has not yet begun for the 519,000 indexed-but-unpulled DOJ documents. The 606,000 knowledge graph entities and 1.6 million entity records were imported from pre-built data (ICIJ, WikiLeaks metadata), not extracted from primary documents.</p>
+<p><strong>Phase 3: Situate.</strong> Decompose documents into situations. This is the critical phase — the one this essay argues for. Each communication event (email, cable, filing) becomes a situation entity. Participants belong to it. The method and the evidence document are belongings. What was previously a flat record — "Epstein emailed Nikolic" — becomes a structured situation with participants, method, date, and evidence. Aggregate summaries (the current contacts table with its 2,412 edges) become materialized queries over the situation graph, recomputable at any time under different assumptions.</p>
+<p>The decomposition is not always one-to-one. An email thread may be one situation or a sequence of situations, depending on the granularity of analysis. A document listing multiple transactions decomposes into multiple situations. The schema mapping (the YAML declaration from 22-lifecycle.md) specifies the decomposition rule for each source type. The mapping is an ontological decision — it determines what counts as a situation — and like all ontological decisions, it is explicit, versioned, and revisable.</p>
+<p><strong>Phase 4: Infer.</strong> Use the graph structure to fill gaps. Redacted names become candidate participations with confidence scores. Missing documents become predicted situations. Cross-source matches become identity hypotheses. All inferences are flagged and stored separately from observations. This phase is indefinitely repeatable: as new situations are added (from newly pulled documents in Phase 2), the inference landscape changes, and old inferences may be confirmed, weakened, or refuted.</p>
+<p><strong>Phase 5: Navigate.</strong> The situation graph is browsable. Start from any person, walk to their situations, walk to co-participants, walk to their situations. The social network is a derived view — a materialized query that can be rendered as a graph, a table, a timeline, or a map. The primary object is always the situation. Navigation never requires loading a relationship table; it requires traversing belongings.</p>
+<p>These five phases are not a waterfall. They interleave. A question about person X triggers Phase 2 (pull the relevant documents), Phase 3 (situate them), and Phase 5 (navigate from X through the new situations). Phase 4 runs continuously in the background, updating inferences as the graph grows. The phases are a conceptual decomposition, not a project plan.</p>
+<hr>
+<h2 id="the-epstein-files-as-first-instance"><a class="heading-anchor" href="#the-epstein-files-as-first-instance">#</a>The Epstein Files as First Instance</h2>
+<p>The public archives database is the first corpus to undergo this mapping. Its current state demonstrates both what has been achieved and what the situation graph requires.</p>
+<p>What Phase 1 delivered is already in production. The four sources — Epstein DOJ (519,082 documents), WikiLeaks Cablegate (8,761 cables, 1,697,259 entity mentions), ICIJ Offshore Leaks (839,578 entities), and DDoSecrets — are indexed as document and entity records in <code>data/public-archives.db</code>. The knowledge graph contains 606,000 entities with type classifications (persons, organizations, addresses, intermediaries, officers, bearers). The contacts table aggregates 2,412 directed edges with sender/receiver/count/summary columns.</p>
+<p>What Phase 2 requires is document-level extraction. The 519,082 DOJ documents are indexed by metadata but their content has not been read. They sit in object storage (<code>exoscale:filix-epstein-files</code>), waiting to be pulled. Each pulled document would yield entity mentions — names, organizations, dates, locations — that currently exist only inside the unread PDFs. The extraction transforms latent information into graph structure.</p>
+<p>What Phase 3 requires is the ontological shift this essay advocates. The 680 "Epstein-Nikolic emails" recorded as a single contact row would decompose into 680 individual situation entities, each linked to its evidence document, each carrying its own date and participant list. The contacts table — currently the only representation of social structure — becomes a materialized view, recomputable from the situation graph. The source of truth moves from aggregate summaries to individual situations.</p>
+<p>What Phase 4 enables is the inferential machinery described above. The 519,000 unpulled documents include many with redacted names. Redaction inference becomes possible once the surrounding graph is dense enough to constrain candidates. Cross-source triangulation becomes possible once entity resolution links Epstein-corpus persons to ICIJ offshore entities. The 1.6 million entity mentions from WikiLeaks provide a third axis of triangulation. None of this is possible with the current contacts table, which records only aggregates and carries no graph structure.</p>
+<p>The schema migration is straightforward. The current contacts table becomes a materialized view:</p>
+<pre><code>CREATE VIEW contacts_derived AS
+SELECT
+  b1.entity_id as person_a,
+  b2.entity_id as person_b,
+  COUNT(DISTINCT b1.target) as shared_situations,
+  MIN(b1.start_date) as first_contact,
+  MAX(b1.start_date) as last_contact
+FROM belongings b1
+JOIN belongings b2 ON b1.target = b2.target
+JOIN entities e ON b1.target = e.id
+WHERE e.type = &#x27;situation&#x27;
+  AND b1.entity_id &lt; b2.entity_id  -- avoid duplicates
+GROUP BY b1.entity_id, b2.entity_id</code></pre>
+<p>This view produces the same information as the current contacts table — who interacted with whom, how often, over what period — but derived from situations rather than stored as a primitive. The view can be extended with method breakdowns, temporal binning, confidence filtering, and source attribution, all impossible with the current flat table.</p>
+<hr>
+<h2 id="generalization"><a class="heading-anchor" href="#generalization">#</a>Generalization</h2>
+<p>The Epstein archives are the first instance, but the pattern is general. Any corpus where the question is "who did what with whom, and how do we know?" maps to the same structure.</p>
+<p>WikiLeaks cables are situations. Each cable is a communication event: a sending embassy (actor), a receiving office (actor), a date, a classification level (a belonging to a policy domain), and a body of text (the material). The 8,761 cables currently indexed as documents would each become a situation entity, with sender and receiver as participants, the cable itself as evidence, and the classification as a belonging.</p>
+<p>ICIJ offshore entities are standing situations — situations with extended temporal bounds rather than point events. An officer belonging to an offshore company from 2003 to 2011 is a situation of type "corporate relationship," with the officer and the company as participants, the incorporation documents as evidence, and the jurisdiction as domain. The 839,578 ICIJ entities already carry this temporal structure; the mapping lifts them from a flat entity table into the situation graph.</p>
+<p>Academic collaboration maps identically. Each paper is a situation: co-authors are participants, the journal is the domain, the publication date is the temporal bound, the paper itself is the evidence. The co-authorship network — a standard bibliometric object — is a derived view over paper-situations, exactly as the contacts table is a derived view over communication-situations. Citation is a relation between situations, not between authors.</p>
+<p>Email archives of any kind follow the same decomposition. Each message is a situation. Sender and recipients are participants. The thread is a sequence of situations linked by temporal ordering and reply-to structure. The "contacts" view of an email archive — who emails whom how often — is a materialized query over message-situations.</p>
+<p>In every case, the mapping engine operates through the same five phases, and the schema mapping — the YAML declaration that specifies what counts as a situation, who the participants are, and what the evidence is — is the only thing that varies between corpora. The mapping is a method (Definition 3): a repeatable procedure that transforms a source into the universal structure of entities and belongings. Each corpus gets its own mapping. The builder applies mappings uniformly. The result is always the same shape: a situation graph, navigable and queryable, with every social fact traceable to its evidence.</p>
+<p>This is what it means for situations to be primitive. The mapping engine does not look for relationships and store them. It looks for events — for things that happened, involving identifiable participants, evidenced by documents — and records them as situations. Relationships are never the input and never the output. They are a lens applied at query time, disposable and recomputable, while the situations endure.</p>
+<hr>
+<p><em>ontology · 2026-03-10 · zach + claude</em></p>
+
+        <p class="endnote">Ontology 09 &mdash; The Situation Graph &mdash; 2026 &mdash; Zachary F. Mainen / HAAK</p>
+      </div>
+
+      <nav class="memo-nav"><a class="memo-nav-prev" href="/memos/ontology-relational-ground/">&larr; 08: The Relational Ground</a><a class="memo-nav-next" href="/memos/ontology-relations-applied/">10: Relations Applied &rarr;</a></nav>
+    </article>
+  </div>
+  <div class="toc-sidebar">
+    <nav class="toc">
+<p class="toc-title">Contents</p>
+<ol>
+<li><a href="#the-claim">The Claim</a></li>
+<li><a href="#situations-as-entities">Situations as Entities</a></li>
+<li><a href="#relationships-as-queries">Relationships as Queries</a></li>
+<li><a href="#inference">Inference</a></li>
+<li><a href="#the-mapping-engine-pattern">The Mapping Engine Pattern</a></li>
+<li><a href="#the-epstein-files-as-first-instance">The Epstein Files as First Instance</a></li>
+<li><a href="#generalization">Generalization</a></li>
+</ol></nav>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <span class="footer-side"><a href="https://haak.world/memos/">memos</a></span>
+    <span class="footer-side"><a href="https://haak.world">haak.world</a></span>
+    <span class="footer-side">2026</span>
+  </div>
+</footer>
+
+<script>
+const btn = document.getElementById('theme-toggle');
+const h = document.documentElement;
+function applyTheme(light) {
+  if (light) { h.setAttribute('data-theme', 'light'); btn.textContent = 'night'; }
+  else { h.removeAttribute('data-theme'); btn.textContent = 'day'; }
+  localStorage.setItem('haak-theme', light ? 'light' : 'dark');
+}
+const saved = localStorage.getItem('haak-theme');
+if (saved === 'light') applyTheme(true);
+btn.addEventListener('click', () => { applyTheme(h.getAttribute('data-theme') !== 'light'); });
+</script>
+</body>
+</html>

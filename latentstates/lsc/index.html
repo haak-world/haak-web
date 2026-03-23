@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Latent States Camp — Latent States</title>
+<meta name="description" content="A laboratory without walls at Waking Life festival.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --bg-raised: #111110;
+  --bg-card: #161614;
+  --text-primary: #e8e4e0;
+  --text-secondary: #8a8580;
+  --text-muted: #585450;
+  --text-ghost: #2a2826;
+  --accent: #c4956a;
+  --accent-sage: #7a9a8a;
+  --accent-warm: #a89888;
+  --accent-highlight: #c8c0b8;
+  --border: #1e1c1a;
+  --border-light: #2a2826;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f4f0ec;
+    --bg-raised: #e8e4e0;
+    --bg-card: #ddd9d5;
+    --text-primary: #1a1816;
+    --text-secondary: #6a6560;
+    --text-muted: #8a8580;
+    --text-ghost: #c8c4c0;
+    --accent: #9a6a42;
+    --accent-sage: #4a7a6a;
+    --accent-warm: #7a6a5a;
+    --accent-highlight: #4a4440;
+    --border: #d8d4d0;
+    --border-light: #c8c4c0;
+  }
+}
+
+[data-theme="light"] {
+  --bg: #f4f0ec;
+  --bg-raised: #e8e4e0;
+  --bg-card: #ddd9d5;
+  --text-primary: #1a1816;
+  --text-secondary: #6a6560;
+  --text-muted: #8a8580;
+  --text-ghost: #c8c4c0;
+  --accent: #9a6a42;
+  --accent-sage: #4a7a6a;
+  --accent-warm: #7a6a5a;
+  --accent-highlight: #4a4440;
+  --border: #d8d4d0;
+  --border-light: #c8c4c0;
+}
+html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+body {
+  background: var(--bg); color: var(--text-primary);
+  font-family: var(--font-body); font-weight: 300; line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 32px;
+  background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+}
+nav .nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center; height: 64px;
+}
+nav .logo {
+  font-family: var(--font-heading); font-weight: 700; font-size: 18px;
+  letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none;
+}
+nav .breadcrumb { font-size: 13px; color: var(--text-muted); letter-spacing: 0.04em; }
+nav .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+nav .breadcrumb a:hover { color: var(--text-primary); }
+.page { max-width: 960px; margin: 0 auto; padding: 120px 32px 80px; }
+.page-title {
+  font-family: var(--font-heading); font-weight: 800;
+  font-size: clamp(48px, 8vw, 80px); letter-spacing: -0.03em;
+  line-height: 0.95; margin-bottom: 20px;
+  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 60%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.page-subtitle {
+  font-family: var(--font-heading); font-weight: 400; font-size: 20px;
+  color: var(--text-muted); margin-bottom: 20px; letter-spacing: -0.01em;
+}
+.page-meta {
+  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 48px;
+}
+.page-meta .accent { color: var(--accent); }
+.hero-image {
+  width: 100%; aspect-ratio: 21/9; background: var(--bg-card);
+  border: 1px solid var(--border); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 56px; position: relative; overflow: hidden;
+}
+.hero-image .placeholder-grid {
+  position: absolute; inset: 0;
+  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
+  gap: 1px; padding: 1px; opacity: 0.35;
+}
+.hero-image .cell { background: var(--bg-raised); border-radius: 1px; }
+.hero-image .label {
+  position: relative; z-index: 1;
+  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-ghost);
+}
+.description {
+  font-size: 18px; line-height: 1.85; color: var(--text-secondary);
+  margin-bottom: 32px; max-width: 720px;
+}
+.description p { margin-bottom: 24px; }
+.description p:last-child { margin-bottom: 0; }
+.experiments { margin-bottom: 56px; }
+.experiment {
+  padding: 28px 0; border-bottom: 1px solid var(--border);
+}
+.experiment:first-child { border-top: 1px solid var(--border); }
+.experiment-name {
+  font-family: var(--font-heading); font-weight: 600; font-size: 16px;
+  color: var(--accent); margin-bottom: 8px;
+}
+.experiment-text {
+  font-size: 15px; line-height: 1.75; color: var(--text-secondary);
+}
+.experiment-image {
+  width: 100%; max-height: 50vh; object-fit: cover; border-radius: 2px;
+  margin: 24px 0 8px;
+}
+.info-section { margin-bottom: 48px; }
+.info-label {
+  font-family: var(--font-heading); font-weight: 600; font-size: 11px;
+  letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted);
+  margin-bottom: 16px;
+}
+.info-text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
+.info-text a {
+  color: var(--accent); text-decoration: none;
+  border-bottom: 1px solid var(--border); padding-bottom: 1px;
+  transition: color 0.3s, border-color 0.3s;
+}
+.info-text a:hover { color: var(--text-primary); border-color: var(--accent); }
+.related { display: flex; gap: 16px; flex-wrap: wrap; }
+.related a {
+  font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
+  text-decoration: none; border: 1px solid var(--border); padding: 8px 20px;
+  border-radius: 2px; transition: border-color 0.3s, color 0.3s;
+}
+.related a:hover { border-color: var(--accent); color: var(--text-primary); }
+.divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
+footer { padding: 48px 32px; border-top: 1px solid var(--border); }
+footer .footer-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+footer .footer-left, footer .footer-right { font-size: 12px; letter-spacing: 0.15em; color: var(--text-ghost); }
+footer a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
+footer a:hover { color: var(--accent-warm); }
+@media (max-width: 768px) {
+  .page { padding: 100px 20px 60px; }
+  nav { padding: 0 20px; }
+  footer .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
+
+<nav>
+  <div class="nav-inner">
+    <a href="../" class="logo">LS</a>
+    <div class="breadcrumb">LSC</div>
+  </div>
+</nav>
+
+<div class="page">
+  <h1 class="page-title">Latent States Camp</h1>
+  <div class="page-meta"><span class="accent">2023&ndash;present</span> &middot; Waking Life Festival, Portugal</div>
+
+  <div class="hero-image" style="aspect-ratio:auto;border:none;background:none;">
+    <img src="../assets/camp-2.jpg" alt="Latent States Camp outdoor experiment stations at Waking Life 2025" style="width:100%;max-height:70vh;object-fit:cover;border-radius:2px;" loading="lazy">
+  </div>
+
+  <div class="description">
+    <p>The Latent States Camp is a laboratory without walls at Waking Life festival. Not a lab outpost &mdash; a place where ideas transform into situated experience.</p>
+
+    <p>We started from a conviction: certain questions about perception and consciousness cannot be answered in the laboratory, because the laboratory eliminates the conditions that produce the phenomena. A festival is not a convenient venue for data collection. It is a site where perception operates under conditions the lab cannot replicate &mdash; among strangers, in music, under open sky, sometimes under the influence of psychoactive substances, always in the presence of the unexpected.</p>
+
+    <p>Our method begins with phenomenology: the careful description of lived experience. We then design experiments that respect what the experience is.</p>
+  </div>
+
+  <div class="info-section">
+    <div class="info-label">Experiments</div>
+    <div class="experiments">
+      <div class="experiment">
+        <div class="experiment-name">Seeing</div>
+        <div class="experiment-text">Eye-tracking and visual perception under psychedelic conditions. Finding: reduced eye movement is linked to more visual hallucinations. Psychedelics amplify internal visual processes, they don't simply add noise.</div>
+        <img src="../assets/seeing-1.jpg" alt="Researcher at the Altered Reflections eye-tracking station" class="experiment-image" loading="lazy">
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Hearing</div>
+        <div class="experiment-text">VR auditory detection. Finding: psychedelics improved detection accuracy rather than increasing false alarms. The signal gets clearer, not noisier.</div>
+        <img src="../assets/hearing-1.jpg" alt="Outdoor hearing experiment station at the Latent States Camp" class="experiment-image" loading="lazy">
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Tasting</div>
+        <div class="experiment-text">Does the color of a cup change how things taste? Social sharing and flavor perception in naturalistic conditions.</div>
+        <img src="../assets/tasting-1.jpg" alt="Taste experiment with sample vials at the outdoor station" class="experiment-image" loading="lazy">
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Soundwalk</div>
+        <div class="experiment-text">Pairs walk a path with directional microphones and noise-cancelling headphones, refraining from verbal communication. Shared attention through listening.</div>
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Altered Reflections</div>
+        <div class="experiment-text">AI face morphing in a mirror installation. What is it like to see your own face change?</div>
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Festival Effect</div>
+        <div class="experiment-text">A longitudinal study: does the festival experience change you? Wellbeing measured at four timepoints across festival-goers and non-goers.</div>
+      </div>
+      <div class="experiment">
+        <div class="experiment-name">Phenomenological Interviews</div>
+        <div class="experiment-text">88 structured interviews on subjective experience during the 2024 camp.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="info-section">
+    <div class="info-label">Collaborators</div>
+    <div class="info-text">
+      Maria Machado, Giorgio Gristina, Romain Ligneul, Scott Rennie, Razvan Sandru, and others
+    </div>
+  </div>
+
+  <div class="info-section">
+    <div class="info-label">Context</div>
+    <div class="info-text">
+      Waking Life Festival, 2023 (first edition)<br>
+      2024: 240 participants, 7 experiments<br>
+      2025: Festival Effect protocol, Science Bureau
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="info-section">
+    <div class="info-label">Related</div>
+    <div class="related">
+      <a href="../waking-life/">Waking Life</a>
+      <a href="../about/">About</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">Latent States &middot; 2026</div>
+    <div class="footer-right">Lisbon</div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var t=document.getElementById('theme-toggle'),r=document.documentElement;
+  var saved=localStorage.getItem('ls-theme');
+  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
+  t.addEventListener('click',function(){
+    var current=r.getAttribute('data-theme');
+    var next=current==='light'?'dark':'light';
+    r.setAttribute('data-theme',next);
+    localStorage.setItem('ls-theme',next);
+    t.textContent=next==='light'?'☾':'☀';
+  });
+})();
+</script>
+</body>
+</html>
