@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Naoshige Uchida — Mainen Lab</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf8; --bg-card: #ffffff; --text: #1a1a1a; --muted: #6b7280;
+  --border: #e5e7eb; --hover: #f3f4f6; --accent: #0d9488;
+}
+[data-theme="dark"] {
+  --bg: #111111; --bg-card: #1a1a1a; --text: #e5e5e5; --muted: #9ca3af;
+  --border: #2d2d2d; --hover: #222222; --accent: #2dd4bf;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.2s, color 0.2s;
+}
+.page { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+.back { font-size: 0.85rem; color: var(--accent); text-decoration: none; display: inline-block; margin-bottom: 1.5rem; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+.position { color: var(--muted); font-size: 0.92rem; margin-bottom: 1rem; }
+.position a { color: var(--accent); text-decoration: none; }
+.position a:hover { text-decoration: underline; }
+.lab-role { font-size: 0.9rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.section-title {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin: 1.5rem 0 0.5rem;
+}
+.pub-list { list-style: none; padding: 0; }
+.pub-list li { font-size: 0.88rem; color: var(--text); margin-bottom: 0.6rem; line-height: 1.55; }
+.pub-list li .journal { color: var(--muted); }
+.pub-list li a { color: var(--accent); text-decoration: none; }
+.pub-list li a:hover { text-decoration: underline; }
+.project-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.project-list li a {
+  display: inline-block; font-size: 0.82rem; padding: 0.25rem 0.65rem;
+  border-radius: 999px; border: 1px solid var(--border); color: var(--accent);
+  text-decoration: none; transition: background 0.15s;
+}
+.project-list li a:hover { background: var(--hover); }
+.links { margin-top: 1.5rem; font-size: 0.85rem; }
+.links a { color: var(--accent); text-decoration: none; margin-right: 1.2rem; }
+.links a:hover { text-decoration: underline; }
+#theme-toggle {
+  position: fixed; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.4rem 0.6rem; cursor: pointer; color: var(--text); font-size: 0.85rem;
+}
+#theme-toggle:hover { background: var(--hover); }
+</style>
+</head>
+<body>
+<div class="page">
+<a href="../index.html" class="back">&larr; Back to Mainen Lab</a>
+<button id="theme-toggle" aria-label="Toggle dark mode">&#9790;</button>
+<h1>Naoshige Uchida</h1>
+<div class="position"><a href="https://cbs.fas.harvard.edu/directory/naoshige-uchida/" target="_blank" rel="noopener">Prof., Harvard</a></div>
+<div class="lab-role">Postdoc, 2000–2006</div>
+<div class="section-title">Publications with the lab</div><ul class="pub-list"><li>D. Kobak, Wieland Brendel, C. Constantinidis, C. Feierstein, Adam Kepecs, Z. Mainen, Xue-Lian Qi, R. Romo, N. Uchida, C. Machens (2016). <em><a href="https://doi.org/10.7554/elife.10989.022" target="_blank">Demixed principal component analysis of neural population data</a></em>. <span class="journal">eLife (5), e10989</span></li>
+<li>Hatim A. Zariwala, Adam Kepecs, N. Uchida, Junya Hirokawa, Z. Mainen (2013). <em><a href="https://doi.org/10.1016/j.neuron.2013.02.010" target="_blank">The limits of deliberation in a perceptual decision task</a></em>. <span class="journal">Neuron 78 (2), 339-51</span></li>
+<li>K. Miura, Z. Mainen, N. Uchida (2012). <em><a href="https://doi.org/10.1016/j.neuron.2012.04.021" target="_blank">Odor Representations in Olfactory Cortex: Distributed Rate Coding and Decorrelated Population Activity</a></em>. <span class="journal">Neuron 74 (6), 1087-98</span></li>
+<li>C. Feierstein, M. Quirk, N. Uchida, D. Sosulski, Z. Mainen (2009). <em><a href="https://doi.org/10.1016/j.neuron.2006.06.032" target="_blank">A defined network of fast-spiking interneurons in orbitofrontal cortex: responses to behavioral contingencies and ketamine administration</a></em>. <span class="journal">Front Syst Neurosci Nov09 (3), 13</span></li>
+<li>Adam Kepecs, N. Uchida, Hatim A. Zariwala, Z. Mainen (2008). <em><a href="https://doi.org/10.1038/nature07200" target="_blank">Neural correlates, computation and behavioral impact of decision confidence</a></em>. <span class="journal">Nature 455, 227-31</span></li>
+<li>N. Uchida, Z. Mainen (2008). <em><a href="https://doi.org/10.3389/neuro.06.003.2007" target="_blank">Odor concentration invariance by chemical ratio coding</a></em>. <span class="journal">Apr 08 (1), 3</span></li>
+<li>Adam Kepecs, N. Uchida, Z. Mainen (2007). <em><a href="https://doi.org/10.1152/jn.00071.2007" target="_blank">Rapid and precise control of sniffing during olfactory discrimination in rats</a></em>. <span class="journal">J Neurophysiol 98, 205-13</span></li>
+<li>Adam Kepecs, N. Uchida, Z. Mainen (2006). <em><a href="https://doi.org/10.1093/chemse/bjj016" target="_blank">The sniff as a unit of olfactory processing</a></em>. <span class="journal">Chem Senses 31, 167-79</span></li>
+<li>C. Feierstein, M. Quirk, N. Uchida, D. Sosulski, Z. Mainen (2006). <em><a href="https://doi.org/10.1016/j.neuron.2006.06.032" target="_blank">Representation of spatial goals in rat orbitofrontal cortex</a></em>. <span class="journal">Neuron 51, 495-507</span></li>
+<li>N. Uchida, Adam Kepecs, Z. Mainen (2006). <em><a href="https://doi.org/10.1038/nrn1933" target="_blank">Seeing at a glance: Limits on temporal integration in perception</a></em>. <span class="journal">Nature Rev Neurosci 7, 485-91</span></li>
+<li>H. Gurden, N. Uchida, Z. Mainen (2006). <em><a href="https://doi.org/10.1016/j.neuron.2006.07.022" target="_blank">Sensory-evoked intrinsic optical signals in the olfactory bulb are coupled to glutamate release and uptake</a></em>. <span class="journal">Neuron 52, 335-45</span></li>
+<li>N. Uchida, Z. Mainen (2003). <em><a href="https://doi.org/10.1038/nn1142" target="_blank">Speed and accuracy of olfactory discrimination in the rat</a></em>. <span class="journal">Nat Neurosci 6, 1224-9</span></li></ul>
+<div class="section-title">Projects</div><ul class="project-list"><li><a href="../index.html#project-olfactory-decisions">Olfactory Decision-Making</a></li></ul>
+<div class="links"><a href="https://orcid.org/0000-0002-5755-9409" target="_blank">ORCID</a> <a href="https://cbs.fas.harvard.edu/directory/naoshige-uchida/" target="_blank">Institution</a></div>
+</div>
+<script>
+const toggle = document.getElementById('theme-toggle');
+const root = document.documentElement;
+const stored = localStorage.getItem('ml-theme');
+if (stored) root.setAttribute('data-theme', stored);
+else if (window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+toggle.textContent = root.getAttribute('data-theme') === 'dark' ? '\u2600' : '\u263E';
+toggle.addEventListener('click', () => {
+  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('ml-theme', next);
+  toggle.textContent = next === 'dark' ? '\u2600' : '\u263E';
+});
+</script>
+</body>
+</html>

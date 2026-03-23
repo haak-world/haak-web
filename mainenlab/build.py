@@ -12,9 +12,9 @@ Outputs:
   - web/mainenlab/index.html (complete static site, all CSS/JS inline)
 """
 
-import json, re, html as html_mod, hashlib, subprocess, time, argparse, shutil
+import json, re, html as html_mod, hashlib, subprocess, time, argparse, shutil, urllib.request
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 import markdown as md_lib
 
@@ -118,6 +118,74 @@ def normalize_role(raw):
 
 ROLE_ORDER = ["PI", "Postdoc", "PhD Student", "MSc Student", "Technician", "Lab Manager", "Other"]
 
+INSTITUTION_URLS = {
+    "adam-kepecs": "https://neuroscience.wustl.edu/people/adam-kepecs-phd/",
+    "naoshige-uchida": "https://cbs.fas.harvard.edu/directory/naoshige-uchida/",
+    "karel-svoboda": "https://alleninstitute.org/person/karel-svoboda/",
+    "anthony-zador": "https://www.cshl.edu/research/faculty-staff/anthony-zador/",
+    "sejnowski": "https://www.salk.edu/scientist/terrence-sejnowski/",
+    "malinow": "https://profiles.ucsd.edu/roberto.malinow",
+    "veronica-egger": "https://www.uni-regensburg.de/biologie-vorklinische-medizin/tierphysiologie-egger/",
+    "steve-macknik": "https://macknik.neuralcorrelate.com/",
+    "cindy-poo": "https://alleninstitute.org/person/cindy-poo/",
+    "matthew-smear": "https://ion.uoregon.edu/research/faculty-page/270",
+    "gidon-felsen": "https://medschool.cuanschutz.edu/physiology/faculty/gidon-felsen-phd",
+    "armin-lak": "https://www.dpag.ox.ac.uk/team/armin-lak",
+    "alexandre-pouget": "https://neurocenter-unige.ch/research-groups/alexandre-pouget/",
+    "jan-drugowitsch": "https://dbmi.hms.harvard.edu/people/jan-drugowitsch",
+    "alfonso-renart": "https://www.fchampalimaud.org/research/groups/renart",
+    "fanny-cazettes": None,
+    "guillaume-dugue": None,
+    "romain-ligneul": None,
+    "magor-lorincz": None,
+    "luca-mazzucato": None,
+    "anne-churchland": "https://www.churchlandlab.org/",
+    "matteo-carandini": "https://www.carandinilab.net/",
+    "larry-abbott": None,
+    "davide-reato": "https://www.iit.it/people-details/-/people/davide-reato",
+    "torben-ott": "https://ottlab.org/",
+    "alex-gomez-marin": None,
+}
+
+ONGOING_COLLABORATORS = {"alexandre-pouget", "alfonso-renart", "luca-mazzucato", "dan-mcnamee"}
+
+# ── Publication-to-person matching ──
+
+def match_pubs_to_people(publications, people):
+    result = defaultdict(list)
+    last_names = {}
+    for p in people:
+        parts = p["name"].strip().split()
+        if parts:
+            last_names[p["slug"]] = parts[-1].lower()
+    name_counts = defaultdict(int)
+    for ln in last_names.values():
+        name_counts[ln] += 1
+    for slug, ln in last_names.items():
+        if name_counts[ln] > 1:
+            continue
+        for pub in publications:
+            for author in pub["authors"]:
+                if ln in author.lower():
+                    result[slug].append(pub["slug"])
+                    break
+    return dict(result)
+
+def compute_collab_years(person_slug, matched_pubs, publications):
+    pub_by_slug = {p["slug"]: p for p in publications}
+    years = [pub_by_slug[s]["year"] for s in matched_pubs if s in pub_by_slug and pub_by_slug[s]["year"]]
+    if not years:
+        return (None, None)
+    last_year = None if person_slug in ONGOING_COLLABORATORS else max(years)
+    return (min(years), last_year)
+
+def extract_institution(current_position):
+    if not current_position:
+        return ""
+    if "," in current_position:
+        return current_position.split(",", 1)[1].strip()
+    return current_position
+
 # ── Loaders ──
 
 def load_people():
@@ -135,6 +203,8 @@ def load_people():
             "current_position": d.get("current_position", ""),
             "email": (d.get("email") or "").split(";")[0].strip(),
             "orcid": d.get("orcid", ""),
+            "s2_id": str(d["s2_id"]) if d.get("s2_id") else "",
+            "google_scholar": d.get("google_scholar", ""),
         })
     return people
 
@@ -808,6 +878,43 @@ footer .sep { margin: 0 0.5rem; opacity: 0.4; }
 .program-card .expand-icon { color: var(--muted); font-size: 1rem; transition: transform 0.2s; flex-shrink: 0; }
 .program-card.expanded .expand-icon { transform: rotate(180deg); }
 
+/* Bio modal */
+.bio-modal {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200;
+  background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;
+  animation: bioFadeIn 0.15s ease;
+}
+@keyframes bioFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.bio-modal-content {
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.5rem 1.75rem; max-width: 700px; width: 90%; max-height: 80vh;
+  overflow-y: auto; position: relative; box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  font-size: 0.88rem; line-height: 1.6; color: var(--text);
+}
+.bio-close {
+  position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none;
+  font-size: 1.4rem; cursor: pointer; color: var(--muted); line-height: 1;
+}
+.bio-close:hover { color: var(--text); }
+.bio-modal-content h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 0.4rem; }
+.bio-modal-content .bio-institution { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.6rem; }
+.bio-modal-content .bio-institution a { color: var(--accent); text-decoration: none; }
+.bio-modal-content .bio-institution a:hover { text-decoration: underline; }
+.bio-modal-content .bio-lab-role { font-size: 0.85rem; margin-bottom: 0.6rem; }
+.bio-modal-content .bio-section-title { font-size: 0.78rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0.8rem 0 0.3rem; }
+.bio-modal-content .bio-pub-list { list-style: none; padding: 0; }
+.bio-modal-content .bio-pub-list li { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.4rem; line-height: 1.5; }
+.bio-modal-content .bio-pub-list li a { color: var(--accent); text-decoration: none; }
+.bio-modal-content .bio-pub-list li a:hover { text-decoration: underline; }
+.bio-modal-content .bio-project-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.3rem; }
+.bio-modal-content .bio-project-list li {
+  font-size: 0.78rem; padding: 0.2rem 0.55rem; border-radius: 999px;
+  border: 1px solid var(--border); cursor: pointer; color: var(--accent);
+}
+.bio-modal-content .bio-project-list li:hover { background: var(--hover); }
+.person-link { cursor: pointer; color: var(--accent); text-decoration: none; }
+.person-link:hover { text-decoration: underline; }
+
 /* Responsive */
 @media (max-width: 640px) {
   header h1 { font-size: 1.3rem; }
@@ -840,6 +947,13 @@ footer .sep { margin: 0 0.5rem; opacity: 0.4; }
   <div class="tt-name"></div>
   <div class="tt-span"></div>
   <div class="tt-desc"></div>
+</div>
+
+<div id="bio-modal" class="bio-modal" style="display:none">
+  <div class="bio-modal-content">
+    <button class="bio-close">&times;</button>
+    <div id="bio-content"></div>
+  </div>
 </div>
 
 <!-- Filter bar -->
@@ -1139,8 +1253,13 @@ function makeProjectCard(p) {
   const span = p.start_year ? (p.status === 'active' ? p.start_year + '\u2013present' : p.start_year + (p.end_year ? '\u2013' + p.end_year : '')) : '';
   const peopleBySlug = {};
   DATA.people.forEach(pe => peopleBySlug[pe.slug] = pe);
-  const keyPeople = (p.participants || []).slice(0, 3).map(s => peopleBySlug[s] ? peopleBySlug[s].name : s).join(', ');
-  const allPeople = (p.participants || []).map(s => peopleBySlug[s] ? peopleBySlug[s].name : s).join(', ');
+  function personLink(s) {
+    const pe = peopleBySlug[s];
+    if (!pe) return escHTML(s);
+    return '<span class="person-link" onclick="event.stopPropagation();showBio(\'' + s + '\')">' + escHTML(pe.name) + '</span>';
+  }
+  const keyPeople = (p.participants || []).slice(0, 3).map(personLink).join(', ');
+  const allPeople = (p.participants || []).map(personLink).join(', ');
 
   const tags = [];
   ['themes','methods','scale','organisms','settings'].forEach(axis => {
@@ -1167,7 +1286,7 @@ function makeProjectCard(p) {
           (span ? '<span class="card-span">' + span + '</span>' : '') +
           '<span class="status-pill ' + p.status + '">' + p.status + '</span>' +
         '</div>' +
-        (keyPeople ? '<div class="card-people">' + escHTML(keyPeople) + '</div>' : '') +
+        (keyPeople ? '<div class="card-people">' + keyPeople + '</div>' : '') +
         (p.description ? '<div class="card-desc-preview">' + escHTML(stripTags(p.description).length > 150 ? stripTags(p.description).slice(0, 150) + '\u2026' : stripTags(p.description)) + '</div>' : '') +
         (p.paper_count ? '<div class="card-papers">' + p.paper_count + ' publication' + (p.paper_count !== 1 ? 's' : '') + '</div>' : '') +
         '<div class="card-tags">' + tags.join('') + '</div>' +
@@ -1178,7 +1297,7 @@ function makeProjectCard(p) {
       '<div class="card-detail-inner">' +
         (p.description ? '<div class="card-description">' + p.description + '</div>' : '') +
         (pubListHTML ? '<ul class="card-pub-list">' + pubListHTML + '</ul>' : '') +
-        (allPeople ? '<div class="card-all-people"><strong>People:</strong> ' + escHTML(allPeople) + '</div>' : '') +
+        (allPeople ? '<div class="card-all-people"><strong>People:</strong> ' + allPeople + '</div>' : '') +
       '</div>' +
     '</div>';
   return card;
@@ -1480,17 +1599,25 @@ function renderFullTimeline() {
     const primary = getPrimaryTheme(themes);
     const color = primary ? getThemeColor(primary) : '#9ca3af';
 
-    const startYr = parseInt(p.start_date) || minYear;
-    const endYr = isAlumni ? (parseInt(p.end_date) || currentYear) : currentYear;
+    const isCollab = p.status === 'collaborator';
+    let startYr, endYr;
+    if (isCollab && p.collab_years && p.collab_years[0]) {
+      startYr = p.collab_years[0];
+      endYr = p.collab_years[1] || currentYear;
+    } else {
+      startYr = parseInt(p.start_date) || minYear;
+      endYr = isAlumni ? (parseInt(p.end_date) || currentYear) : currentYear;
+    }
     const startPct = Math.max(0, ((startYr - minYear) / totalYears) * 100);
     const endPct = Math.min(100, ((endYr - minYear + 1) / totalYears) * 100);
     const widthPct = Math.max(endPct - startPct, 1.2);
 
+    const subtitle = (p.status === 'active') ? p.role : (p.institution || p.role);
     const labelEl = document.createElement('div');
     labelEl.className = 'tl-label-row';
     labelEl.dataset.person = p.slug;
     if (selectedPerson === p.slug) labelEl.classList.add('selected');
-    labelEl.innerHTML = '<div style="text-align:right"><div class="ptl-name">' + escHTML(p.name) + '</div><div class="ptl-role">' + escHTML(p.role) + '</div></div>';
+    labelEl.innerHTML = '<div style="text-align:right"><div class="ptl-name person-link" onclick="event.stopPropagation();showBio(\'' + p.slug + '\')">' + escHTML(p.name) + '</div><div class="ptl-role">' + escHTML(subtitle) + '</div></div>';
     labelEl.addEventListener('click', function() { selectPerson(p.slug); });
 
     const trackEl = document.createElement('div');
@@ -1622,6 +1749,9 @@ function renderPrograms() {
   });
 }
 
+// ── Project slug set for anchor resolution ──
+const PROJECT_SLUGS = new Set(DATA.projects.map(p => p.slug));
+
 // ── Scroll to project helper ──
 function scrollToProject(slug) {
   const card = document.getElementById('project-' + slug);
@@ -1643,41 +1773,117 @@ function handleHash() {
   // #project-<slug> -> scroll to and expand that card
   const projectMatch = hash.match(/^project-(.+)$/);
   if (projectMatch) {
-    const slug = projectMatch[1];
-    setTimeout(function() { scrollToProject(slug); }, 100);
+    setTimeout(function() { scrollToProject(projectMatch[1]); }, 100);
+    return;
+  }
+
+  // Bare slug that matches a project
+  if (PROJECT_SLUGS.has(hash)) {
+    setTimeout(function() { scrollToProject(hash); }, 100);
     return;
   }
 
   // #themes=<slug>,<slug2>&methods=... -> activate filters
-  AXES.forEach(a => filters[a].clear());
-  hash.split('&').forEach(part => {
-    const [axis, vals] = part.split('=');
-    if (filters[axis] && vals) vals.split(',').forEach(v => filters[axis].add(v));
+  AXES.forEach(function(a) { filters[a].clear(); });
+  hash.split('&').forEach(function(part) {
+    const eq = part.indexOf('=');
+    if (eq === -1) return;
+    const axis = part.slice(0, eq), vals = part.slice(eq + 1);
+    if (filters[axis] && vals) vals.split(',').forEach(function(v) { filters[axis].add(v); });
   });
   render();
 }
 
 // ── Handle in-page link clicks ──
 document.addEventListener('click', function(e) {
-  const a = e.target.closest('a[href^="#"]');
-  if (!a) return;
-  const href = a.getAttribute('href');
-  const projectMatch = href.match(/^#project-(.+)$/);
+  const anchor = e.target.closest('a[href^="#"]');
+  if (!anchor) return;
+  const href = anchor.getAttribute('href');
+  const bare = href.slice(1); // strip #
+
+  // #project-<slug>
+  const projectMatch = bare.match(/^project-(.+)$/);
   if (projectMatch) {
     e.preventDefault();
     history.pushState(null, '', href);
     scrollToProject(projectMatch[1]);
     return;
   }
-  const themeMatch = href.match(/^#themes=(.+)$/);
+
+  // #themes=<slug>,<slug2>
+  const themeMatch = bare.match(/^themes=(.+)$/);
   if (themeMatch) {
     e.preventDefault();
     history.pushState(null, '', href);
-    AXES.forEach(a => filters[a].clear());
-    themeMatch[1].split(',').forEach(v => filters.themes.add(v));
+    AXES.forEach(function(ax) { filters[ax].clear(); });
+    themeMatch[1].split(',').forEach(function(v) { filters.themes.add(v); });
     render();
     renderFullTimeline();
+    return;
   }
+
+  // Bare slug that matches a project (e.g. #5ht-neuropixels)
+  if (PROJECT_SLUGS.has(bare)) {
+    e.preventDefault();
+    history.pushState(null, '', '#project-' + bare);
+    scrollToProject(bare);
+    return;
+  }
+});
+
+// ── Bio modal ──
+function showBio(slug) {
+  const p = DATA.people.find(x => x.slug === slug);
+  if (!p) return;
+  const modal = document.getElementById('bio-modal');
+  const content = document.getElementById('bio-content');
+  let html = '<h2>' + escHTML(p.name) + '</h2>';
+  if (p.current_position) {
+    let instHtml = escHTML(p.current_position);
+    if (p.institution_url) {
+      instHtml = '<a href="' + p.institution_url + '" target="_blank" rel="noopener">' + instHtml + '</a>';
+    }
+    html += '<div class="bio-institution">' + instHtml + '</div>';
+  }
+  const startYr = p.start_date || '?';
+  const endYr = p.status === 'active' ? 'present' : (p.end_date || '?');
+  html += '<div class="bio-lab-role">' + escHTML(p.role) + ', ' + startYr + '\u2013' + endYr + '</div>';
+  if (p.papers && p.papers.length) {
+    html += '<div class="bio-section-title">Publications with the lab</div>';
+    html += '<ul class="bio-pub-list">';
+    const sorted = p.papers.slice().sort((a, b) => b.year - a.year);
+    sorted.forEach(pub => {
+      const full = DATA.publications.find(x => x.slug === pub.slug);
+      const authors = full ? full.authors : [];
+      const firstAuthor = authors.length ? authors[0].split(',')[0] : '';
+      const authorStr = authors.length > 2 ? firstAuthor + ' et al.' : authors.map(a => a.split(',')[0]).join(', ');
+      const titleHtml = pub.doi
+        ? '<a href="https://doi.org/' + pub.doi + '" target="_blank">' + escHTML(pub.title) + '</a>'
+        : escHTML(pub.title);
+      html += '<li>' + authorStr + ' (' + pub.year + '). ' + titleHtml + '. <em>' + escHTML(pub.journal) + '</em></li>';
+    });
+    html += '</ul>';
+  }
+  if (p.projects && p.projects.length) {
+    html += '<div class="bio-section-title">Projects</div>';
+    html += '<ul class="bio-project-list">';
+    p.projects.forEach(proj => {
+      html += '<li onclick="document.getElementById(\'bio-modal\').style.display=\'none\';scrollToProject(\'' + proj.slug + '\')">' + escHTML(proj.name) + '</li>';
+    });
+    html += '</ul>';
+  }
+  html += '<div style="margin-top:1rem;font-size:0.85rem"><a href="people/' + slug + '.html" style="color:var(--accent)">Full profile &rarr;</a></div>';
+  content.innerHTML = html;
+  modal.style.display = 'flex';
+}
+document.getElementById('bio-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+document.querySelector('.bio-close').addEventListener('click', function() {
+  document.getElementById('bio-modal').style.display = 'none';
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('bio-modal').style.display = 'none';
 });
 
 // ── Init ──
@@ -1693,6 +1899,219 @@ window.addEventListener('hashchange', () => {
 </script>
 </body>
 </html>'''
+
+# ── Citation linking in program bodies ──
+
+def link_citations_in_programs(programs):
+    """Post-process program body_html to link in-text citations to bibliography entries."""
+    for prog in programs:
+        html = prog["body_html"]
+        slug = prog["slug"]
+        # Extract <ol>...</ol> blocks (key publications are numbered lists)
+        ol_pattern = re.compile(r'(<ol>)(.*?)(</ol>)', re.DOTALL)
+        ol_match = ol_pattern.search(html)
+        if not ol_match:
+            continue
+        ol_content = ol_match.group(2)
+        li_pattern = re.compile(r'<li>(.*?)</li>', re.DOTALL)
+        refs = li_pattern.findall(ol_content)
+        if not refs:
+            continue
+        # Build reference index: extract author last name + year from each ref
+        ref_entries = []
+        for i, ref_text in enumerate(refs):
+            plain = re.sub(r'<[^>]+>', '', ref_text)
+            m = re.match(r'([A-Z][a-zA-Z\u00e9\u00e8\u00ea\u00eb\u00e0\u00e2\u00e4\u00fc\u00f6\u00ef\u00ee\u00f4\u0171\-]+)\b.*?\((\d{4})\)', plain)
+            if m:
+                ref_entries.append((m.group(1), m.group(2), i + 1))
+        if not ref_entries:
+            continue
+        # Add id anchors to <li> elements inside <ol> only
+        li_count = [0]
+        def add_ref_id(m):
+            li_count[0] += 1
+            return f'<li id="prog-{slug}-ref-{li_count[0]}">{m.group(1)}</li>'
+        new_ol = '<ol>' + li_pattern.sub(add_ref_id, ol_content) + '</ol>'
+        html = html[:ol_match.start()] + new_ol + html[ol_match.end():]
+        # Link in-text citations (before the <ol>) to bibliography anchors
+        ol_start = html.find('<ol>')
+        body_before = html[:ol_start] if ol_start > 0 else html
+        body_after = html[ol_start:] if ol_start > 0 else ''
+        for author, year, ref_num in ref_entries:
+            anchor = f'#prog-{slug}-ref-{ref_num}'
+            # Parenthetical: (Author et al., Year)
+            paren_pat = re.compile(
+                r'\((' + re.escape(author) + r'[^)]*?,\s*' + re.escape(year) + r')\)'
+            )
+            body_before = paren_pat.sub(
+                lambda m, a=anchor: f'(<a href="{a}">{m.group(1)}</a>)', body_before
+            )
+            # Narrative: Author et al. (Year) or Author (Year)
+            narr_pat = re.compile(
+                r'(' + re.escape(author) + r'(?:\s+et\s+al\.?)?)\s+\((' + re.escape(year) + r')\)'
+            )
+            body_before = narr_pat.sub(
+                lambda m, a=anchor: f'<a href="{a}">{m.group(1)} ({m.group(2)})</a>', body_before
+            )
+        prog["body_html"] = body_before + body_after
+
+# ── Person page generation ──
+
+PERSON_PAGE_CSS = r'''
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf8; --bg-card: #ffffff; --text: #1a1a1a; --muted: #6b7280;
+  --border: #e5e7eb; --hover: #f3f4f6; --accent: #0d9488;
+}
+[data-theme="dark"] {
+  --bg: #111111; --bg-card: #1a1a1a; --text: #e5e5e5; --muted: #9ca3af;
+  --border: #2d2d2d; --hover: #222222; --accent: #2dd4bf;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+  transition: background 0.2s, color 0.2s;
+}
+.page { max-width: 700px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+.back { font-size: 0.85rem; color: var(--accent); text-decoration: none; display: inline-block; margin-bottom: 1.5rem; }
+.back:hover { text-decoration: underline; }
+h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.2rem; }
+.position { color: var(--muted); font-size: 0.92rem; margin-bottom: 1rem; }
+.position a { color: var(--accent); text-decoration: none; }
+.position a:hover { text-decoration: underline; }
+.lab-role { font-size: 0.9rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.section-title {
+  font-size: 0.72rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted); margin: 1.5rem 0 0.5rem;
+}
+.pub-list { list-style: none; padding: 0; }
+.pub-list li { font-size: 0.88rem; color: var(--text); margin-bottom: 0.6rem; line-height: 1.55; }
+.pub-list li .journal { color: var(--muted); }
+.pub-list li a { color: var(--accent); text-decoration: none; }
+.pub-list li a:hover { text-decoration: underline; }
+.project-list { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.project-list li a {
+  display: inline-block; font-size: 0.82rem; padding: 0.25rem 0.65rem;
+  border-radius: 999px; border: 1px solid var(--border); color: var(--accent);
+  text-decoration: none; transition: background 0.15s;
+}
+.project-list li a:hover { background: var(--hover); }
+.links { margin-top: 1.5rem; font-size: 0.85rem; }
+.links a { color: var(--accent); text-decoration: none; margin-right: 1.2rem; }
+.links a:hover { text-decoration: underline; }
+#theme-toggle {
+  position: fixed; top: 1rem; right: 1rem;
+  background: none; border: 1px solid var(--border); border-radius: 6px;
+  padding: 0.4rem 0.6rem; cursor: pointer; color: var(--text); font-size: 0.85rem;
+}
+#theme-toggle:hover { background: var(--hover); }
+'''
+
+def generate_person_pages(people, site_data):
+    people_dir = WEB / "people"
+    people_dir.mkdir(exist_ok=True)
+    pub_by_slug = {p["slug"]: p for p in site_data["publications"]}
+    proj_by_slug = {p["slug"]: p for p in site_data["projects"]}
+    count = 0
+    for person in people:
+        has_pubs = bool(person.get("papers"))
+        if not has_pubs and person.get("status") != "active":
+            continue
+        slug = person["slug"]
+        name = person["name"]
+        # Position line
+        pos_html = ""
+        if person.get("current_position"):
+            pos_text = esc(person["current_position"])
+            if person.get("institution_url"):
+                pos_html = f'<a href="{person["institution_url"]}" target="_blank" rel="noopener">{pos_text}</a>'
+            else:
+                pos_html = pos_text
+        # Lab role
+        role = person.get("role", "")
+        start = person.get("start_date") or "?"
+        if person.get("status") == "collaborator":
+            cy = person.get("collab_years", [None, None])
+            if cy[0]:
+                end = "present" if slug in ONGOING_COLLABORATORS else (str(cy[1]) if cy[1] else "present")
+                role_line = f"Collaborator, {cy[0]}\u2013{end}"
+            else:
+                role_line = "Collaborator"
+        else:
+            end = "present" if person.get("status") == "active" else (person.get("end_date") or "?")
+            role_line = f"{role}, {start}\u2013{end}"
+        # Publications
+        pubs_html = ""
+        papers = person.get("papers", [])
+        if papers:
+            sorted_papers = sorted(papers, key=lambda x: x["year"], reverse=True)
+            items = []
+            for pub in sorted_papers:
+                full = pub_by_slug.get(pub["slug"])
+                authors = full["authors"] if full else []
+                author_str = ", ".join(a.split(",")[0] for a in authors) if authors else ""
+                title_text = esc(pub["title"])
+                if pub.get("doi"):
+                    title_html = f'<a href="https://doi.org/{pub["doi"]}" target="_blank">{title_text}</a>'
+                else:
+                    title_html = title_text
+                journal = esc(pub.get("journal", ""))
+                items.append(f'<li>{author_str} ({pub["year"]}). <em>{title_html}</em>. <span class="journal">{journal}</span></li>')
+            pubs_html = '<ul class="pub-list">' + "\n".join(items) + '</ul>'
+        # Projects
+        projs_html = ""
+        projects = person.get("projects", [])
+        if projects:
+            items = []
+            for proj in projects:
+                items.append(f'<li><a href="../index.html#project-{proj["slug"]}">{esc(proj["name"])}</a></li>')
+            projs_html = '<ul class="project-list">' + "\n".join(items) + '</ul>'
+        # Links
+        links = []
+        if person.get("orcid"):
+            links.append(f'<a href="https://orcid.org/{person["orcid"]}" target="_blank">ORCID</a>')
+        if person.get("institution_url"):
+            links.append(f'<a href="{person["institution_url"]}" target="_blank">Institution</a>')
+        links_html = '<div class="links">' + " ".join(links) + '</div>' if links else ""
+        page_html = f'''<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{esc(name)} — Mainen Lab</title>
+<link rel="icon" type="image/svg+xml" href="../favicon.svg">
+<style>{PERSON_PAGE_CSS}</style>
+</head>
+<body>
+<div class="page">
+<a href="../index.html" class="back">&larr; Back to Mainen Lab</a>
+<button id="theme-toggle" aria-label="Toggle dark mode">&#9790;</button>
+<h1>{esc(name)}</h1>
+{f'<div class="position">{pos_html}</div>' if pos_html else ""}
+<div class="lab-role">{esc(role_line)}</div>
+{f'<div class="section-title">Publications with the lab</div>{pubs_html}' if pubs_html else ""}
+{f'<div class="section-title">Projects</div>{projs_html}' if projs_html else ""}
+{links_html}
+</div>
+<script>
+const toggle = document.getElementById('theme-toggle');
+const root = document.documentElement;
+const stored = localStorage.getItem('ml-theme');
+if (stored) root.setAttribute('data-theme', stored);
+else if (window.matchMedia('(prefers-color-scheme: dark)').matches) root.setAttribute('data-theme', 'dark');
+toggle.textContent = root.getAttribute('data-theme') === 'dark' ? '\\u2600' : '\\u263E';
+toggle.addEventListener('click', () => {{
+  const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  localStorage.setItem('ml-theme', next);
+  toggle.textContent = next === 'dark' ? '\\u2600' : '\\u263E';
+}});
+</script>
+</body>
+</html>'''
+        (people_dir / f"{slug}.html").write_text(page_html)
+        count += 1
+    print(f"  {count} person pages generated in {people_dir}")
 
 # ── Build ──
 
@@ -1725,8 +2144,36 @@ def build(regenerate=False):
     completed_proj = [p for p in projects if p["status"] != "active"]
     print(f"  {len(active_proj)} active, {len(completed_proj)} completed/other")
 
+    print("Enriching people with publications and projects...")
+    pub_matches = match_pubs_to_people(pubs, people)
+    pub_by_slug = {p["slug"]: p for p in pubs}
+    proj_by_slug = {p["slug"]: p for p in projects}
+    for person in people:
+        ps = person["slug"]
+        matched = pub_matches.get(ps, [])
+        person["papers"] = sorted(
+            [{"slug": s, "title": pub_by_slug[s]["title"], "year": pub_by_slug[s]["year"],
+              "doi": pub_by_slug[s]["doi"], "journal": pub_by_slug[s]["journal"]}
+             for s in matched if s in pub_by_slug],
+            key=lambda x: x["year"]
+        )
+        person["projects"] = [
+            {"slug": p["slug"], "name": p["name"]}
+            for p in projects if ps in p.get("people", [])
+        ]
+        if matched:
+            first_yr, last_yr = compute_collab_years(ps, matched, pubs)
+            person["collab_years"] = [first_yr, last_yr]
+        else:
+            person["collab_years"] = [None, None]
+        person["institution"] = extract_institution(person.get("current_position", ""))
+        person["institution_url"] = INSTITUTION_URLS.get(ps)
+    matched_count = sum(1 for p in people if pub_matches.get(p["slug"]))
+    print(f"  {matched_count} people matched to publications")
+
     print("Loading programs...")
     programs = load_programs()
+    link_citations_in_programs(programs)
     print(f"  {len(programs)} programs")
 
     print("Generating narratives...")
@@ -1765,6 +2212,11 @@ def build(regenerate=False):
             "slug": p["slug"], "name": p["name"], "status": p["status"],
             "role": p["role"], "current_position": p["current_position"],
             "start_date": p["start_date"], "end_date": p["end_date"],
+            "papers": p.get("papers", []), "projects": p.get("projects", []),
+            "collab_years": p.get("collab_years", [None, None]),
+            "institution": p.get("institution", ""),
+            "institution_url": p.get("institution_url"),
+            "orcid": p.get("orcid", ""),
         } for p in people],
         "narratives": narratives,
         "programs": [{
@@ -1785,7 +2237,11 @@ def build(regenerate=False):
     html = html.replace("__LAB_INTRO_PLACEHOLDER__", md_links_to_html(esc(lab_intro)))
     out_path = WEB / "index.html"
     out_path.write_text(html)
-    print(f"\nDone. {len(html):,} bytes written to {out_path}")
+    print(f"  {len(html):,} bytes written to {out_path}")
+
+    print("Generating person pages...")
+    generate_person_pages(people, site_data)
+    print(f"\nDone.")
 
 DEPLOY_REPO = "mainenlab/mainenlab.github.io"
 DEPLOY_CACHE = Path("/tmp/mainenlab.github.io")
@@ -1807,6 +2263,15 @@ def deploy():
             shutil.copy2(src, DEPLOY_CACHE / name)
         else:
             print(f"  warning: {name} not found in {WEB}, skipping")
+
+    # Copy people/ directory
+    people_src = WEB / "people"
+    people_dst = DEPLOY_CACHE / "people"
+    if people_src.exists():
+        if people_dst.exists():
+            shutil.rmtree(people_dst)
+        shutil.copytree(people_src, people_dst)
+        print(f"  Copied {len(list(people_src.glob('*.html')))} person pages")
 
     msg = f"build: deploy {datetime.now().strftime('%Y-%m-%d %H:%M')}"
     subprocess.run(["git", "add", "-A"], cwd=DEPLOY_CACHE, check=True)
