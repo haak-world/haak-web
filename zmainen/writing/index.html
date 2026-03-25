@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selected Writing — Zach Mainen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<button id="theme-toggle" aria-label="Toggle dark mode"><span id="toggle-icon">&#9790;</span></button>
+<div class="wrap">
+<nav><a href="/">&larr; Zach Mainen</a></nav>
+<header>
+<h1>Selected Writing</h1>
+<p class="intro">Essays on AI, ontology, and institutional design.</p>
+</header>
+<ul class="essay-list">
+<li><a href="why-organization-beats-scale.html"><strong>Why Organization Beats Scale</strong></a><br><span class="meta">March 2026</span><br><span class="desc">Organized retrieval is exponentially faster than unorganized retrieval. Not a little faster. Exponentially. From <a href="https://doi.org/10.48550/arXiv.2603.21272">The Library Theorem</a>.</span></li>
+<li><a href="your-llm-is-a-finite-automaton.html"><strong>Your LLM Is a Finite Automaton</strong></a><br><span class="meta">March 2026</span><br><span class="desc">A transformer with a fixed context window is a finite automaton. Chain-of-thought doesn't fix this. External memory does.</span></li>
+<li><a href="reality-is-a-tangle.html"><strong>Reality Is a Tangle</strong></a><br><span class="meta">March 2026</span><br><span class="desc">Three ancient problems — similarity, identity, knowledge — share a single topological solution.</span></li>
+<li><a href="there-is-no-meta-room.html"><strong>There Is No Meta Room</strong></a><br><span class="meta">March 2026</span><br><span class="desc">How should we make decisions when we disagree about the rules for making decisions? There is no framework above frameworks. <em>Written by a Claude instance.</em></span></li>
+</ul>
+<p class="also">See also: <a href="https://latentspacedialogues.substack.com/p/ai-needs-informed-consent">The Micro-Alignment Problem</a> and <a href="https://latentspacedialogues.substack.com/p/coming-soon">Latent Space Dialogues</a> on Substack.</p>
+</div>
+<script>
+const btn=document.getElementById('theme-toggle'),icon=document.getElementById('toggle-icon');function applyTheme(d){document.documentElement.setAttribute('data-theme',d?'dark':'light');icon.innerHTML=d?'&#9788;':'&#9790;';localStorage.setItem('zm-theme',d?'dark':'light')}if(localStorage.getItem('zm-theme')==='dark')applyTheme(true);btn.addEventListener('click',()=>{applyTheme(document.documentElement.getAttribute('data-theme')!=='dark')});
+</script>
+</body>
+</html>
