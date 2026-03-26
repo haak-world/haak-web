@@ -122,6 +122,35 @@ nav .breadcrumb a:hover { color: var(--text-primary); }
 }
 .related a:hover { border-color: var(--accent); color: var(--text-primary); }
 .divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
+/* ── Prev / Next Nav ── */
+.project-nav { max-width: 1200px; margin: 0 auto; padding: 0 32px 80px; }
+.project-nav-inner {
+  display: flex; gap: 40px;
+  border-top: 1px solid var(--border-light); padding-top: 40px;
+}
+.nav-link {
+  flex: 1; text-decoration: none; color: var(--text-primary);
+  transition: opacity 0.3s;
+}
+.nav-link img {
+  width: 100%; height: 180px; object-fit: cover;
+  display: block; margin-bottom: 16px; border-radius: 2px;
+}
+.nav-dir {
+  font-family: var(--font-heading); font-size: 11px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-muted); margin-bottom: 6px;
+}
+.nav-title { font-family: var(--font-heading); font-size: 20px; font-weight: 600; line-height: 1.2; }
+.nav-link--next { text-align: right; }
+.project-nav-inner:hover .nav-link { opacity: 0.4; }
+.project-nav-inner:hover .nav-link:hover { opacity: 1; }
+@media (max-width: 768px) {
+  .project-nav { padding: 0 20px 60px; }
+  .project-nav-inner { flex-direction: column; gap: 30px; }
+  .nav-link--next { text-align: left; }
+  .nav-link img { height: 140px; }
+}
 footer { padding: 48px 32px; border-top: 1px solid var(--border); }
 footer .footer-inner {
   max-width: 1200px; margin: 0 auto;
@@ -181,6 +210,22 @@ footer a:hover { color: var(--accent-warm); }
     </div>
   </div>
 </div>
+
+<!-- ── Previous / Next Navigation ── -->
+<nav class="project-nav">
+  <div class="project-nav-inner">
+    <a href="../mindcrystal/" class="nav-link nav-link--prev">
+      <div style="width:100%;height:180px;background:var(--bg-card);border:1px solid var(--border);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-ghost);margin-bottom:16px;">2018</div>
+      <div class="nav-dir">&larr; Previous Project</div>
+      <div class="nav-title">MindCrystal</div>
+    </a>
+    <a href="../atavic-forest/" class="nav-link nav-link--next">
+      <img src="../assets/cf-metamersion-ls-atavic-forest.jpg" alt="Atavic Forest" loading="lazy">
+      <div class="nav-dir">Next Project &rarr;</div>
+      <div class="nav-title">Atavic Forest</div>
+    </a>
+  </div>
+</nav>
 
 <footer>
   <div class="footer-inner">
