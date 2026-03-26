@@ -4,324 +4,623 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Latent States Camp — Latent States</title>
-<meta name="description" content="A laboratory without walls at Waking Life festival.">
+<meta name="description" content="A laboratory without walls. Since 2023, Latent States Camp has taken neuroscience out of the clinic and into a festival — designing experiments on perception, consciousness, and collective experience at Waking Life Festival, Portugal.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ── Design System: Cool Gray ── */
 :root {
-  --bg: #0a0a0a;
-  --bg-raised: #111110;
-  --bg-card: #161614;
-  --text-primary: #e8e4e0;
-  --text-secondary: #8a8580;
-  --text-muted: #585450;
-  --text-ghost: #2a2826;
-  --accent: #c4956a;
-  --accent-sage: #7a9a8a;
-  --accent-warm: #a89888;
-  --accent-highlight: #c8c0b8;
-  --border: #1e1c1a;
-  --border-light: #2a2826;
+  --bg: #101012;
+  --bg-surface: #18181a;
+  --border: #252528;
+  --text-primary: #d8d8dc;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
+  --accent: #8090a0;
+  --accent-alt: #a0a8b0;
   --font-heading: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f4f0ec;
-    --bg-raised: #e8e4e0;
-    --bg-card: #ddd9d5;
-    --text-primary: #1a1816;
-    --text-secondary: #6a6560;
-    --text-muted: #8a8580;
-    --text-ghost: #c8c4c0;
-    --accent: #9a6a42;
-    --accent-sage: #4a7a6a;
-    --accent-warm: #7a6a5a;
-    --accent-highlight: #4a4440;
-    --border: #d8d4d0;
-    --border-light: #c8c4c0;
-  }
+  --content-width: 720px;
+  --page-width: 1200px;
 }
 
-[data-theme="light"] {
-  --bg: #f4f0ec;
-  --bg-raised: #e8e4e0;
-  --bg-card: #ddd9d5;
-  --text-primary: #1a1816;
-  --text-secondary: #6a6560;
-  --text-muted: #8a8580;
-  --text-ghost: #c8c4c0;
-  --accent: #9a6a42;
-  --accent-sage: #4a7a6a;
-  --accent-warm: #7a6a5a;
-  --accent-highlight: #4a4440;
-  --border: #d8d4d0;
-  --border-light: #c8c4c0;
-}
-html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+html { scroll-behavior: smooth; }
+
 body {
-  background: var(--bg); color: var(--text-primary);
-  font-family: var(--font-body); font-weight: 300; line-height: 1.7;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-alt); }
+
+/* ── Nav ── */
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 0 32px;
-  background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border);
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(16, 16, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
 }
-nav .nav-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center; height: 64px;
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
 }
-nav .logo {
-  font-family: var(--font-heading); font-weight: 700; font-size: 18px;
-  letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none;
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
-nav .breadcrumb { font-size: 13px; color: var(--text-muted); letter-spacing: 0.04em; }
-nav .breadcrumb a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
-nav .breadcrumb a:hover { color: var(--text-primary); }
-.page { max-width: 960px; margin: 0 auto; padding: 120px 32px 80px; }
-.page-title {
-  font-family: var(--font-heading); font-weight: 800;
-  font-size: clamp(48px, 8vw, 80px); letter-spacing: -0.03em;
-  line-height: 0.95; margin-bottom: 20px;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 60%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+.nav-links a:hover { color: var(--text-primary); }
+
+/* ── Hero ── */
+.hero {
+  width: 100%;
+  margin-top: 52px;
 }
-.page-subtitle {
-  font-family: var(--font-heading); font-weight: 400; font-size: 20px;
-  color: var(--text-muted); margin-bottom: 20px; letter-spacing: -0.01em;
-}
-.page-meta {
-  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 48px;
-}
-.page-meta .accent { color: var(--accent); }
 .hero-image {
-  width: 100%; aspect-ratio: 21/9; background: var(--bg-card);
-  border: 1px solid var(--border); border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 56px; position: relative; overflow: hidden;
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 80vh;
 }
-.hero-image .placeholder-grid {
-  position: absolute; inset: 0;
-  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
-  gap: 1px; padding: 1px; opacity: 0.35;
+
+/* ── Section container ── */
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
 }
-.hero-image .cell { background: var(--bg-raised); border-radius: 1px; }
-.hero-image .label {
-  position: relative; z-index: 1;
-  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-ghost);
+
+/* ── Hero info ── */
+.hero-info {
+  padding-top: 64px;
+  padding-bottom: 40px;
 }
-.description {
-  font-size: 18px; line-height: 1.85; color: var(--text-secondary);
-  margin-bottom: 32px; max-width: 720px;
-}
-.description p { margin-bottom: 24px; }
-.description p:last-child { margin-bottom: 0; }
-.experiments { margin-bottom: 56px; }
-.experiment {
-  padding: 28px 0; border-bottom: 1px solid var(--border);
-}
-.experiment:first-child { border-top: 1px solid var(--border); }
-.experiment-name {
-  font-family: var(--font-heading); font-weight: 600; font-size: 16px;
-  color: var(--accent); margin-bottom: 8px;
-}
-.experiment-text {
-  font-size: 15px; line-height: 1.75; color: var(--text-secondary);
-}
-.experiment-image {
-  width: 100%; max-height: 50vh; object-fit: cover; border-radius: 2px;
-  margin: 24px 0 8px;
-}
-.info-section { margin-bottom: 48px; }
-.info-label {
-  font-family: var(--font-heading); font-weight: 600; font-size: 11px;
-  letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted);
+.hero-info h1 {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
-.info-text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
-.info-text a {
-  color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid var(--border); padding-bottom: 1px;
-  transition: color 0.3s, border-color 0.3s;
+
+/* ── Intro ── */
+.intro {
+  padding-bottom: 80px;
 }
-.info-text a:hover { color: var(--text-primary); border-color: var(--accent); }
-.related { display: flex; gap: 16px; flex-wrap: wrap; }
-.related a {
-  font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
-  text-decoration: none; border: 1px solid var(--border); padding: 8px 20px;
-  border-radius: 2px; transition: border-color 0.3s, color 0.3s;
+.intro p {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--text-secondary);
 }
-.related a:hover { border-color: var(--accent); color: var(--text-primary); }
-.divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
-footer { padding: 48px 32px; border-top: 1px solid var(--border); }
-footer .footer-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
+
+/* ── Metadata grid ── */
+.metadata {
+  padding-bottom: 90px;
 }
-footer .footer-left, footer .footer-right { font-size: 12px; letter-spacing: 0.15em; color: var(--text-ghost); }
-footer a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
-footer a:hover { color: var(--accent-warm); }
+.metadata-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.metadata-grid dt {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.metadata-grid dd {
+  color: var(--text-secondary);
+}
+
+/* ── Text sections ── */
+.text-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+.text-section h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+.text-section p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
+}
+.text-section p:last-child { margin-bottom: 0; }
+.text-section ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+}
+.text-section ul li {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  padding: 4px 0 4px 20px;
+  position: relative;
+}
+.text-section ul li::before {
+  content: '\2014';
+  position: absolute;
+  left: 0;
+  color: var(--text-muted);
+}
+.text-section ul li strong {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+/* ── 12-column asymmetric grid ── */
+.grid-section {
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0 32px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.grid-section .col-text { grid-column: 7 / 13; }
+.grid-section .col-images { grid-column: 1 / 7; }
+.grid-section .col-text h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+.grid-section .col-text p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
+}
+.grid-section .col-text p:last-child { margin-bottom: 0; }
+
+/* ── Image clusters ── */
+.image-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.image-cluster .img-wrap {
+  overflow: hidden;
+  width: 100%;
+}
+.image-cluster img {
+  width: 100%;
+  display: block;
+}
+.image-row {
+  display: flex;
+  gap: 4px;
+}
+.image-row .img-wrap {
+  overflow: hidden;
+  flex: 1;
+  min-width: 0;
+}
+.image-row img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.image-row--thirds .img-wrap { flex: 1 1 33.33%; }
+.image-row--halves .img-wrap { flex: 1 1 50%; }
+.image-row--wide-left .img-wrap:first-child { flex: 2; }
+.image-row--wide-left .img-wrap:last-child { flex: 1; }
+
+/* ── Image caption ── */
+.image-caption {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+  padding: 12px 32px 0;
+  max-width: var(--page-width);
+  margin: 0 auto;
+}
+
+/* ── Blockquote ── */
+.quote-section {
+  padding: 60px 24px;
+  max-width: var(--content-width);
+  margin: 0 auto;
+}
+blockquote {
+  font-family: var(--font-body);
+  font-size: 18px;
+  font-weight: 300;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  border-left: 2px solid var(--border);
+  padding-left: 28px;
+}
+
+/* ── Experiment cards ── */
+.experiments-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+.experiment-card {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+.experiment-card .img-wrap {
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+.experiment-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.experiment-card .card-label {
+  padding: 16px 0 4px;
+}
+.experiment-card .card-title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: block;
+}
+.experiment-card .card-desc {
+  font-size: 13px;
+  font-weight: 300;
+  color: var(--text-muted);
+  display: block;
+  margin-top: 4px;
+}
+
+/* ── Credits grid ── */
+.credits-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px 24px;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+.credits-grid dt {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.credits-grid dd {
+  color: var(--text-secondary);
+}
+
+/* ── Prev/Next nav ── */
+.project-nav {
+  max-width: var(--page-width);
+  margin: 120px auto 0;
+  padding: 0 32px 80px;
+}
+.project-nav-inner {
+  display: flex;
+  gap: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+.nav-item {
+  flex: 1;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+.nav-item:hover { opacity: 0.8; }
+.nav-direction {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.nav-project-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.nav-item--next { text-align: right; }
+
+/* ── Footer ── */
+footer {
+  padding: 48px 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── Responsive ── */
 @media (max-width: 768px) {
-  .page { padding: 100px 20px 60px; }
   nav { padding: 0 20px; }
-  footer .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .hero-info h1 { font-size: 36px; }
+  .hero-info { padding-top: 48px; }
+  .intro p { font-size: 18px; }
+  .intro { padding-bottom: 56px; }
+  .grid-section {
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 20px;
+  }
+  .grid-section .col-text,
+  .grid-section .col-images { grid-column: 1 / -1; }
+  .grid-section .col-images { order: -1; }
+  .text-section { padding-top: 56px; padding-bottom: 56px; }
+  .text-section h2, .grid-section .col-text h2 { font-size: 24px; }
+  .quote-section { padding: 40px 20px; }
+  blockquote { font-size: 16px; padding-left: 20px; }
+  .image-row { flex-direction: column; }
+  .experiments-grid { grid-template-columns: repeat(2, 1fr); padding: 0 20px; }
+  .credits-grid {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+  .credits-grid dt { padding-top: 12px; }
+  .metadata-grid { grid-template-columns: 1fr; gap: 4px 0; }
+  .metadata-grid dt { padding-top: 8px; }
+  .project-nav { padding: 0 20px 60px; }
+  .project-nav-inner { flex-direction: column; gap: 24px; }
+  .nav-item--next { text-align: left; }
+  .image-caption { padding: 10px 20px 0; }
+}
+
+@media (max-width: 480px) {
+  .hero-info h1 { font-size: 30px; }
+  .section { padding: 0 16px; }
+  .experiments-grid { grid-template-columns: 1fr; }
 }
 </style>
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
 
+<!-- ── Nav ── -->
 <nav>
-  <div class="nav-inner">
-    <a href="../" class="logo">LS</a>
-    <div class="breadcrumb">LSC</div>
+  <a href="../" class="nav-logo">LS</a>
+  <div class="nav-links">
+    <a href="../people/">People</a>
+    <a href="../about/">About</a>
   </div>
 </nav>
 
-<div class="page">
-  <h1 class="page-title">Latent States Camp</h1>
-  <div class="page-meta"><span class="accent">2023&ndash;present</span> &middot; Waking Life Festival, Portugal</div>
+<!-- ── Hero ── -->
+<div class="hero">
+  <img src="assets/lsc25-28.jpg" alt="Latent States Camp 2025 — wooden experiment stations scattered in wild grass by the river at Waking Life Festival" class="hero-image">
+</div>
 
-  <div class="hero-image" style="aspect-ratio:auto;border:none;background:none;">
-    <img src="../assets/camp-2.jpg" alt="Latent States Camp outdoor experiment stations at Waking Life 2025" style="width:100%;max-height:70vh;object-fit:cover;border-radius:2px;" loading="lazy">
-  </div>
+<!-- ── Title ── -->
+<div class="section hero-info">
+  <h1>Latent States Camp</h1>
+</div>
 
-  <div class="description">
-    <p>The Latent States Camp is a laboratory without walls at Waking Life festival. Not a lab outpost &mdash; a place where ideas transform into situated experience.</p>
+<!-- ── Intro ── -->
+<div class="section intro">
+  <p>A laboratory without walls. Since 2023, Latent States Camp has taken neuroscience out of the clinic and into a festival &mdash; designing experiments on perception, consciousness, and collective experience in the place where experience actually happens.</p>
+</div>
 
-    <p>We started from a conviction: certain questions about perception and consciousness cannot be answered in the laboratory, because the laboratory eliminates the conditions that produce the phenomena. A festival is not a convenient venue for data collection. It is a site where perception operates under conditions the lab cannot replicate &mdash; among strangers, in music, under open sky, sometimes under the influence of psychoactive substances, always in the presence of the unexpected.</p>
+<!-- ── Metadata ── -->
+<div class="section metadata">
+  <dl class="metadata-grid">
+    <dt>Years</dt>
+    <dd>2023&ndash;present</dd>
+    <dt>Type</dt>
+    <dd>Field Study</dd>
+    <dt>Venue</dt>
+    <dd>Waking Life Festival, Portugal</dd>
+    <dt>Programme</dt>
+    <dd>Latent States</dd>
+    <dt>Institution</dt>
+    <dd>Champalimaud Foundation</dd>
+  </dl>
+</div>
 
-    <p>Our method begins with phenomenology: the careful description of lived experience. We then design experiments that respect what the experience is.</p>
-  </div>
-
-  <div class="info-section">
-    <div class="info-label">Experiments</div>
-    <div class="experiments">
-      <div class="experiment">
-        <div class="experiment-name">Seeing</div>
-        <div class="experiment-text">Eye-tracking and visual perception under psychedelic conditions. Finding: reduced eye movement is linked to more visual hallucinations. Psychedelics amplify internal visual processes, they don't simply add noise.</div>
-        <img src="../assets/seeing-1.jpg" alt="Researcher at the Altered Reflections eye-tracking station" class="experiment-image" loading="lazy">
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Hearing</div>
-        <div class="experiment-text">VR auditory detection. Finding: psychedelics improved detection accuracy rather than increasing false alarms. The signal gets clearer, not noisier.</div>
-        <img src="../assets/hearing-1.jpg" alt="Outdoor hearing experiment station at the Latent States Camp" class="experiment-image" loading="lazy">
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Tasting</div>
-        <div class="experiment-text">Does the color of a cup change how things taste? Social sharing and flavor perception in naturalistic conditions.</div>
-        <img src="../assets/tasting-1.jpg" alt="Taste experiment with sample vials at the outdoor station" class="experiment-image" loading="lazy">
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Soundwalk</div>
-        <div class="experiment-text">Pairs walk a path with directional microphones and noise-cancelling headphones, refraining from verbal communication. Shared attention through listening.</div>
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Altered Reflections</div>
-        <div class="experiment-text">AI face morphing in a mirror installation. What is it like to see your own face change?</div>
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Festival Effect</div>
-        <div class="experiment-text">A longitudinal study: does the festival experience change you? Wellbeing measured at four timepoints across festival-goers and non-goers.</div>
-      </div>
-      <div class="experiment">
-        <div class="experiment-name">Phenomenological Interviews</div>
-        <div class="experiment-text">88 structured interviews on subjective experience during the 2024 camp.</div>
-      </div>
+<!-- ── Section 1: The Idea ── -->
+<div class="grid-section">
+  <div class="col-images">
+    <div class="image-cluster">
+      <div class="img-wrap"><img src="assets/camp-1.jpg" alt="Latent States Camp at night — blue-lit entrance portal with Submersion projection visible beyond" loading="lazy"></div>
+      <div class="img-wrap"><img src="assets/camp-2.jpg" alt="Submersion installation at night — festival-goers watching sound-reactive projections" loading="lazy"></div>
     </div>
   </div>
-
-  <div class="divider"></div>
-
-  <div class="info-section">
-    <div class="info-label">Context</div>
-    <div class="info-text">
-      Waking Life Festival, 2023 (first edition)<br>
-      2024: 240 participants, 7 experiments<br>
-      2025: Festival Effect protocol, Science Bureau
-    </div>
-  </div>
-
-  <div class="info-section">
-    <div class="info-label">Team</div>
-
-    <div class="info-text" style="margin-bottom:8px;color:var(--text-muted);font-size:13px;letter-spacing:0.06em;">Recurring across editions</div>
-    <div class="info-text" style="margin-bottom:24px;">
-      Zachary Mainen (Scientific Director) &middot;
-      Giorgio Gristina (Producer / Project Manager) &middot;
-      Scott Rennie (Researcher) &middot;
-      Razvan Sandru (Researcher) &middot;
-      Niklas Fricke (Submersion / <a href="https://lunar-ring.ai">Lunar Ring</a>) &middot;
-      Maria Machado (Production / Logistics, 2024&ndash;)
-    </div>
-
-    <div class="info-text" style="margin-bottom:8px;color:var(--text-muted);font-size:13px;letter-spacing:0.06em;">2023 &mdash; Pilot</div>
-    <div class="info-text" style="margin-bottom:24px;">
-      Zachary Mainen, Scott Rennie, Razvan Sandru, Giorgio Gristina, Eric Lacosse, Niklas Fricke
-    </div>
-
-    <div class="info-text" style="margin-bottom:8px;color:var(--text-muted);font-size:13px;letter-spacing:0.06em;">2024</div>
-    <div class="info-text" style="margin-bottom:24px;">
-      <strong>Production:</strong> Giorgio Gristina, Maria Machado<br>
-      <strong>Seeing:</strong> Scott Rennie, Lydia Neto<br>
-      <strong>Hearing:</strong> Torben Ott, Scott Rennie, Roberto de Filippo, Felipe Mendes<br>
-      <strong>Submersion:</strong> Niklas Fricke (<a href="https://lunar-ring.ai">Lunar Ring</a>)<br>
-      <strong>Welcome Desk:</strong> Giorgio Gristina, Michelle Mikkesch, Joana Leal, Teresa Rebelo de Andrade
-    </div>
-
-    <div class="info-text" style="margin-bottom:8px;color:var(--text-muted);font-size:13px;letter-spacing:0.06em;">2025</div>
-    <div class="info-text" style="margin-bottom:24px;">
-      <strong>Production:</strong> Giorgio Gristina, Maria Machado<br>
-      <strong>Seeing:</strong> Scott Rennie, Lydia Neto<br>
-      <strong>Hearing:</strong> Torben Ott, Roberto de Filippo<br>
-      <strong>Tasting:</strong> Zuzanna Dedyk, Razvan Sandru<br>
-      <strong>Submersion:</strong> Niklas Fricke, Alexander Loktyushin (<a href="https://lunar-ring.ai">Lunar Ring</a>)<br>
-      <strong>Sharing / Quest:</strong> Razvan Sandru, Zachary Mainen, Giorgio Gristina<br>
-      <strong>Longitudinal:</strong> Scott Rennie
-    </div>
-
-    <div class="info-text" style="margin-bottom:8px;color:var(--text-muted);font-size:13px;letter-spacing:0.06em;">Festival partnership</div>
-    <div class="info-text">
-      Waking Life festival team
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="info-section">
-    <div class="info-label">Related</div>
-    <div class="related">
-      <a href="../waking-life/">Waking Life</a>
-      <a href="../about/">About</a>
-    </div>
+  <div class="col-text">
+    <h2>The Idea</h2>
+    <p>What if you studied perception where perception is most alive? Not in a windowless lab with undergraduate subjects, but at a festival &mdash; outdoors, among strangers, under open sky, with all the noise and beauty and altered states that come with it. Latent States Camp is built on the conviction that the most interesting questions about experience can only be asked where experience is richest.</p>
   </div>
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-left">Latent States &middot; 2026</div>
-    <div class="footer-right">Lisbon</div>
-  </div>
-</footer>
+<!-- ── Section 2: 2023 — The Pilot ── -->
+<div class="section text-section">
+  <h2>2023 &mdash; The Pilot</h2>
+  <p>First year. Arrived at Waking Life as a creative camp. Phenomenological interviews &mdash; deep, unstructured conversations with festival-goers about their experience. Testing whether rigorous science could happen in the wild.</p>
+</div>
 
-<script>
-(function(){
-  var t=document.getElementById('theme-toggle'),r=document.documentElement;
-  var saved=localStorage.getItem('ls-theme');
-  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
-  t.addEventListener('click',function(){
-    var current=r.getAttribute('data-theme');
-    var next=current==='light'?'dark':'light';
-    r.setAttribute('data-theme',next);
-    localStorage.setItem('ls-theme',next);
-    t.textContent=next==='light'?'☾':'☀';
-  });
-})();
-</script>
+<div class="image-cluster" style="max-width: var(--page-width); margin: 0 auto; padding: 0 32px;">
+  <div class="img-wrap"><img src="assets/camp-3.jpg" alt="Do enter — Experiment in Progress — hand-painted sign at camp entrance" loading="lazy"></div>
+</div>
+
+<!-- ── Section 3: 2024 — Seven Experiments ── -->
+<div class="section text-section">
+  <h2>2024 &mdash; Seven Experiments</h2>
+  <p>The expansion. 300+ participants, four main experiments running daily:</p>
+  <ul>
+    <li><strong>Seeing</strong> &mdash; eye-tracking under psychedelics. Finding: reduced eye movement links to stronger visual effects.</li>
+    <li><strong>Hearing</strong> &mdash; VR auditory hallucination detection task (with Ott lab)</li>
+    <li><strong>Tasting</strong> &mdash; cross-modal flavour perception with colored vessels</li>
+    <li><strong>Shared Experience</strong> &mdash; phenomenological interviews continued</li>
+  </ul>
+  <p>Plus Submersion (interactive AI-art, nightly) and time perception studies.</p>
+</div>
+
+<div class="image-cluster" style="max-width: var(--page-width); margin: 0 auto; padding: 0 32px;">
+  <div class="image-row image-row--thirds">
+    <div class="img-wrap"><img src="assets/seeing-1.jpg" alt="Seeing experiment — close-up of eye-tracking glasses with infrared sensor" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/tasting-1.jpg" alt="Tasting experiment — participant selecting from acrylic sample tray" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/hearing-1.jpg" alt="Hearing experiment — VR auditory hallucination detection" loading="lazy"></div>
+  </div>
+</div>
+<div class="image-caption">[Img. 001] Seeing experiment &mdash; eye-tracking at Waking Life 2024</div>
+
+<!-- ── Section 4: 2025 — The Outpost ── -->
+<div class="section text-section">
+  <h2>2025 &mdash; The Outpost</h2>
+  <p>Refined and focused. Professional camp structure. Core experiments: Seeing (three real-world scenarios), Hearing (continuation), Tasting (flavour naming), Submersion (nightly sound-reactive installation). New: Festival Effect longitudinal study measuring wellbeing across the festival. Kosmicare harm reduction partnership.</p>
+</div>
+
+<div class="quote-section">
+  <blockquote>Its aim is to bring together scientists, researchers, artists and festival goers, to explore the diversity and complexity of the wilds of the human mind.</blockquote>
+</div>
+
+<!-- 2025 image cluster -->
+<div class="image-cluster" style="max-width: var(--page-width); margin: 0 auto; padding: 0 32px;">
+  <div class="image-row image-row--halves">
+    <div class="img-wrap"><img src="assets/lsc25-02.jpg" alt="Tasting station — wooden pavilion with two participants in golden-hour light" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/lsc25-03.jpg" alt="Zachary Mainen and researcher in conversation at camp" loading="lazy"></div>
+  </div>
+  <div class="image-row image-row--thirds">
+    <div class="img-wrap"><img src="assets/lsc25-06.jpg" alt="Close-up of hand selecting from acrylic flavour sample tray" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/lsc25-25.jpg" alt="Researcher fitting VR headset to participant in wooden station" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/lsc25-27.jpg" alt="Two researchers in conversation at wooden platform amid wild grass" loading="lazy"></div>
+  </div>
+  <div class="image-row image-row--halves">
+    <div class="img-wrap"><img src="assets/lsc25-30.jpg" alt="Participant wearing eye-tracking glasses by the river at golden hour" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/lsc25-14.jpg" alt="Group coffee tasting — researchers and festival-goers with flavour wheel" loading="lazy"></div>
+  </div>
+  <div class="image-row image-row--wide-left">
+    <div class="img-wrap"><img src="assets/lsc25-20.jpg" alt="Wide view — wooden experiment pavilions in wild landscape by the river" loading="lazy"></div>
+    <div class="img-wrap"><img src="assets/lsc25-22.jpg" alt="Participant with VR headset and controller at outdoor hearing station" loading="lazy"></div>
+  </div>
+</div>
+<div class="image-caption">[Img. 002] Latent States Camp 2025, Waking Life Festival</div>
+
+<!-- ── Section 5: The Experiments ── -->
+<div class="section text-section">
+  <h2>The Experiments</h2>
+</div>
+
+<div class="experiments-grid">
+  <a href="#" class="experiment-card">
+    <div class="img-wrap"><img src="assets/seeing-1.jpg" alt="Seeing — eye-tracking glasses close-up" loading="lazy"></div>
+    <div class="card-label">
+      <span class="card-title">Seeing</span>
+      <span class="card-desc">How psychedelics change the way we look at the world</span>
+    </div>
+  </a>
+  <a href="#" class="experiment-card">
+    <div class="img-wrap"><img src="assets/tasting-2.jpg" alt="Tasting — participant sampling flavours" loading="lazy"></div>
+    <div class="card-label">
+      <span class="card-title">Tasting</span>
+      <span class="card-desc">What flavour reveals about perception</span>
+    </div>
+  </a>
+  <a href="#" class="experiment-card">
+    <div class="img-wrap"><img src="assets/hearing-2.jpg" alt="Hearing — VR auditory hallucination task" loading="lazy"></div>
+    <div class="card-label">
+      <span class="card-title">Hearing</span>
+      <span class="card-desc">Detecting sounds that aren&rsquo;t there</span>
+    </div>
+  </a>
+  <a href="#" class="experiment-card">
+    <div class="img-wrap"><img src="assets/lsc25-01.jpg" alt="Sharing — researcher in profile at station" loading="lazy"></div>
+    <div class="card-label">
+      <span class="card-title">Sharing</span>
+      <span class="card-desc">Phenomenological interviews on lived experience</span>
+    </div>
+  </a>
+</div>
+
+<!-- ── Credits ── -->
+<div class="section text-section">
+  <h2>Credits</h2>
+  <dl class="credits-grid">
+    <dt>Founded by</dt>
+    <dd>Zachary Mainen</dd>
+    <dt>Research</dt>
+    <dd>Razvan Sandru, Scott Rennie, Giorgio Gristina, Lydia Neto, Zuzanna Dedyk, Roberto de Filippo</dd>
+    <dt>Art &amp; Installation</dt>
+    <dd>Niklas Fricke, Alexander Loktyushin (Submersion)</dd>
+    <dt>External</dt>
+    <dd>Torben Ott (Hearing)</dd>
+    <dt>Production</dt>
+    <dd>Maria Machado</dd>
+    <dt>Partners</dt>
+    <dd>Waking Life Festival, Kosmicare</dd>
+    <dt>Institution</dt>
+    <dd>Champalimaud Foundation, Lisbon</dd>
+  </dl>
+</div>
+
+<!-- ── Prev/Next ── -->
+<div class="project-nav">
+  <div class="project-nav-inner">
+    <a href="../palimpsest/" class="nav-item">
+      <div class="nav-direction">&larr; Previous</div>
+      <div class="nav-project-title">Palimpsest</div>
+    </a>
+    <a href="../metamersion/" class="nav-item nav-item--next">
+      <div class="nav-direction">Next &rarr;</div>
+      <div class="nav-project-title">Healing Algorithms</div>
+    </a>
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer>Latent States &middot; Lisbon</footer>
+
 </body>
 </html>

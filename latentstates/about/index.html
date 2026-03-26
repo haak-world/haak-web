@@ -11,58 +11,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --bg: #0a0a0a;
-  --bg-raised: #111110;
-  --bg-card: #161614;
-  --text-primary: #e8e4e0;
-  --text-secondary: #8a8580;
-  --text-muted: #585450;
-  --text-ghost: #2a2826;
-  --accent: #c4956a;
-  --accent-sage: #7a9a8a;
-  --accent-warm: #a89888;
-  --accent-highlight: #c8c0b8;
-  --border: #1e1c1a;
-  --border-light: #2a2826;
+  --bg: #101012;
+  --bg-surface: #18181a;
+  --border: #252528;
+  --text-primary: #d8d8dc;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
+  --accent: #8090a0;
+  --accent-alt: #a0a8b0;
   --font-heading: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f4f0ec;
-    --bg-raised: #e8e4e0;
-    --bg-card: #ddd9d5;
-    --text-primary: #1a1816;
-    --text-secondary: #6a6560;
-    --text-muted: #8a8580;
-    --text-ghost: #c8c4c0;
-    --accent: #9a6a42;
-    --accent-sage: #4a7a6a;
-    --accent-warm: #7a6a5a;
-    --accent-highlight: #4a4440;
-    --border: #d8d4d0;
-    --border-light: #c8c4c0;
-  }
+  --content-width: 720px;
+  --page-width: 1200px;
 }
 
-[data-theme="light"] {
-  --bg: #f4f0ec;
-  --bg-raised: #e8e4e0;
-  --bg-card: #ddd9d5;
-  --text-primary: #1a1816;
-  --text-secondary: #6a6560;
-  --text-muted: #8a8580;
-  --text-ghost: #c8c4c0;
-  --accent: #9a6a42;
-  --accent-sage: #4a7a6a;
-  --accent-warm: #7a6a5a;
-  --accent-highlight: #4a4440;
-  --border: #d8d4d0;
-  --border-light: #c8c4c0;
-}
-html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+html { scroll-behavior: smooth; }
+
 body {
   background: var(--bg);
   color: var(--text-primary);
@@ -70,147 +37,145 @@ body {
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-alt); }
 
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 32px;
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(16, 16, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
-nav .nav-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center; height: 64px;
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
 }
-nav .logo {
-  font-family: var(--font-heading); font-weight: 700; font-size: 18px;
-  letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none;
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
-nav .breadcrumb {
-  font-size: 13px; color: var(--text-muted); letter-spacing: 0.04em;
+.nav-links a:hover { color: var(--text-primary); }
+
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.page { max-width: 960px; margin: 0 auto; padding: 120px 32px 80px; }
-.page-title {
-  font-family: var(--font-heading); font-weight: 800;
-  font-size: clamp(48px, 8vw, 80px); letter-spacing: -0.03em;
-  line-height: 0.95; margin-bottom: 48px;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 60%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+.hero-info {
+  padding-top: 64px;
+  padding-bottom: 80px;
+}
+.hero-info h1 {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  margin-bottom: 16px;
 }
 
-.about-text {
-  font-size: 18px; line-height: 1.85; color: var(--text-secondary);
-  margin-bottom: 32px; max-width: 720px;
+.text-section {
+  padding-top: 0;
+  padding-bottom: 80px;
 }
-.about-text a {
-  color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid var(--border); padding-bottom: 1px;
-  transition: color 0.3s, border-color 0.3s;
+.text-section p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
 }
-.about-text a:hover { color: var(--text-primary); border-color: var(--accent); }
+.text-section p:last-child { margin-bottom: 0; }
 
-.hero-image {
-  width: 100%; aspect-ratio: 21/9; background: var(--bg-card);
-  border: 1px solid var(--border); border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 56px; position: relative; overflow: hidden;
+.divider {
+  width: 48px;
+  height: 1px;
+  background: var(--border);
+  margin: 0 0 48px;
 }
-.hero-image .placeholder-grid {
-  position: absolute; inset: 0;
-  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
-  gap: 1px; padding: 1px; opacity: 0.35;
-}
-.hero-image .cell { background: var(--bg-raised); border-radius: 1px; }
-.hero-image .label {
-  position: relative; z-index: 1;
-  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-ghost);
-}
-
-.divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
 
 .info-section { margin-bottom: 36px; }
 .info-label {
-  font-family: var(--font-heading); font-weight: 600; font-size: 11px;
-  letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
   margin-bottom: 12px;
 }
-.info-text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
-.info-text a {
-  color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid var(--border); padding-bottom: 1px;
-  transition: color 0.3s, border-color 0.3s;
+.info-text {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-secondary);
 }
-.info-text a:hover { color: var(--text-primary); border-color: var(--accent); }
 
 footer {
-  padding: 48px 32px; border-top: 1px solid var(--border);
+  padding: 48px 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
 }
-footer .footer-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
-}
-footer .footer-left, footer .footer-right {
-  font-size: 12px; letter-spacing: 0.15em; color: var(--text-ghost);
-}
-footer a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
-footer a:hover { color: var(--accent-warm); }
 
 @media (max-width: 768px) {
-  .page { padding: 100px 20px 60px; }
   nav { padding: 0 20px; }
-  footer .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .hero-info h1 { font-size: 36px; }
+  .hero-info { padding-top: 48px; padding-bottom: 56px; }
+  .section { padding: 0 16px; }
 }
 </style>
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
 
 <nav>
-  <div class="nav-inner">
-    <a href="../" class="logo">LS</a>
-    <div class="breadcrumb">About</div>
+  <a href="../" class="nav-logo">LS</a>
+  <div class="nav-links">
+    <a href="../people/">People</a>
+    <a href="../about/">About</a>
   </div>
 </nav>
 
-<div class="page">
-  <h1 class="page-title">About</h1>
+<div style="height: 52px;"></div>
 
-  <div class="hero-image">
-    <div class="placeholder-grid">
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <span class="label"></span>
-  </div>
+<div class="section hero-info">
+  <h1>About</h1>
+</div>
 
-  <div class="about-text">
-    Latent States is the art-science practice of Zachary Mainen, a neuroscientist at the <a href="https://www.fchampalimaud.org">Champalimaud Foundation</a> in Lisbon.
-  </div>
+<div class="section text-section">
+  <p>Latent States is the art-science practice of Zachary Mainen, a neuroscientist at the <a href="https://www.fchampalimaud.org">Champalimaud Foundation</a> in Lisbon.</p>
 
-  <div class="about-text">
-    The practice began in 2016 at Boom festival with <a href="../psiloscope/">Psiloscope</a> &mdash; a hundred sensors on a dance floor &mdash; and has since grown into a body of work spanning interactive installations, immersive AI experiences, a festival research programme, and an autonomous creature that perceives its visitors.
-  </div>
+  <p>The practice began in 2016 at Boom festival with <a href="../psiloscope/">Psiloscope</a> &mdash; a hundred sensors on a dance floor &mdash; and has since grown into a body of work spanning interactive installations, immersive AI experiences, a festival research programme, and an autonomous creature that perceives its visitors.</p>
 
-  <div class="about-text">
-    The core conviction: certain questions about experience &mdash; what it is like to perceive oneself, the world, other people, a machine &mdash; cannot be answered in the laboratory, because the laboratory eliminates the conditions that produce the phenomena. Art creates the disposition to explore: curiosity without agenda, attention without obligation, presence without optimization. Festivals create contexts where perception operates under conditions the lab cannot replicate.
-  </div>
+  <p>The core conviction: certain questions about experience &mdash; what it is like to perceive oneself, the world, other people, a machine &mdash; cannot be answered in the laboratory, because the laboratory eliminates the conditions that produce the phenomena. Art creates the disposition to explore: curiosity without agenda, attention without obligation, presence without optimization. Festivals create contexts where perception operates under conditions the lab cannot replicate.</p>
 
-  <div class="about-text">
-    The theoretical framework underneath this practice is the Topology of Things Theory (TTT), which argues that reality is relational, continuous, and exceeds any single formal description. Changing perception doesn&rsquo;t distort reality &mdash; it reveals worlds that were already there. The diversity of latent spaces is the diversity of worlds.
-  </div>
+  <p>The theoretical framework underneath this practice is the Topology of Things Theory (TTT), which argues that reality is relational, continuous, and exceeds any single formal description. Changing perception doesn&rsquo;t distort reality &mdash; it reveals worlds that were already there. The diversity of latent spaces is the diversity of worlds.</p>
 
-  <div class="about-text">
-    Latent States is part of the Champalimaud Foundation&rsquo;s <a href="https://www.fchampalimaud.org/education-art-science/art-science">Bridges to the Unknown</a> programme.
-  </div>
+  <p>Latent States is part of the Champalimaud Foundation&rsquo;s <a href="https://www.fchampalimaud.org/education-art-science/art-science">Bridges to the Unknown</a> programme.</p>
 
-  <div class="divider"></div>
+  <div class="divider" style="margin-top: 48px;"></div>
 
   <div class="info-section">
     <div class="info-label">Links</div>
@@ -229,26 +194,7 @@ footer a:hover { color: var(--accent-warm); }
   </div>
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-left">Latent States &middot; 2026</div>
-    <div class="footer-right">Lisbon</div>
-  </div>
-</footer>
+<footer>Latent States &middot; Lisbon</footer>
 
-<script>
-(function(){
-  var t=document.getElementById('theme-toggle'),r=document.documentElement;
-  var saved=localStorage.getItem('ls-theme');
-  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
-  t.addEventListener('click',function(){
-    var current=r.getAttribute('data-theme');
-    var next=current==='light'?'dark':'light';
-    r.setAttribute('data-theme',next);
-    localStorage.setItem('ls-theme',next);
-    t.textContent=next==='light'?'☾':'☀';
-  });
-})();
-</script>
 </body>
 </html>

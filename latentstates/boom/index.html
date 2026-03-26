@@ -11,58 +11,25 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 :root {
-  --bg: #0a0a0a;
-  --bg-raised: #111110;
-  --bg-card: #161614;
-  --text-primary: #e8e4e0;
-  --text-secondary: #8a8580;
-  --text-muted: #585450;
-  --text-ghost: #2a2826;
-  --accent: #c4956a;
-  --accent-sage: #7a9a8a;
-  --accent-warm: #a89888;
-  --accent-highlight: #c8c0b8;
-  --border: #1e1c1a;
-  --border-light: #2a2826;
+  --bg: #101012;
+  --bg-surface: #18181a;
+  --border: #252528;
+  --text-primary: #d8d8dc;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
+  --accent: #8090a0;
+  --accent-alt: #a0a8b0;
   --font-heading: 'Syne', sans-serif;
   --font-body: 'Space Grotesk', sans-serif;
-}
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg: #f4f0ec;
-    --bg-raised: #e8e4e0;
-    --bg-card: #ddd9d5;
-    --text-primary: #1a1816;
-    --text-secondary: #6a6560;
-    --text-muted: #8a8580;
-    --text-ghost: #c8c4c0;
-    --accent: #9a6a42;
-    --accent-sage: #4a7a6a;
-    --accent-warm: #7a6a5a;
-    --accent-highlight: #4a4440;
-    --border: #d8d4d0;
-    --border-light: #c8c4c0;
-  }
+  --content-width: 720px;
+  --page-width: 1200px;
 }
 
-[data-theme="light"] {
-  --bg: #f4f0ec;
-  --bg-raised: #e8e4e0;
-  --bg-card: #ddd9d5;
-  --text-primary: #1a1816;
-  --text-secondary: #6a6560;
-  --text-muted: #8a8580;
-  --text-ghost: #c8c4c0;
-  --accent: #9a6a42;
-  --accent-sage: #4a7a6a;
-  --accent-warm: #7a6a5a;
-  --accent-highlight: #4a4440;
-  --border: #d8d4d0;
-  --border-light: #c8c4c0;
-}
-html { scroll-behavior: smooth; transition: background-color 0.3s, color 0.3s; }
+html { scroll-behavior: smooth; }
+
 body {
   background: var(--bg);
   color: var(--text-primary);
@@ -70,172 +37,193 @@ body {
   font-weight: 300;
   line-height: 1.7;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-alt); }
 
 nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: 0 32px;
-  background: color-mix(in srgb, var(--bg) 85%, transparent);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(16, 16, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
 }
-nav .nav-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center; height: 64px;
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
 }
-nav .logo {
-  font-family: var(--font-heading); font-weight: 700; font-size: 18px;
-  letter-spacing: -0.02em; color: var(--text-primary); text-decoration: none;
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
 }
-nav .breadcrumb {
-  font-size: 13px; color: var(--text-muted); letter-spacing: 0.04em;
+.nav-links a:hover { color: var(--text-primary); }
+
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-.page { max-width: 960px; margin: 0 auto; padding: 120px 32px 80px; }
-.page-title {
-  font-family: var(--font-heading); font-weight: 800;
-  font-size: clamp(48px, 8vw, 80px); letter-spacing: -0.03em;
-  line-height: 0.95; margin-bottom: 20px;
-  background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 60%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+.hero {
+  width: 100%;
+  margin-top: 52px;
 }
-.page-subtitle {
-  font-size: 16px; letter-spacing: 0.06em; color: var(--text-secondary); margin-bottom: 8px;
-}
-.page-meta {
-  font-size: 14px; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--text-muted); margin-bottom: 48px;
-}
-.page-meta .accent { color: var(--accent); }
-
-.hero-image {
-  width: 100%; aspect-ratio: 21/9; background: var(--bg-card);
-  border: 1px solid var(--border); border-radius: 2px;
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 56px; position: relative; overflow: hidden;
-}
-.hero-image .placeholder-grid {
-  position: absolute; inset: 0;
-  display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(3, 1fr);
-  gap: 1px; padding: 1px; opacity: 0.35;
-}
-.hero-image .cell { background: var(--bg-raised); border-radius: 1px; }
-.hero-image .label {
-  position: relative; z-index: 1;
-  font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-ghost);
+.hero img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 70vh;
 }
 
-.description {
-  font-size: 18px; line-height: 1.85; color: var(--text-secondary);
-  margin-bottom: 32px; max-width: 720px;
+.hero-info {
+  padding-top: 64px;
+  padding-bottom: 80px;
 }
-
-.info-section { margin-bottom: 48px; }
-.info-label {
-  font-family: var(--font-heading); font-weight: 600; font-size: 11px;
-  letter-spacing: 0.25em; text-transform: uppercase; color: var(--text-muted);
+.hero-info h1 {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
   margin-bottom: 16px;
 }
-.info-text { font-size: 15px; line-height: 1.75; color: var(--text-secondary); }
-.info-text a {
-  color: var(--accent); text-decoration: none;
-  border-bottom: 1px solid var(--border); padding-bottom: 1px;
-  transition: color 0.3s, border-color 0.3s;
+.hero-info .meta-line {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-bottom: 8px;
 }
-.info-text a:hover { color: var(--text-primary); border-color: var(--accent); }
-
-.related { display: flex; gap: 16px; flex-wrap: wrap; }
-.related a {
-  font-size: 13px; letter-spacing: 0.08em; color: var(--accent);
-  text-decoration: none; border: 1px solid var(--border); padding: 8px 20px;
-  border-radius: 2px; transition: border-color 0.3s, color 0.3s;
+.hero-info .credits-line {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
 }
-.related a:hover { border-color: var(--accent); color: var(--text-primary); }
 
-.divider { width: 48px; height: 1px; background: var(--border-light); margin: 56px 0; }
+.text-section {
+  padding-top: 0;
+  padding-bottom: 80px;
+}
+.text-section h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.text-section p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
+}
+.text-section p:last-child { margin-bottom: 0; }
+
+.exhibition-list {
+  list-style: none;
+  padding: 0;
+}
+.exhibition-list li {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.exhibition-list li:first-child {
+  border-top: 1px solid var(--border);
+}
+.exhibition-list .ex-name {
+  display: block;
+  font-weight: 400;
+  color: var(--text-primary);
+}
+a.ex-name {
+  color: var(--accent);
+  transition: color 0.2s;
+}
+a.ex-name:hover {
+  color: var(--accent-alt);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 footer {
-  padding: 48px 32px; border-top: 1px solid var(--border);
+  padding: 48px 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
 }
-footer .footer-inner {
-  max-width: 1200px; margin: 0 auto;
-  display: flex; justify-content: space-between; align-items: center;
-}
-footer .footer-left, footer .footer-right {
-  font-size: 12px; letter-spacing: 0.15em; color: var(--text-ghost);
-}
-footer a { color: var(--text-muted); text-decoration: none; transition: color 0.3s; }
-footer a:hover { color: var(--accent-warm); }
 
 @media (max-width: 768px) {
-  .page { padding: 100px 20px 60px; }
   nav { padding: 0 20px; }
-  footer .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+  .hero-info h1 { font-size: 36px; }
+  .hero-info { padding-top: 48px; padding-bottom: 56px; }
+  .text-section h2 { font-size: 24px; }
+}
+
+@media (max-width: 480px) {
+  .hero-info h1 { font-size: 30px; }
+  .section { padding: 0 16px; }
 }
 </style>
 </head>
 <body>
-<button id="theme-toggle" aria-label="Toggle light/dark mode" style="position:fixed;top:20px;right:20px;z-index:1000;background:none;border:1px solid var(--border);border-radius:50%;width:32px;height:32px;cursor:pointer;color:var(--text-secondary, var(--text-muted));font-size:14px;display:flex;align-items:center;justify-content:center;transition:border-color 0.3s,color 0.3s;">☀</button>
 
 <nav>
-  <div class="nav-inner">
-    <a href="../" class="logo">LS</a>
-    <div class="breadcrumb">Boom</div>
+  <a href="../" class="nav-logo">LS</a>
+  <div class="nav-links">
+    <a href="../people/">People</a>
+    <a href="../about/">About</a>
   </div>
 </nav>
 
-<div class="page">
-  <h1 class="page-title">Boom Festival</h1>
-  <div class="page-subtitle">Where it started</div>
-  <div class="page-meta"><span class="accent">2016, 2018</span> &middot; Idanha-a-Nova, Portugal</div>
-
-  <div class="hero-image" style="background: url('../assets/boom-remember.jpg') center/cover no-repeat;">
-  </div>
-
-  <div class="description">
-    Boom is a biennial transformational arts festival in Idanha-a-Nova, Portugal. In 2016, we brought a hundred wireless motion sensors to the dance floor and built <a href="../psiloscope/" style="color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 1px; text-decoration: none;">Psiloscope</a> &mdash; the first Latent States project. Boom was where the practice began: the conviction that perception and collective experience could be studied not in spite of the festival context but because of it.
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="info-section">
-    <div class="info-label">Projects</div>
-    <div class="info-text">
-      <a href="../psiloscope/">Psiloscope</a> (2016)
-    </div>
-  </div>
-
-  <div class="info-section">
-    <div class="info-label">Related</div>
-    <div class="related">
-      <a href="../psiloscope/">Psiloscope</a>
-      <a href="../waking-life/">Waking Life</a>
-      <a href="../metamersion/">Metamersion</a>
-    </div>
-  </div>
+<div class="hero">
+  <img src="../assets/boom-remember.jpg" alt="Boom Festival, Idanha-a-Nova, Portugal" loading="lazy">
 </div>
 
-<footer>
-  <div class="footer-inner">
-    <div class="footer-left">Latent States &middot; 2026</div>
-    <div class="footer-right">Lisbon</div>
-  </div>
-</footer>
+<div class="section hero-info">
+  <h1>Boom Festival</h1>
+  <div class="credits-line">Where it started</div>
+  <div class="meta-line">2016, 2018 &middot; Idanha-a-Nova, Portugal</div>
+</div>
 
-<script>
-(function(){
-  var t=document.getElementById('theme-toggle'),r=document.documentElement;
-  var saved=localStorage.getItem('ls-theme');
-  if(saved){r.setAttribute('data-theme',saved);t.textContent=saved==='light'?'☾':'☀';}
-  t.addEventListener('click',function(){
-    var current=r.getAttribute('data-theme');
-    var next=current==='light'?'dark':'light';
-    r.setAttribute('data-theme',next);
-    localStorage.setItem('ls-theme',next);
-    t.textContent=next==='light'?'☾':'☀';
-  });
-})();
-</script>
+<div class="section text-section">
+  <p>Boom is a biennial transformational arts festival in Idanha-a-Nova, Portugal. In 2016, we brought a hundred wireless motion sensors to the dance floor and built <a href="../psiloscope/">Psiloscope</a> &mdash; the first Latent States project. Boom was where the practice began: the conviction that perception and collective experience could be studied not in spite of the festival context but because of it.</p>
+</div>
+
+<div class="section text-section" style="padding-top: 0;">
+  <h2>Projects</h2>
+  <ul class="exhibition-list">
+    <li>
+      <a href="../psiloscope/" class="ex-name">Psiloscope</a>
+      <span style="font-size: 13px; color: var(--text-muted);">2016</span>
+    </li>
+  </ul>
+</div>
+
+<footer>Latent States &middot; Lisbon</footer>
+
 </body>
 </html>
