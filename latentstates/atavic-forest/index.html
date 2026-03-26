@@ -17,8 +17,8 @@
   --bg-surface: #18181a;
   --border: #252528;
   --text-primary: #d8d8dc;
-  --text-secondary: #888890;
-  --text-muted: #555558;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
   --accent: #8090a0;
   --accent-alt: #a0a8b0;
   --font-heading: 'Syne', sans-serif;
@@ -219,6 +219,16 @@ blockquote {
   font-weight: 400;
   color: var(--text-primary);
 }
+a.ex-name {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a.ex-name:hover {
+  color: var(--accent-alt);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .exhibition-list .ex-detail {
   font-size: 13px;
   color: var(--text-muted);
@@ -406,7 +416,7 @@ footer {
   <h2>Exhibitions</h2>
   <ul class="exhibition-list">
     <li>
-      <span class="ex-name">Metamersion 2: Latent Spaces</span>
+      <a href="../metamersion/" class="ex-name">Metamersion 2: Latent Spaces</a>
       <span class="ex-detail">Champalimaud Foundation, Lisbon &middot; December 2022 / January 2023</span>
     </li>
     <li>
