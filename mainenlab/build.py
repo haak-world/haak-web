@@ -266,8 +266,11 @@ def load_publications():
             "belongings": meta.get("belongings", []),
             "pdf": meta.get("pdf", ""),
             "links": meta.get("links", {}),
+            "status": meta.get("status", "published"),
+            "conferences": meta.get("conferences", []),
         })
-    pubs.sort(key=lambda p: (-p["year"], -p["citations"]))
+    _status_order = {"in-preparation": 0, "preprint": 1, "published": 2}
+    pubs.sort(key=lambda p: (_status_order.get(p.get("status", "published"), 2), -p["year"], -p["citations"]))
     return pubs
 
 # ── Semantic Scholar cache ──
@@ -2577,6 +2580,15 @@ h1 { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom
   border-radius: 3px; background: var(--hover); color: var(--muted);
   margin-left: 0.3rem; vertical-align: middle;
 }
+.status-badge {
+  display: inline-block; font-size: 0.65rem; padding: 0.1rem 0.4rem;
+  border-radius: 3px; margin-left: 0.3rem; vertical-align: middle;
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.status-badge.prep { background: #fff3cd; color: #856404; }
+.status-badge.preprint { background: #d1ecf1; color: #0c5460; }
+[data-theme="dark"] .status-badge.prep { background: #533f03; color: #ffc107; }
+[data-theme="dark"] .status-badge.preprint { background: #0c3c47; color: #63d0df; }
 '''
 
 PUBLICATIONS_PAGE_JS = r'''
@@ -2676,6 +2688,13 @@ def generate_publications_page(pubs, taxonomy):
 
         title_html = f'<a href="https://doi.org/{esc(doi)}" target="_blank" rel="noopener">{title}</a>' if doi else title
         cite_html = f' <span class="cite-badge">{citations} cited</span>' if citations else ""
+        status = p.get("status", "published")
+        if status == "in-preparation":
+            status_html = ' <span class="status-badge prep">In preparation</span>'
+        elif status == "preprint":
+            status_html = ' <span class="status-badge preprint">Preprint</span>'
+        else:
+            status_html = ""
 
         links = []
         if doi:
@@ -2684,18 +2703,27 @@ def generate_publications_page(pubs, taxonomy):
         if pub_links.get("preprint"):
             links.append(f'<a href="{esc(pub_links["preprint"])}" target="_blank" rel="noopener">Preprint</a>')
         pdf_url = f'https://filix-media.sos-de-muc-1.exo.io/publications/{slug}.pdf'
-        if p.get("pdf"):
+        if p.get("pdf") and status != "in-preparation":
             links.append(f'<a href="{pdf_url}" target="_blank" rel="noopener">PDF</a>')
         if pub_links.get("code"):
             links.append(f'<a href="{esc(pub_links["code"])}" target="_blank" rel="noopener">Code</a>')
         if pub_links.get("data"):
             links.append(f'<a href="{esc(pub_links["data"])}" target="_blank" rel="noopener">Data</a>')
+        # Conference entries — only show if there's a URL to link to
+        conferences = p.get("conferences", [])
+        for conf in conferences:
+            curl = conf.get("url", "")
+            if curl:
+                venue = conf.get("venue", "")
+                ctype = conf.get("type", "")
+                label = f'{venue} {ctype}'.strip()
+                links.append(f'<a href="{esc(curl)}" target="_blank" rel="noopener">{esc(label)}</a>')
         links_html = '<div class="pub-links">' + " · ".join(links) + '</div>' if links else ""
 
         items_html.append(
             f'<li class="pub-item" data-search="{search_text}" data-themes="{themes_attr}">'
             f'<div class="pub-year">{year}</div>'
-            f'<div class="pub-title">{title_html}{cite_html}</div>'
+            f'<div class="pub-title">{title_html}{status_html}{cite_html}</div>'
             f'<div class="pub-authors">{authors_str}</div>'
             f'{f"""<div class="pub-journal">{journal}</div>""" if journal else ""}'
             f'{links_html}'
