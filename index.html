@@ -44,7 +44,7 @@ body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
 
-/* ── GRAVITY GRID CANVAS ── */
+/* ── FLOW FIELD CANVAS ── */
 #grid-canvas {
   position: fixed;
   inset: 0;
@@ -795,18 +795,26 @@ document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => 
   obs.observe(el);
 });
 
-// ── GRAVITY GRID ─────────────────────────────────────────────────
+// ── FLOW FIELD ───────────────────────────────────────────────────
 (function() {
   const canvas = document.getElementById('grid-canvas');
   const ctx    = canvas.getContext('2d');
-  const STEP   = 28;   // grid cell size
-  const SUB    = 5;    // sub-segments per cell (smoothness)
-  const STRENGTH = 38; // max warp pixels
-  const SIGMA    = 160; // warp falloff radius
+
+  // Grid and segment geometry
+  const SPACING = 24;   // px between grid sample points
+  const SEG_LEN = 14;   // half-length of each field line segment (±7px either side)
+
+  // Animation
+  let t = 0;
+  const T_SPEED = 0.0018; // how fast the field evolves per frame
+
+  // Mouse influence
+  let targetX = -9999, targetY = -9999;
+  let mx = -9999, my = -9999;
+  const MOUSE_RADIUS  = 180; // px — how far the cursor reaches
+  const MOUSE_TWIST   = 0.55; // radians — max angular nudge near cursor
 
   let W, H;
-  let targetX = -9999, targetY = -9999; // raw mouse
-  let mx = -9999, my = -9999;           // smoothed mouse
 
   function resize() {
     W = canvas.width  = window.innerWidth;
@@ -816,55 +824,62 @@ document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => 
   window.addEventListener('resize', resize);
   document.addEventListener('mousemove', e => { targetX = e.clientX; targetY = e.clientY; });
 
-  // Gravitational displacement: push grid points away from cursor
-  function warp(x, y) {
-    const dx = x - mx, dy = y - my;
-    const dist2 = dx*dx + dy*dy;
-    if (dist2 < 1) return [x, y];
-    const dist = Math.sqrt(dist2);
-    const mag = STRENGTH * Math.exp(-dist2 / (2 * SIGMA * SIGMA));
-    return [x + dx/dist * mag, y + dy/dist * mag];
+  // Layered-sine field angle at (x, y, t) — two octaves, no library needed
+  function fieldAngle(x, y, time) {
+    const nx = x * 0.0045, ny = y * 0.0045;
+    // Octave 1 — broad, slow curl
+    const a1 = Math.sin(nx        + time)       * Math.cos(ny        + time * 0.7);
+    // Octave 2 — finer, slightly faster
+    const a2 = Math.sin(nx * 2.1  + time * 1.3) * Math.cos(ny * 1.9  + time * 0.9) * 0.45;
+    return (a1 + a2) * Math.PI;
   }
 
-  function lineColor() {
-    return document.documentElement.getAttribute('data-theme') === 'light'
-      ? 'rgba(160,200,196,0.5)'   // light mode: soft teal grid
-      : 'rgba(16,28,28,1)';       // dark mode: deep teal-black grid
+  function isLight() {
+    return document.documentElement.getAttribute('data-theme') === 'light';
   }
 
   function draw() {
-    // Smooth-follow mouse with gentle lag
-    mx += (targetX - mx) * 0.055;
-    my += (targetY - my) * 0.055;
+    // Smooth mouse follow
+    mx += (targetX - mx) * 0.05;
+    my += (targetY - my) * 0.05;
+
+    t += T_SPEED;
 
     ctx.clearRect(0, 0, W, H);
-    ctx.strokeStyle = lineColor();
+
+    const color = isLight()
+      ? 'rgba(26, 110, 110, 0.055)'   // light mode — slightly more visible teal
+      : 'rgba(46, 150, 150, 0.06)';   // dark mode — teal-gold, breath-on-glass
+
+    ctx.strokeStyle = color;
     ctx.lineWidth   = 1;
 
-    const dSub = STEP / SUB;
+    // Sample every SPACING pixels; draw a short segment aligned to the field
+    for (let gx = 0; gx <= W + SPACING; gx += SPACING) {
+      for (let gy = 0; gy <= H + SPACING; gy += SPACING) {
+        let angle = fieldAngle(gx, gy, t);
 
-    // Vertical lines — sweep x across columns, y down each
-    for (let gx = 0; gx <= W + STEP; gx += STEP) {
-      ctx.beginPath();
-      let first = true;
-      for (let gy = 0; gy <= H + dSub; gy += dSub) {
-        const [wx, wy] = warp(gx, gy);
-        if (first) { ctx.moveTo(wx, wy); first = false; }
-        else ctx.lineTo(wx, wy);
-      }
-      ctx.stroke();
-    }
+        // Mouse influence: rotate field toward the perpendicular near cursor
+        const dx = gx - mx, dy = gy - my;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < MOUSE_RADIUS) {
+          const influence = (1 - dist / MOUSE_RADIUS);
+          const cursorAngle = Math.atan2(dy, dx) + Math.PI * 0.5;
+          // Blend angle toward cursorAngle proportional to influence
+          const da = cursorAngle - angle;
+          // Wrap delta to [-PI, PI]
+          const wrap = da - Math.round(da / (Math.PI*2)) * (Math.PI*2);
+          angle += wrap * influence * MOUSE_TWIST;
+        }
 
-    // Horizontal lines — sweep y across rows, x across each
-    for (let gy = 0; gy <= H + STEP; gy += STEP) {
-      ctx.beginPath();
-      let first = true;
-      for (let gx = 0; gx <= W + dSub; gx += dSub) {
-        const [wx, wy] = warp(gx, gy);
-        if (first) { ctx.moveTo(wx, wy); first = false; }
-        else ctx.lineTo(wx, wy);
+        const cos = Math.cos(angle) * SEG_LEN;
+        const sin = Math.sin(angle) * SEG_LEN;
+
+        ctx.beginPath();
+        ctx.moveTo(gx - cos, gy - sin);
+        ctx.lineTo(gx + cos, gy + sin);
+        ctx.stroke();
       }
-      ctx.stroke();
     }
 
     requestAnimationFrame(draw);
