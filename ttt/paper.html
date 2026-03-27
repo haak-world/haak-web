@@ -1,9 +1,715 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=https://topology.eu/paper.html">
-<script>window.location.replace("https://topology.eu/paper.html");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>TTT — Same but Different</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']],
+    displayMath: [['$$', '$$'], ['\\[', '\\]']],
+    processEscapes: true
+  },
+  options: {
+    skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+};
+</script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<script src="https://hypothes.is/embed.js" async></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Night mode (default) */
+:root {
+  --bg: #0a0e1a; --bg2: #0f1424; --cream: #e8e0d4; --cream2: #7a8580;
+  --gold: #c9a96e; --gold-dim: #2a2318; --silver: #8a7898; --line: #1a2028; --line2: #242d38;
+  --text: #e8e0d4;
+  --draft-bg: rgba(201,169,110,0.06); --draft-border: rgba(201,169,110,0.2); --draft-color: #c9a96e;
+  --blockquote-bg: rgba(201,169,110,0.04);
+  --abstract-bg: rgba(201,169,110,0.03);
+  --link-color: #c9a96e;
+}
+
+/* Day mode */
+body.day-mode {
+  --bg: #f5f0e8; --bg2: #ede8de; --cream: #1a1a1a; --cream2: #3a3632;
+  --gold: #8a6a2a; --gold-dim: #e8d9b8; --silver: #6a6258; --line: #d8d0c0; --line2: #ccc4b4;
+  --text: #1a1a1a;
+  --draft-bg: #c9a96e; --draft-border: #8a6a2a; --draft-color: #1a1a1a;
+  --blockquote-bg: rgba(138,106,42,0.06);
+  --abstract-bg: rgba(138,106,42,0.04);
+  --link-color: #2a4a7a;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--cream); font-family: 'Crimson Pro', Georgia, serif; line-height: 1.85; }
+a { color: var(--link-color); text-decoration: none; cursor: pointer; }
+a:hover { opacity: 0.8; }
+
+/* Theme toggle button */
+#theme-toggle {
+  position: fixed; top: 18px; right: 20px; z-index: 100;
+  background: none; border: 1px solid var(--line2); border-radius: 20px;
+  padding: 5px 12px; cursor: pointer;
+  font-size: 15px; color: var(--silver); line-height: 1;
+  transition: border-color 0.2s, color 0.2s;
+}
+#theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Font size indicator */
+#font-indicator {
+  position: fixed; bottom: 28px; right: 28px; z-index: 100;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+  color: var(--cream); background: var(--gold); border-radius: 4px;
+  padding: 4px 10px; opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+#font-indicator.visible { opacity: 1; }
+
+/* Back link — quiet inline line above content */
+.back-line {
+  max-width: 720px; margin: 20px auto 0; padding: 0 28px;
+}
+.back-line a {
+  font-family: 'Crimson Pro', serif; font-style: italic;
+  font-size: 14px; color: var(--silver); letter-spacing: 0;
+}
+.back-line a:hover { color: var(--gold); }
+
+.draft-notice {
+  margin: 10px auto 0; max-width: 720px; padding: 10px 28px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--draft-color); background: var(--draft-bg);
+  border: 1px solid var(--draft-border); border-radius: 3px; text-align: center;
+  opacity: 0.9;
+}
+
+.paper-wrap {
+  max-width: 720px; margin: 0 auto; padding: 48px 28px 120px;
+}
+
+article {
+  font-size: 18px;
+}
+
+.paper-title {
+  font-family: 'Gloock', serif; font-size: clamp(26px, 4vw, 38px);
+  font-weight: 400; color: var(--cream); line-height: 1.2;
+  margin-bottom: 28px;
+}
+
+.authors-block {
+  margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line2);
+}
+.author-line {
+  font-family: 'Crimson Pro', serif; font-size: 17px; color: var(--cream);
+  margin-bottom: 2px;
+}
+.author-affil {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--cream2);
+  letter-spacing: 0.06em; margin-bottom: 10px;
+}
+.paper-date {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--silver);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-top: 16px;
+}
+
+.abstract-block {
+  margin-bottom: 52px; padding: 24px 28px;
+  border-left: 2px solid var(--gold); background: var(--abstract-bg);
+  border-radius: 0 4px 4px 0;
+}
+.abstract-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--silver); margin-bottom: 10px;
+}
+.abstract-text {
+  font-size: 16px; font-weight: 300; color: var(--cream2); line-height: 1.75;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Gloock', serif; font-weight: 400; color: var(--cream);
+  line-height: 1.25;
+}
+
+h1 { font-size: 28px; margin: 64px 0 20px; }
+h2 { font-size: 22px; margin: 52px 0 16px; }
+h3 { font-size: 18px; margin: 36px 0 12px; color: var(--cream2); }
+h4 { font-size: 16px; margin: 28px 0 10px; color: var(--silver); font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
+
+p { font-size: 18px; font-weight: 300; color: var(--cream2); margin-bottom: 20px; line-height: 1.85; }
+
+blockquote {
+  margin: 28px 0; padding: 16px 24px;
+  border-left: 3px solid var(--gold); background: var(--blockquote-bg);
+  border-radius: 0 4px 4px 0;
+}
+blockquote p { font-style: italic; margin-bottom: 0; color: var(--cream); }
+
+ol, ul {
+  margin: 16px 0 20px 24px; font-size: 18px; font-weight: 300; color: var(--cream2); line-height: 1.85;
+}
+li { margin-bottom: 8px; }
+li strong { color: var(--cream); font-weight: 400; }
+
+hr {
+  border: none; border-top: 1px solid var(--line2); margin: 48px 0;
+}
+
+.section-number {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--silver);
+  letter-spacing: 0.08em; margin-right: 8px;
+}
+
+strong { color: var(--cream); font-weight: 400; }
+em { font-style: italic; }
+
+.references-section h2 {
+  margin-bottom: 28px;
+}
+.reference-item {
+  font-size: 15px; font-weight: 300; color: var(--cream2); line-height: 1.65;
+  margin-bottom: 14px; padding-left: 20px; text-indent: -20px;
+}
+.reference-item a { color: var(--link-color); font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+footer {
+  border-top: 1px solid var(--line2); padding: 20px 28px;
+  max-width: 720px; margin: 0 auto;
+  display: flex; justify-content: space-between;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--cream2);
+}
+
+@media (max-width: 600px) {
+  .paper-wrap { padding: 32px 20px 80px; }
+  .back-line { padding: 0 20px; }
+}
+
+/* Passphrase gate */
+#auth-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #0a0e1a;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 16px;
+}
+#auth-overlay .auth-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: #c9a96e; opacity: 0.7;
+}
+#auth-overlay input {
+  background: transparent; border: 1px solid #c9a96e;
+  border-radius: 3px; padding: 10px 16px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px;
+  color: #c9a96e; outline: none; width: 220px; text-align: center;
+  letter-spacing: 0.08em;
+}
+#auth-overlay input::placeholder { color: rgba(201,169,110,0.3); }
+#auth-overlay input:focus { border-color: #e8e0d4; color: #e8e0d4; }
+#auth-overlay button {
+  background: none; border: 1px solid rgba(201,169,110,0.4);
+  border-radius: 3px; padding: 8px 20px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  color: rgba(201,169,110,0.7); cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+#auth-overlay button:hover { border-color: #c9a96e; color: #c9a96e; }
+#auth-error {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; color: #c9a96e; opacity: 0;
+  transition: opacity 0.2s; text-transform: uppercase;
+}
+#auth-error.visible { opacity: 0.7; }
+@keyframes auth-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+#auth-overlay input.shake { animation: auth-shake 0.35s ease; }
+</style>
 </head>
-<body></body>
+<body>
+
+<div id="auth-overlay">
+  <div class="auth-label">this page is a draft</div>
+  <input type="password" id="auth-input" placeholder="passphrase" autocomplete="off" autofocus>
+  <button id="auth-btn">enter</button>
+  <div id="auth-error">incorrect</div>
+</div>
+
+<div id="page-content" style="display:none;">
+
+<button id="theme-toggle" aria-label="Toggle day/night mode">☀</button>
+<div id="font-indicator"></div>
+
+<div class="back-line">
+  <a href="index.html">&larr; TTT</a>
+</div>
+
+<div style="max-width:720px; margin: 0 auto; padding: 0 28px;">
+  <div class="draft-notice">Draft &mdash; March 2026 &mdash; please do not circulate</div>
+</div>
+
+<div class="paper-wrap">
+<article>
+
+  <h1 class="paper-title" style="margin-top:32px;">Same but Different: A Topological Theory of Things</h1>
+
+  <div class="authors-block">
+    <div class="author-line">Zachary F. Mainen</div>
+    <div class="author-affil">Champalimaud Research, Lisbon &mdash; <a href="mailto:zmainen@neuro.fchampalimaud.org">zmainen@neuro.fchampalimaud.org</a></div>
+    <div class="author-line">Adrian Razvan Sandru</div>
+    <div class="author-affil">Champalimaud Research, Lisbon</div>
+    <div class="author-line">Gonçalo Guiomar</div>
+    <div class="author-affil">ETH Zurich</div>
+    <div class="paper-date">Preprint &middot; March 2026</div>
+  </div>
+
+  <div class="abstract-block" id="abstract">
+    <div class="abstract-label">Abstract</div>
+    <div class="abstract-text">Three classical metaphysical problems &mdash; how distinct things share characteristics, how one thing persists through change, and how knowledge can resemble its object &mdash; have resisted unified treatment. We propose that all three are aspects of a single structural fact: reality admits a distinction between topology (invariant relational pattern) and geometry (variable instantiation). Beginning from undifferentiated relationality rather than pre-given objects, we introduce <em>coils</em> &mdash; structured partial orderings that impose distinct layers of organization on relational reality. Things are knots: locally structured regions identifiable by their topological persistence through geometric change. This framework recovers the phenomenon Harman calls &ldquo;withdrawal&rdquo; &mdash; things exceeding their encounters &mdash; without invoking hidden essences, attributing the surplus to relational depth rather than metaphysical partition. The topology/geometry distinction converges independently with homotopy type theory&rsquo;s treatment of identity as path equivalence and with relational quantum mechanics&rsquo; elimination of observer-independent states.</div>
+  </div>
+
+  <h1><span class="section-number">1.</span>Leibniz&rsquo;s Leaves</h1>
+
+  <p>In a letter to Samuel Clarke, Leibniz describes a curious scene involving the Princess of Herrenhausen, a gentleman acquaintance of his, and some leaves:</p>
+
+  <blockquote>
+    <p>&ldquo;There is no such thing as two individuals indiscernible from each other. An ingenious gentleman of my acquaintance, discoursing with me in the presence of Her Electoral Highness, the Princess Sophia, in the garden of Herrenhausen, thought he could find two leaves perfectly alike. The princess defied him to do it, and he ran all over the garden a long time to look for some; but it was to no purpose.&rdquo;</p>
+  </blockquote>
+
+  <p>This scene has since become a household anecdote in philosophy when discussing the individuality of things. Unlike pre-modern philosophers who reserved individuality for the divine or for beings that participate in the divine, Leibniz considered all things to be qualitatively unique: &ldquo;To suppose two things indiscernible is to suppose the same thing under two names.&rdquo; That things are distinct is a principle of reason for Leibniz, while their indiscernibility would be a paradox. But their distinctness does not imply that each possesses unique, unrepeatable qualities. They are unique through their interrelations with other things, which permits them to share qualities and occupy the same type or species as others.</p>
+
+  <p>With these principles Leibniz sets a standard for any future metaphysics: it must answer how things can be distinct from one another and yet share characteristics.</p>
+
+  <p>The question implies a further one. For Leibniz things are not discretely unique &mdash; unique in a different sense at each step of their existence. They are consistently unique. A leaf is unique when lying on the ground among others and remains unique and the same when picked up by an ingenious gentleman and held against other leaves. The question of individuality thus also requires an answer to how a thing can remain the same throughout change.</p>
+
+  <p>Kant sharpens the challenge. In his <em>Concerning the First Ground of the Difference of Environs in Space</em>, he describes two hands, stripped of all spatial and temporal relations, floating in a vacuum. Sharing the same qualities, related to nothing but each other, they would be indiscernible. Introduce a physical body situated in space and time, and they immediately become discernible as left and right. Kant&rsquo;s point: similarity and difference cannot be settled by cataloguing properties in isolation. Relations to other things &mdash; the situation in which things find themselves &mdash; are constitutive.</p>
+
+  <h2><span class="section-number">1.1</span>Three questions</h2>
+
+  <p>Following Leibniz and Kant, we hold that among the central questions any ontology must answer &mdash; questions that precede scientific inquiry, ethics, and other kinds of study &mdash; are the following:</p>
+
+  <ol>
+    <li><strong>How can things be distinct from one another and yet share characteristics?</strong> This is the problem of <em>order</em>.</li>
+    <li><strong>How can one thing change while still remaining the same thing?</strong> This is the problem of <em>identity</em>.</li>
+    <li><strong>How can perceived, known, and imagined things be different from yet also the same as things themselves?</strong> This is the problem of <em>knowledge</em>, and together with the first two, the classical problem of similarity.</li>
+  </ol>
+
+  <p>Each problem demands a notion of <em>similarity</em> &mdash; the way in which things are the same but different. Each seems to require a somewhat different kind of similarity. Two things, no matter how similar, cannot be the same thing, while the same thing undergoing changes remains identical to itself, distinguishing problems 1 and 2. An imagined or perceived thing is qualitatively different from the thing itself in a way that is much more so than two things can differ from each other, in the same sense that a map is not the territory. Nevertheless, while different notions of similarity are evidently required, it is significant that all three problems rest on how to define sameness with difference. In Thailand, as they say: <em>same-same but different</em>.</p>
+
+  <h2><span class="section-number">1.2</span>Parsimony as design principle</h2>
+
+  <p>We approach these questions not as problems demanding separate solutions but as a design challenge for an ontology. Can one resolve all three using a relational approach in a manner that is equally or more satisfying than an object-oriented approach, and can one do so with greater parsimony?</p>
+
+  <p>Parsimony is a well-known principle guiding scientific theorizing. A parsimonious theory is compact, clearly stated with a minimum of words or equations. A long and baroque theory can be molded to fit different situations on a case-by-case basis; a compact theory cannot. Therefore, a compact theory has a better chance of providing more generalizable explanations and making predictions in situations it was not designed to resolve. Philosophy is not science, but similar considerations are evidently relevant. An ontology is a foundation for thinking about all that exists. If it is also parsimonious, it will be more coherent, as it will have less room to provide different, possibly contradictory accounts of different things. A parsimonious ontology can attempt to provide answers to the problems of order, identity, and knowledge through a more basic set of assumptions rather than answering each in its own way.</p>
+
+  <h1><span class="section-number">2.</span>How OOO Approaches the Problem</h1>
+
+  <p>To see one way these questions can be approached ontologically, consider the approach of Graham Harman&rsquo;s object-oriented ontology (OOO). OOO begins by postulating objects as essential units of reality. Reality construction starts with a shattering of being into a plurality of individual constituents. This is a basic choice, and one that does not directly answer any of the three questions. A plurality now exists, and one may assume each object to be distinct or all to be identical, but in neither case is there an intermediate possibility of &ldquo;same but different&rdquo; as required for a notion of similarity.</p>
+
+  <p>The next step in OOO is to introduce <em>qualities</em> belonging to each object. Now there is material to resolve problems 1 and 2.</p>
+
+  <p><strong>Problem 1</strong> (order) is solved by identifying qualities with characteristics and allowing that an object possesses multiple qualities and the same quality can appear across objects. Objects sharing some but not all qualities are similar. Note, however, a puzzling result: in OOO it is possible that two things are identical in all characteristics yet still different in essence. Since all differentiating marks are qualities, what exactly would it mean for two things to be identical in every respect yet still different? The problem of what makes two objects similar or different appears to be multiply determined &mdash; once by qualities and once by essences &mdash; and OOO does not much discuss what happens when these two modes of determination disagree.</p>
+
+  <p><strong>Problem 2</strong> (identity) receives a similar resolution. An object possesses multiple qualities; any may change with time, but the object remains the same. This suffers from the converse problem: it is possible that an object changes so much that it retains none of its original qualities yet remains the same object by this account. If there is an essence of an object, it cannot be described in terms of qualities. If qualities cannot distinguish essences, how are essences to be distinguished at all? Introducing more essential qualities threatens an infinite regress: those more essential qualities would suffer the same problem, demanding still more essential qualities beneath them.</p>
+
+  <p><strong>Problem 3</strong> (knowledge) cannot be solved with objects and qualities alone. OOO, with notable originality, generalizes this from an epistemological, subject-centered issue to the case of any two objects encountering one another. It avoids creating a special category for mental objects. But it resolves the problem by introducing a new dichotomy: <em>real</em> and <em>sensual</em> objects, and likewise <em>real</em> and <em>sensual</em> qualities. Sensual qualities are those available to another object through interaction. This delivers an instant solution to the problem of knowledge but at the cost of a second dichotomy, which, multiplied by the first (objects and qualities), yields the fourfold structure of OOO and further complications arising from its permutations. Harman embraces this complexity as a positive feature. One might reasonably wonder whether the desirability of parsimony has been adequately respected.</p>
+
+  <p>In sum, OOO solves these three problems by assuming exactly the distinctions needed, rather than deriving them from a more fundamental basis. That is the goal we set for a relational approach.</p>
+
+  <h1><span class="section-number">3.</span>Beginning from the Opposite Corner</h1>
+
+  <h2><span class="section-number">3.1</span>The mess</h2>
+
+  <p>Rather than beginning with a plurality of objects &mdash; distinct, bare, unrelated &mdash; let us start from the opposite corner: pure relationality and specificity. Consider a field of pure difference, what we will call a <em>mess</em>. No things or objects, no pixels or elements, exist in it yet. One cannot distinguish a plurality of enumerable entities. One way to imagine such a mess, metaphorically, is as an endless entanglement of fibers in which each fiber is just a further entanglement of other fibers, with no fundamental element in sight, with everything possibly connected to everything else: no matter how much the fiber interlaces back onto itself, the possibility of further interlacing always surpasses the actual. A mess can always be even messier.</p>
+
+  <p>This is as far from OOO&rsquo;s starting point as one can get. The mess is potent with individuality because it is chock full of unique relations, the sort of particularities that would mark individuals as distinct. But it is completely lacking in actual identifiable individuals because there is no way in which the mess is segmented into distinct entities. It scintillates with distinctnesses whose borders are utterly indistinct. It is not a collection, a set, or a group, until it has elements to collect, gather, or round up.</p>
+
+  <p>The idea of multiplicity without plurality is well illustrated by the metaphor of a large tangle. No two tangles are the same, and no portion of one tangle is the same as any other portion. A tangle is a more or less random and often complex interweaving, yet a tangle need not be a collection or group. The headphone cable, my holiday lights, a spool of nylon monofilament, and that ball of yarn are all susceptible to becoming tangles, but all are single strands. However, a tangle is not necessarily a singleton either. A plate of spaghetti is also a tangle and is certainly an archetypal mess &mdash; especially in the hands of a toddler. On closer inspection, that tangle of yarn is also a collection of fibers, as is any tangle of hair. So a tangle, which is a great metaphor for a mess, is neither singular nor plural. In English, we don&rsquo;t say <em>one spaghetti</em> or <em>a few spaghetti</em>; we usually say <em>some spaghetti</em>.</p>
+
+  <p>A word of caution: the sense of temporal evolution in laying out this description is solely due to the philosophers constructing an ontology, not an evolutionary process imagined to occur within the ontology itself. Similarly, the occasional sense of viewing or encountering is that of the philosophers beholding their creation, not an epistemological process presumed within the ontology.</p>
+
+  <h2><span class="section-number">3.2</span>Why start here?</h2>
+
+  <p>From this starting point of pure differentiated mess, we have promising material for the solution to one half of each of the three challenges: the <em>differences</em>. What is utterly absent is any notion of similarity. There is no part of the mess that yet resembles any other part. To solve any of the three problems, the way in which the mess can be similar to itself will need to be produced. This will require an additional ontological specification.</p>
+
+  <p>But before that, having focused on relationality, we have not yet answered an even more basic question:</p>
+
+  <ol start="4">
+    <li><strong>How can a thing be distinct from other things yet still in relation to them?</strong> This is the problem of <em>individuation</em>, or the one and the many.</li>
+  </ol>
+
+  <p>When all is presumed related, where does one thing start and the next stop? Where do boundaries come from, such that one can justify considering a plurality rather than a singular multiplicity? With OOO the weight falls on the question of how things relate, since distinction between objects is an axiom. OOO eschews relations to an extreme, refusing almost to talk about them. Here the opposite is true. We have deliberately walked to the other pole, where all is connected to everything so much so that the things themselves might have gone missing.</p>
+
+  <p>To fracture the relational mess into separate objects by fiat would be an affront to parsimony rivaling that of OOO. To combine objects and relationality would require reintroducing relations between now-separated objects and would entail an ontological dichotomy between internal and external relations &mdash; the approach of Levi Bryant&rsquo;s onticology, which is not without merit but leads to a distinction between essential and non-essential relations not too dissimilar from Harman&rsquo;s sensual and real qualities. Instead, we would like to solve this fourth problem using the same means as the other three. We propose to solve them all in the same process, a construction that takes two steps.</p>
+
+  <h2><span class="section-number">3.3</span>From web to fabric</h2>
+
+  <p>A fabric or tangle of fiber is a good metaphor for thinking about pure relationality because interwoven, braided, or simply entangled fibers approximate a naked relational field &mdash; a set of relations stripped bare of the things being related. The ordinary relational ontology can be metaphorized as a web, a network, a graph, and so on. Relations in these structures interconnect elemental nodes, forming a dichotomy of things and their relations. But in a fabric or tangle, those nodes are absent. A fabric is woven of pure fiber, pure relationality. The fibers are the relations, but they are also the things that are related and the things that are built out of the relations as well. By thinking in these terms, one may avoid the introduction of an unnecessary thing/relation dichotomy at the bottom of the ontology. This move from node-and-edge graphs to pure relational fabric resonates with the shift in mathematics from set-theoretic foundations, where structure is imposed on pre-given elements, to category-theoretic foundations, where structure is constituted by morphisms alone and objects are identified only up to isomorphism (Mac Lane, 1998; Awodey, 1996).</p>
+
+  <p>An insightful metaphor for a thing might be a <em>knot</em>. A knot is a &ldquo;thing&rdquo; made out of fiber &mdash; a thing of pure relation. It is identifiable, particular. One can count the number of knots in a tangle of fiber. If two knots are placed in a string, they are no doubt distinct, but the question of where one knot begins and another ends has no clear answer. There is no defined border even though there is a plurality. Moreover, two knots within a strand can be the same kind of knot, the same pattern, but not be the same thing. They are the same but different, which seems to provide just the sort of similarity notion that we are after.</p>
+
+  <p>Yet the knot metaphor could be treacherous. A knot is a spatially localized structure, and if we think too much of knots and fabric, we might be tempted to translate a concretely geometric spatial intuition too literally into the ontology. We might find ourselves falling into something like a materialist ontology where everything is composed of strings instead of particles. If we are vigilant, we can avoid this trap and continue to plumb the metaphor for useful insights.</p>
+
+  <h1><span class="section-number">4.</span>Coils: Gathering the Mess</h1>
+
+  <p>Our first step is to somehow create a plurality &mdash; but not of objects or of qualities. We propose an ontological fracturing into partial relations, or what can be considered layers or domains of relationality. We will use the term <em>coil</em>, meaning, in archaic usage, daily troubles (i.e., mess) and a gathering together or collection.</p>
+
+  <p>Two critical things about coils we will axiomatize:</p>
+
+  <p><strong>First</strong>, they are distinct and plural. A coil is a locality, a part of the whole, a domain within a larger realm. Locality must not be read in spatial terms. In the metaphor of fabric, a coil is a specific portion of the total entanglement &mdash; not a spatially restricted portion, but a portion of the complete relations of the entire fabric. There may be many distinct coils or different ways of gathering aspects of the mess together.</p>
+
+  <p><strong>Second</strong>, coils may have <em>structure</em>. Without structure, coils would be nothing more than dissimilar and incomparable sections of mess, since the mess is always particular and everywhere individual. Coils will, axiomatically, be endowed with structure. It is by virtue of this structure that coils provide the ontology with the capacity to lump different as same, to count many as one, to draw not only distinctions &mdash; which we already could &mdash; but to establish <em>sameness</em>. Each coil must be identifiable and therefore different from the others, but there is no requirement that coils be comparable to one another. In that sense, coils act somewhat like qualities in OOO: there must be many of them and they must be distinct from one another, but there need not be any notion of similarity or sameness <em>between</em> them. What makes coils important is the fact that they have the ability to bestow sameness to the formerly inchoate multiplicity <em>within</em> their domain.</p>
+
+  <p>A coil imposes, by virtue of its structure, an ordering of some part of the mess &mdash; a partial ordering. Each different coil is a different kind of ordering and each implies a different claim on the totality of the mess. In the metaphor of fabrics, a coil can be seen as a particular weave, a particular kind of knotting, or some other entanglement. For a coil to convey structure is for it to possess a <em>pattern</em>, as for example is done by the warp and weft that together comprise a woven fabric.</p>
+
+  <p>Importantly, what is proposed is not an epistemological distinction concerning how a subject makes distinctions, but rather an ontological reality that will allow for the possibility of subjects to correctly make such distinctions. A coil is, emphatically, a pattern within reality, a real portion of reality, not an imposed perspective. Yet a coil can be thought of, in scientific terms, as the portion of reality described by a system of equations, since such equations also specify a pattern of relations. The laws of mechanics, specifying how bodies interact through gravity, pick out one coil. Other facets of physics and chemistry pick out other coils. Economic models also identify a coil. Some coils admit systematization by equations; others, such as political and historical processes, do not. A coil can be thought of as a system of relations at any &ldquo;level&rdquo; at all, some appreciated under scientific theories, some more tentatively grasped, and others not grasped at all.</p>
+
+  <p>It is interesting to note in passing that scientific theories pick out their own objects, and that these objects do not correspond to real objects but to idealizations of objects. The objects related by equations are observables or measurements, which capture only one facet of the reality they pertain to while deliberately and necessarily glossing over others. In one ironic joke, a physicist asked to estimate milk production begins: &ldquo;Imagine a spherical cow radiating milk at a constant velocity&hellip;&rdquo; A scientific theory is a map, not the territory. The objects within the map hopefully have something to do with the objects to which they refer, but they need not. The success of a scientific theory justifies the reality of the system of relations it describes. But it cannot be assumed that the objects specified within that system correspond to actual objects.</p>
+
+  <h1><span class="section-number">5.</span>Topologies and Geometries</h1>
+
+  <p>As of yet, we have taken a relational multiplicity of pure differences and shattered it into a plurality of coils &mdash; partitions of relationality that correspond to neither objects nor qualities but to layers of reality. It does not seem that we are solving any problem at all, yet we are done introducing assumptions and we have almost reached the solution to all four problems. We have done this because, with coils, we have introduced what we need to find a notion of &ldquo;same but different.&rdquo;</p>
+
+  <p>A coil is an entanglement which has a structure. To use the metaphor of fabric, the structure of a coil is that it is knotted or woven in a particular way. Each such knotting or weaving has a general <em>topology</em>, which corresponds to the way the individual fibers cross through one another, and a <em>geometry</em>, which corresponds to the more specific ways in which the fibers lay within this topology. Picturing a string tied together into a knot, it is not hard to see how for a fixed topology an infinite number of geometries are possible by tensioning the string in different ways without untying the knot. Two knots with the same topology and different geometry are similar &mdash; &ldquo;same-same but different&rdquo; &mdash; in a precise mathematical sense. This notion of topological identity with geometrical variation allows one to see how two coils can be the same (topologically) while being distinct (geometrically).</p>
+
+  <p>Through topology we have arrived close to a solution to all three problems. Perhaps it is already apparent that topological same-but-different can describe how two objects can share characteristics while still being distinct, without invoking essence and accident. Or if one prefers to think of it that way, one could say that within the concept of topology, the notions of essence and accident are implicit. By adopting the metaphor of a fabric and its topological and geometrical arrangements, we obtain in a purely relational ontology what is otherwise sought in an essentialist one.</p>
+
+  <p>Moreover, we avoid some of the problems of the object+qualities approach. In a geometrical world, topology and geometry are similarly intrinsic and unavoidable: no topology without geometry and no geometry without topology. In OOO, qualities do not exist apart from their objects, but objects seemingly could exist without qualities to differentiate them. Topology corresponds to an &ldquo;essential&rdquo; aspect of a structure, in that a topology tolerates an infinite variety of &ldquo;accidental&rdquo; geometric variations. Yet topology itself is not unitary but is as infinitely variable as geometry. Therefore, whereas in OOO there is nothing to individuate the essence of objects save qualities, in TTT the distinction between topology and geometry captures what is sought by the similarity of one object to itself and by the similarities between different objects. The distinction between topology and geometry voids the need to think of the relationship between essence and accident.</p>
+
+  <h2><span class="section-number">5.1</span>Topology, invariance, and scientific law</h2>
+
+  <p>Topological similarities under geometric difference is one way to understand the notion of structure or law in science. In physics, laws are expressed as generalizable equations. A deeper way of understanding these equations is as the expression of conservation laws. A conservation law is the picking out of an invariance. When energy is conserved within a system as it undergoes change, energy is invariant to those changes. Another way of thinking of invariance is as a symmetry: a certain transformation leaves a system unchanged, as flipping a left-right symmetric object leaves its aspect unchanged. Topological invariance to deformations is a specific spatial generalization of these notions of conservation, invariance, and symmetry. The concepts are all very similar.</p>
+
+  <p>Within this framework, we have encompassed the fundamental approaches of important areas of science and mathematics. Grounding an ontology on a notion of similarity through topology and geometry is a science-friendly way to proceed, since this is the manner in which science actually grounds knowledge. The structuralist thesis that what matters in mathematics and science is not the intrinsic nature of objects but the structural relations they bear to one another has been articulated forcefully in the philosophy of mathematics (Benacerraf, 1965; Shapiro, 1997) and extended to the natural sciences under the banner of ontic structural realism (Ladyman and Ross, 2007). Our approach shares the structuralist conviction that identity is constituted by relational position rather than by intrinsic essence, while differing in that we ground structure not in set-theoretic or model-theoretic terms but in the topological distinction between invariant pattern and variable instantiation.</p>
+
+  <p>TTT shares with ontic structural realism the rejection of intrinsic natures and the priority of relational structure over individual objects. But it differs in two respects. First, OSR&rsquo;s structural claims are typically grounded in physics &mdash; symmetry groups, invariance under transformation, the mathematical structure of physical theories (Ladyman and Ross, 2007; French, 2014). TTT extends the same structural logic beyond physics to biology, cognition, and social organization, arguing that the topology/geometry distinction applies wherever identity-through-variation obtains. Second, OSR does not provide a mechanism for the phenomenon Harman calls withdrawal &mdash; the fact that things exceed their encounters. TTT does: withdrawal is relational surplus, the infinite coils in which a thing participates but which are not active in any given situation. OSR acknowledges that structure exceeds any particular description, but it does not give this excess a name or an ontological role. TTT makes it central.</p>
+
+  <p>Homotopy type theory (HoTT) provides the most precise formal framework for the claim that identity is structural. In HoTT, identity between elements of a type is itself a type &mdash; the type of paths connecting them &mdash; and the fundamental axiom of univalence states that equivalent structures are identical (Univalent Foundations Program, 2013). This means identity is not a primitive fact about objects but a topological feature: two things are identical when there is a continuous path (an equivalence) between them. Tsementzis (2017) has shown that univalent foundations realize the structuralist thesis that positions within a structure are all there is to mathematical objects, and Ladyman and Presnell (2015) have explored how HoTT&rsquo;s treatment of identity aligns with ontic structural realism. TTT&rsquo;s topology/geometry distinction operates in the same conceptual space &mdash; topological identity with geometric variation &mdash; but extends it beyond mathematics to a general ontology. Where HoTT formalizes identity-as-path within type theory, TTT claims the same structure obtains in the relational fabric of reality itself.</p>
+
+  <p>A concrete instance from physics: in electromagnetism, the electromagnetic field tensor is the topological content &mdash; gauge-invariant, physically real, the same under continuous deformation of the vector potential. The vector potential itself is geometric &mdash; gauge-dependent, variable, carrying no independent physical content. Two vector potentials differing by a gauge transformation are, in the precise sense of this paper, same but different: topologically identical, geometrically distinct. The gauge group specifies exactly which deformations preserve the topology. What TTT proposes is that this structure &mdash; invariant content persisting through variable realization &mdash; is not special to physics but is the general form of identity across all relational domains. The challenge, which this paper meets ontologically if not yet formally, is to identify the analogues of the gauge group in biological, cognitive, and social domains.</p>
+
+  <p>We should be explicit about the status of &ldquo;topology&rdquo; and &ldquo;geometry&rdquo; in this paper. These terms are used analogically &mdash; as structural concepts borrowed from mathematics to do ontological work, not as formal mathematical claims. Philosophy has a long tradition of such borrowing: Badiou grounds ontology in set theory (Badiou, 2005), Deleuze mobilizes differential calculus to think individuation, Whitehead draws on projective geometry. The question in each case is not whether the analogy is formally exact but whether it is load-bearing &mdash; whether it does ontological work that could not be done without it. We claim it does: the topology/geometry distinction provides a mechanism for sameness-with-difference that no purely linguistic or logical framework captures as cleanly. That said, a full formalization of coils within homotopy type theory &mdash; where identity paths correspond to topological equivalences and geometric variation maps onto higher homotopy structure &mdash; is a natural next step. Corfield (2020) has begun work in this direction, developing a modal homotopy type theory that connects formal mathematical structure to philosophical categories. The present paper&rsquo;s contribution, however, is the ontological argument, not the formalization. The formal project would test whether these ontological intuitions survive rigor &mdash; but the intuitions must first be stated clearly enough to formalize, and that is what we have attempted here.</p>
+
+  <h1><span class="section-number">6.</span>Depth: The Intersection of Coils</h1>
+
+  <p>We are edging closer but have only a partial answer to how two distinct things can be similar (problem 1) and how one thing can remain itself through change (problem 2). The logic of topology provides a concrete notion of similarity, but we have more than one kind of similarity to explain. Why is one thing that changes a bit still itself, while two things that differ only a bit are nonetheless distinct things? This distinction is similar to the difference between homologous relations in evolution, where common lineage is presumed, and analogous ones, where lineages differ.</p>
+
+  <p>To understand this within an ontology of pure difference, we must consider one more essential aspect of coils. While coils are differentiated and individual, reality is composed of many &mdash; endlessly many &mdash; such coils. Reality is <em>deep</em> because it is the intersection of many coils, many layers or levels of pattern, interwoven together. Therefore, when we isolate one coil, we are grasping only one slice of reality while ignoring the rest. This isolation is a <em>flattening</em>. What is actually real, what is manifested, is more particular, more concrete, more specific than whatever is caught up by any particular coil. If to the first coil we add another, we increase the specificity and concreteness of what has been gathered up. This process can be repeated endlessly without exhausting the mess. By axiom, in the TTT ontology the entire mess is an endless interweaving of coils. Reality can be said to be inexhaustible because it is limitlessly intersectional.</p>
+
+  <h2><span class="section-number">6.1</span>Three metaphors for depth</h2>
+
+  <p><strong>The blanket.</strong> One coil that makes up a woven blanket is the weave &mdash; the crossings of warp and weft. Yet the weave, although real, is also an abstraction. The fibers out of which the blanket is woven are themselves further coils &mdash; entanglements of fibers into a yarn. This yarn is itself formed by twisting together thinner filaments, such as the hairs that comprise wool. The filaments are themselves composed of strings of keratin molecules taking the shape of an alpha helix. The specific instantiation of a blanket is the intersection of multiple levels of structure. The reality of the blanket is no one of these levels more than any other. Each contributes to the actuality of the blanket. In itself, each one is an abstraction of what <em>is</em>. This metaphor should not be taken to imply that reality is literally a fabric-like spatial structure. Fibers stand for relations, and in this ontology the mess of relations is a complete abstraction, with no particularities implied, including no assumption of a spatial field in which relations are exhibited.</p>
+
+  <p><strong>Language.</strong> Each word in a language is a relational entity, defined by its semantic associations with other words and ultimately by relations to things outside the language. Each word is a coil &mdash; a particular interweaving of other things. It is a real layer of reality but it is an abstraction, a generality. To use words to specify concrete actualities, one composes them together into sentences. With each word strung together in a syntax, meaning concreces as the abstractions descend to pick out the particular. Language never reaches the level of particularity that equals the actual &mdash; which is the issue behind problem 3 &mdash; but by interlacing the meanings of more and more words in the manner of a novel, one can approach the specificity of actual occurrences. This is how stories and fictions work.</p>
+
+  <p><strong>Demographics.</strong> An actual person is a member of an endless number of demographics: age, gender, income, favorite band, birthplace. Each demographic describes a real facet of a person, but a person is more concrete than even an endless series of demographics would reach. There is no hierarchy, no syntax, no spatial relations between the demographic layers that intersect in an actual individual.</p>
+
+  <h2><span class="section-number">6.2</span>The problem of overdetermination</h2>
+
+  <p>How is it that reality admits multiple coils, some contributing lawlike imposition of structure, yet none in conflict with the others? The reality proposed by TTT is an infinitely particular relational reality in which, axiomatically, there is sufficient heterogeneity, sufficient space for possibility and variation, that it can hold an endless number of determinations without ever succumbing to full determination, let alone overdetermination. Just as the properties of a blanket &mdash; its warmth &mdash; are not determined by any one structural layer but the product of all of them, the concrete actuality of the real cannot be determined by any one patterning, any one equation or law. No one coil of reality can be reduced to any other. This is the sense in which reality is deep.</p>
+
+  <p>One might worry: with endless intersectionality, how is there room for each coil to make its own determinations without taking up all the slack and leaving insufficient space for the rest? The answer returns to the crucial role of topology. When we talk about the order imposed by a particular coil, we identify the order with the <em>topology</em> of the coil, not its geometry. The order or structuring of the coil is precisely its topology. Within any topology, there are an infinity of geometries still compatible with it. The freedom is the geometrical variations that are allowed. In physics terms, the laws that govern a particular system prescribe things only up to specifying what is conserved or symmetric, after which nothing more can be said by that particular law. Therefore, if we axiomatize the independence of coils, then the topology of one coil will always fit into the <em>geometry</em> of another. As long as each coil remains orthogonal to the rest, then the combined &ldquo;hypertopology&rdquo; can hold an endless number of lawlike determinations, none of which would interfere with the others.</p>
+
+  <p>If we relax that assumption, we end up with convergence toward full determination, which would be incompatible with truly endless multiplicity. Yet what an endless multiplicity requires is not that all coils be independent but only that there can always be found another coil that is independent of the rest.</p>
+
+  <h1><span class="section-number">7.</span>Resolving the Four Problems</h1>
+
+  <p>Having built up what we take to be a parsimonious and potentially powerful ontology, we are now in a position to explain all four forms of similarity.</p>
+
+  <h2><span class="section-number">7.1</span>Order: How can distinct things share characteristics?</h2>
+
+  <p>What makes two things distinct is given, since we begin with the assumption of an overabundance of particularity. What allows for similarity is simply satisfied by the supposition of topological identity with geometric difference. A single topological structuring or coil suffices to explain this problem. This solution is not only somewhat obvious and even superficial but, as we have discussed, is the surface of a much deeper notion of order actually formalized in physics. OOO, by contrast, has no notion of order and therefore no particular links to science.</p>
+
+  <h2><span class="section-number">7.2</span>Identity: How can one thing change while remaining the same thing?</h2>
+
+  <p>What unites different things in a true unity, an identity, above and beyond mere resemblance? Here we appeal to the same consideration of topological identity, but true identity differs from mere similarity in that concrete identity begins with <em>total</em> correspondence of the endless coils of reality, all the way to the particular. The most trivial sorts of change ensue when topological disturbance ripples through the fewest topologies &mdash; a disturbance felt by all other coils as mere geometric perturbations. We appeal to a quantitative, not qualitative, distinction to explain the difference between homology and analogy: identity is the limiting case of similarity, where all coils are (nearly) shared.</p>
+
+  <h2><span class="section-number">7.3</span>Knowledge: How can perceived things resemble things themselves?</h2>
+
+  <p>This problem is thornier. Any mental image, perception, or dream is in itself a facet of a fully concrete entity, as real as any other concrete thing. Images and dreams are no less real than anything else. Yet when we consider the dream as resembling the object dreamt, or the percept resembling the object perceived, what must be explained is the similarity of image and object. How can one real, fully concrete thing become like another thing by taking it in?</p>
+
+  <p>Following the line of thinking in OOO, we consider perception to be a type of interaction between things &mdash; a species of interaction belonging to the same order as the burning of cotton by flame. Like OOO, we aim to explain the fact that things are never fully present in any interaction, that they are always withdrawn. Unlike OOO, we do not introduce a dichotomy between real and sensual in order to account for this. Rather we rely, once more, on the plurality of different layers of reality &mdash; the coils. Our basic proposition is that things can interact or become entangled insofar as they are united by a shared coil, a common patterning, yet retain differences. This &ldquo;same but different&rdquo; results in tensions between coils (since coils are not in actuality fully orthogonal or independent), and thus changes the interactants. Presence, representation, perception, dreams, and the like are all types of interaction that must be explained in this general format.</p>
+
+  <p>The likeness of a thing as present to another and the thing in its full depths is supported by mutual coils, providing the topological basis for one thing to &ldquo;unfold within&rdquo; another. What results is a very special kind of interaction: the image of the object is topologically disconnected from its subject and attached topologically to its object. This is only possible because the image is vastly less deep than either subject or object. This is both its limitation and its utility. A photograph is not the landscape; it is a flattened trace of a real situational encounter between camera and scene. The brain&rsquo;s activity is analogous: a relational node, not a theatre.</p>
+
+  <h2><span class="section-number">7.4</span>Individuation: How can a thing be distinct yet in relation?</h2>
+
+  <p>We exposed this problem but have not yet proposed a sharp solution &mdash; and that is the point. There are no actual sharp boundaries to things in their full concreteness. Things remain connected, relationally, always. The objects with isolated, withdrawn volcanic interiors are only those that appear within specific orderings, when gathered up by equations, words, and so on. This causes no trouble for any empirical scientific theory, which necessarily deals in such orderings to make its objects. The sticking point, if any, comes from the claim to a unitary phenomenological subject &mdash; a question we defer to the treatment of consciousness.</p>
+
+  <h1><span class="section-number">8.</span>Withdrawal Without Essence</h1>
+
+  <p>We are now in a position to state precisely how TTT accounts for Harman&rsquo;s withdrawal &mdash; his most powerful and original observation &mdash; without invoking hidden essences.</p>
+
+  <p>Every thing is implicated in unlimited situations, each activating only a finite subset of its relational character. The surplus is not metaphysical but structural: a graph too large for any single situation to traverse. A flame burning cotton accesses some of its qualities &mdash; combustibility &mdash; but does not exhaust them. It does not get at the softness appreciated by the stroke of a human hand. Contrary to Harman&rsquo;s essentialist explanation, a relational ontology can explain this: things are withdrawn from any given situation not because they retreat to a private interior realm, but because things always lead more promiscuous lives than can be gleaned from any particular field in which they lie. Their depths reside not in themselves, not in an essential core, but in relationships not exhibited by a given set of interactants within any particular situation.</p>
+
+  <p>This follows directly from the construction we have built. A situation is a finite intersection of coils &mdash; a circumscription of some of the relations in which a thing is involved. The thing exceeds the situation because endlessly many other coils are engaged elsewhere. Withdrawal is real. It is just not essential.</p>
+
+  <p>Harman would object that this move constitutes &ldquo;overmining&rdquo; &mdash; reducing objects to their relational effects and thereby losing their capacity to surprise, to enter novel situations, to exceed any relational description (Harman, 2011). The objection has force: if a thing is exhausted by its current relations, nothing accounts for its potential to relate differently. But TTT does not claim things are exhausted by their current relations. The claim is that a thing&rsquo;s relational character is infinite &mdash; it participates in endlessly many coils, only finitely many of which are active in any situation. The surplus is not hidden behind a veil; it is actual, relational, and distributed across situations the thing is not currently in. A thing can surprise because it carries relational commitments from coils not engaged in this encounter. The difference from Harman is ontological, not verbal: for OOO, the surplus is essential and inaccessible in principle; for TTT, it is relational and inaccessible only in practice &mdash; bounded by the finitude of situations, not by a metaphysical partition between real and sensual.</p>
+
+  <h2><span class="section-number">8.1</span>The circularity objection</h2>
+
+  <p>A natural objection arises: is the identification of topological invariants circular? To discover that a pattern persists across situations, one must track the thing across those situations &mdash; which seems to require that the thing already be individuated before its invariant is discovered. This would make topological identity parasitic on a prior, unexplained identity, and that prior identity would be, under another name, exactly the real object that OOO posits.</p>
+
+  <p>The objection rests on an epistemological assumption: that individuation requires an observer who discovers the invariant by tracking. But individuation in TTT is structural, not epistemic. A knot in a rope is individuated by its local topology &mdash; it is a structural fact about the rope, not something that depends on someone following the rope with their finger. The knot exists whether anyone discovers it or not. Fixed points of functions exist by fixed-point theorems; they do not require computation to be real.</p>
+
+  <p>The deeper question is what distinguishes two knots with the same topology. Two trefoil knots are topologically identical but numerically distinct. Topology gives type identity &mdash; what kind of thing &mdash; but not token identity &mdash; which thing. This is where the topology/geometry pair completes its work. Numerical identity is geometric, not topological. Two trefoil knots differ by their geometric embedding &mdash; their position in the rope, their relations to neighboring structure, their specific material realization. And that geometric embedding is itself relational: it is the knot&rsquo;s situation in the broader fabric.</p>
+
+  <p>Individuation thus requires both axes. Topology provides qualitative identity &mdash; the invariant pattern that makes a thing the kind of thing it is. Geometry provides numerical identity &mdash; the particular relational context that makes it this thing rather than that one. Neither alone individuates. Together they do, without recourse to hidden essences or primitive thisness. The thing is not a bare particular dressed in properties. It is a topological pattern geometrically situated &mdash; fully relational at both levels.</p>
+
+  <p>This is not a stipulation but a structural consequence of the framework. If reality is relational fabric, and things are knots, then the only resources available for individuation are the invariant structure of the knot (topology) and its particular embedding (geometry). There is no third resource &mdash; no haecceity, no hidden core &mdash; because there is nothing in the fabric except fabric.</p>
+
+  <p>Moreover, the number of situations any thing may inhabit is unlimited. A situation may change through reconfiguration &mdash; the relations between a fixed set of things change &mdash; or more fundamentally through the entry of a new thing, a true <em>event</em>. My children entering the room open possibilities that were inexistent without them. Such an ordinary event exemplifies the transformability of all situations. The unknown always lingers outside, poised to transform a situation utterly. A flawless computer program is at the mercy of the power cord or a cockroach on the motherboard. There is no complete world, no all-encompassing top situation, no fundamental bottom situation.</p>
+
+  <h1><span class="section-number">9.</span>Flattening, Breadth, and Depth</h1>
+
+  <p>Every interaction, every act of knowledge, every practical engagement requires what we call <em>flattening</em>: the substitution of an infinite thing with a limited set of its relations. A physicist describing a teacup in terms of atomic structure flattens the teacup &mdash; gains breadth across the physical domain while losing the depth of the teacup as a cultural object, a gift, a vessel with aesthetic properties. A novelist describing the same teacup as a treasured heirloom flattens it differently &mdash; gains depth in the personal-historical domain while losing the physical structure entirely. Neither is wrong. Both are partial. Both are real.</p>
+
+  <p>Every situation has two dimensions: its <em>breadth</em> (the range of things and relations it encompasses) and its <em>depth</em> (how intricately it engages the relational character of those things). We propose, as a structural hypothesis, that the reach of a situation &mdash; the product of breadth and depth &mdash; is conserved. Increasing breadth requires decreasing depth, and vice versa.</p>
+
+  <p>Flattening is ubiquitous and necessary, but it carries a danger: mistaking a flattened version of a thing for the entirety of the thing. This is what we call <em>idolatry</em> &mdash; the confusion of a situational manifestation with the full relational depth of the thing manifested. Scientific reductionism is one form: it flattens all things to their physical relations and then declares the flattened version is all there is. But so is any dogmatism that treats one domain&rsquo;s description as exhaustive. The antidote is not scepticism but pluralism: the recognition that every flattening is legitimate within its situation and illegitimate as a totality.</p>
+
+  <h1><span class="section-number">10.</span>Against Radical Internalism</h1>
+
+  <p>A specific and influential form of idolatry deserves separate treatment: the thesis that conscious experience is a model constructed by the brain. The strongest versions of this position are philosophically serious and empirically grounded. Hohwy&rsquo;s (2013) predictive processing framework holds that the brain constructs a generative model of its sensory causes through prediction error minimization &mdash; experience just <em>is</em> this model. Clark (2016) extends cognition beyond the skull while maintaining that the computational core remains neural. Metzinger (2003) argues that consciousness is a transparent self-model: there is no self, only a self-model so seamless that it cannot be recognized as representation from the inside. These are not naive claims that &ldquo;the brain simulates reality.&rdquo; They are careful accounts of how neural systems generate structured experience from noisy sensory signals, and they have substantial empirical support.</p>
+
+  <p>TTT&rsquo;s objection is not that these accounts are self-contradictory but that they presuppose a boundary they cannot ground. The distinction between &ldquo;inside&rdquo; (model) and &ldquo;outside&rdquo; (world) on which all internalist accounts depend is itself a cut &mdash; one imposed by the coil of neuroanatomy. From within that coil, the brain-world boundary is real and consequential. But internalism elevates this one coil&rsquo;s cut to the fundamental ontological partition: all experience occurs on one side, all reality on the other. This is the idolatry described in Section 9 &mdash; mistaking one domain&rsquo;s flattening for the total structure of the real.</p>
+
+  <p>From within the relational framework, there is no principled inside/outside distinction prior to coils. The brain is continuous with its environment through relational engagement &mdash; metabolic, perceptual, social, linguistic. What the predictive processing account describes as &ldquo;constructing a model&rdquo; can equally be described as participating in a particularly dense intersection of coils. And the second description is more parsimonious: it does not require positing a boundary across which representations must somehow correspond to their causes, the notorious &ldquo;hard problem&rdquo; of content that internalism inherits from Cartesian dualism even as it claims to have left Descartes behind.</p>
+
+  <p>This is not to deny that the brain is special. It is a locus of extraordinary relational density &mdash; a knot where an enormous number of coils converge. The question is whether that specialness is best characterized as &ldquo;constructing an internal model of the world&rdquo; or as &ldquo;being a particularly dense intersection of coils through which an organism engages its situation.&rdquo; TTT prefers the latter. The brain is not a world-modeler but an effector &mdash; a node in a relational network that mediates between the organism&rsquo;s internal relations and its environmental relations. It does not generate experience from behind a veil; it concentrates relational engagement. Rosen (1991) develops a parallel argument in biology: living systems cannot be reduced to their material components because their organization &mdash; the relational structure that makes them alive &mdash; exceeds any finite mechanical model. The irreducibility Rosen identifies in organisms is a specific instance of the general principle TTT proposes: the relational depth of a thing always exceeds any particular flattening of it.</p>
+
+  <h1><span class="section-number">11.</span>Implications</h1>
+
+  <h2><span class="section-number">11.1</span>For science</h2>
+
+  <p>Scientific knowledge is a species of situational engagement, not privileged access to ultimate reality. It flattens things into measurable quantities within carefully controlled situations. Within those situations, it achieves extraordinary predictive power. Outside them, it has no more authority than any other mode of engagement. This is not anti-scientific. It is the recognition that science is powerful <em>because</em> it flattens systematically, and that systematic flattening is one mode of engagement among many.</p>
+
+  <p>In physics, the convergence is already explicit. Rovelli&rsquo;s relational quantum mechanics eliminates observer-independent states entirely: quantum properties are relations between systems, not intrinsic features of systems in isolation (Rovelli, 1996). This is the physical instantiation of the ontological claim TTT makes generally &mdash; that what a thing is is constituted by its relational engagements, not by an underlying substrate.</p>
+
+  <h2><span class="section-number">11.2</span>For ethics and politics</h2>
+
+  <p>If no domain holds ontological privilege, then the reduction of complex situations to single metrics &mdash; economic, biological, national &mdash; is always an act of power, not a discovery of truth. Flattening diverse lives into a single identity category is a specific exercise of force that sacrifices depth for breadth. Political pluralism is not a pragmatic compromise but an ontological commitment: reality is irreducibly plural, and governance that denies this is structurally violent.</p>
+
+  <h2><span class="section-number">11.3</span>For consciousness</h2>
+
+  <p>If the brain is an effector rather than a world-modeler, then the explanatory target shifts from &ldquo;how does the brain construct experience?&rdquo; to &ldquo;how does the organism engage relationally with its environment?&rdquo; Consciousness is not generated by computation within the skull. It is the relational topology of a particular kind of situation &mdash; one involving intimate self-entanglement, selective engagement with the environment, and the capacity to flatten and focus.</p>
+
+  <h2><span class="section-number">11.4</span>For knowledge systems</h2>
+
+  <p>An artificial agent operating within this ontology does not &ldquo;represent&rdquo; the world. It participates in situations &mdash; finite, relational engagements with things. Its knowledge is situational, partial, and real. The quality of its engagement depends on the quality of its flattening &mdash; whether it preserves enough topological structure to support accurate prediction within its domain, and whether it recognizes the limits of that domain.</p>
+
+  <h1><span class="section-number">12.</span>Conclusion</h1>
+
+  <p>We have constructed a relational ontology that resolves the classical problems of order, identity, and knowledge through a single mechanism: the distinction between topology and geometry within a field of structured partial orderings (coils) imposed on an undifferentiated relational multiplicity (the mess). The construction solves four problems &mdash; the three classical ones plus the problem of individuation &mdash; with two ontological specifications: coils are plural and distinct, and coils have structure. Everything else follows.</p>
+
+  <p>The ontology is democratic: no thing holds ontological privilege. It is pluralistic: no domain of knowledge exhausts reality. It is relational: things are constituted by their relations without being reduced to them. And it is finite in a structural sense: every situation, every engagement, every act of knowledge is a partial selection from an inexhaustible relational field.</p>
+
+  <p>The work of Harman and the object-oriented ontologists has been indispensable. They broke the grip of correlationism and insisted that things have reality independent of human access. We accept this insight without accepting their solution. Withdrawal is real. Things always exceed any encounter. But the mechanism is relational, not essential. The excess is not a hidden core but a depth of relations engaged elsewhere. No hidden natures, no inaccessible interiors. Only a fabric too rich, too interwoven, too alive for any single situation to hold. In process-philosophical terms, what we have called the mess &mdash; pure undifferentiated relationality prior to any actual entity &mdash; recalls Whitehead&rsquo;s notion of creativity as the ultimate behind all forms (Whitehead, 1978). But where Whitehead&rsquo;s system proceeds by introducing actual occasions, eternal objects, and an elaborate categorical scheme, TTT seeks a more parsimonious path: coils and the topology/geometry distinction do the work that Whitehead distributes across many categories. The convergence on the primacy of process and relation, and the divergence on how much categorical machinery is required, marks the distance between the two projects.</p>
+
+  <hr>
+
+  <div class="references-section" id="references">
+    <h2>References</h2>
+
+    <div class="reference-item">Awodey, S. (1996). Structure in mathematics and logic: A categorical perspective. <em>Philosophia Mathematica</em>, 4(3), 209&ndash;237. <a href="https://doi.org/10.1093/philmat/4.3.209">doi:10.1093/philmat/4.3.209</a></div>
+
+    <div class="reference-item">Badiou, A. (2005). <em>Being and Event</em>. Translated by O. Feltham. Continuum.</div>
+
+    <div class="reference-item">Benacerraf, P. (1965). What numbers could not be. <em>The Philosophical Review</em>, 74(1), 47&ndash;73. <a href="https://doi.org/10.2307/2183530">doi:10.2307/2183530</a></div>
+
+    <div class="reference-item">Bryant, L. R. (2011). <em>The Democracy of Objects</em>. Open Humanities Press.</div>
+
+    <div class="reference-item">Clark, A. (2016). <em>Surfing Uncertainty: Prediction, Action, and the Embodied Mind</em>. Oxford University Press.</div>
+
+    <div class="reference-item">Corfield, D. (2020). <em>Modal Homotopy Type Theory: The Prospect of a New Logic for Philosophy</em>. Oxford University Press.</div>
+
+    <div class="reference-item">French, S. (2014). <em>The Structure of the World: Metaphysics and Representation</em>. Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780199684847.001.0001">doi:10.1093/acprof:oso/9780199684847.001.0001</a></div>
+
+    <div class="reference-item">Harman, G. (2002). <em>Tool-Being: Heidegger and the Metaphysics of Objects</em>. Open Court.</div>
+
+    <div class="reference-item">Harman, G. (2005). <em>Guerrilla Metaphysics: Phenomenology and the Carpentry of Things</em>. Open Court.</div>
+
+    <div class="reference-item">Harman, G. (2011). <em>The Quadruple Object</em>. Zero Books.</div>
+
+    <div class="reference-item">Harman, G. (2018). <em>Object-Oriented Ontology: A New Theory of Everything</em>. Pelican Books.</div>
+
+    <div class="reference-item">Hohwy, J. (2013). <em>The Predictive Mind</em>. Oxford University Press.</div>
+
+    <div class="reference-item">Husserl, E. (1900/1901). <em>Logical Investigations</em>. Translated by J. N. Findlay. Routledge.</div>
+
+    <div class="reference-item">Kant, I. (1768). <em>Concerning the First Ground of the Difference of Environs in Space</em>. Various editions.</div>
+
+    <div class="reference-item">Kant, I. (1786). <em>Metaphysical Foundations of Natural Science</em>. Translated by M. Friedman. Cambridge University Press.</div>
+
+    <div class="reference-item">Ladyman, J., and Presnell, S. (2015). Identity in Homotopy Type Theory, Part I: The Justification of Path Induction. <em>Philosophia Mathematica</em>, 23(3), 386&ndash;406. <a href="https://doi.org/10.1093/philmat/nkv014">doi:10.1093/philmat/nkv014</a></div>
+
+    <div class="reference-item">Ladyman, J., and Ross, D. (2007). <em>Every Thing Must Go: Metaphysics Naturalized</em>. Oxford University Press. <a href="https://doi.org/10.1093/acprof:oso/9780199276196.001.0001">doi:10.1093/acprof:oso/9780199276196.001.0001</a></div>
+
+    <div class="reference-item">Latour, B. (2005). <em>Reassembling the Social: An Introduction to Actor-Network-Theory</em>. Oxford University Press.</div>
+
+    <div class="reference-item">Leibniz, G. W. (1714). <em>Monadology</em>. Various editions.</div>
+
+    <div class="reference-item">Leibniz, G. W., and Clarke, S. (1717). <em>The Leibniz-Clarke Correspondence</em>. Edited by H. G. Alexander. Manchester University Press, 1956.</div>
+
+    <div class="reference-item">Mac Lane, S. (1998). <em>Categories for the Working Mathematician</em>. 2nd ed. Springer. <a href="https://doi.org/10.1007/978-1-4757-4721-8">doi:10.1007/978-1-4757-4721-8</a></div>
+
+    <div class="reference-item">Metzinger, T. (2003). <em>Being No One: The Self-Model Theory of Subjectivity</em>. MIT Press.</div>
+
+    <div class="reference-item">Nancy, J.-L. (2000). <em>Being Singular Plural</em>. Translated by R. D. Richardson and A. E. O&rsquo;Byrne. Stanford University Press.</div>
+
+    <div class="reference-item">Rovelli, C. (1996). Relational quantum mechanics. <em>International Journal of Theoretical Physics</em>, 35, 1637&ndash;1678. <a href="https://doi.org/10.1007/BF02302261">doi:10.1007/BF02302261</a></div>
+
+    <div class="reference-item">Rovelli, C. (2021). <em>Helgoland: Making Sense of the Quantum Revolution</em>. Riverhead Books.</div>
+
+    <div class="reference-item">Rosen, R. (1991). <em>Life Itself: A Comprehensive Inquiry into the Nature, Origin, and Fabrication of Life</em>. Columbia University Press.</div>
+
+    <div class="reference-item">Shapiro, S. (1997). <em>Philosophy of Mathematics: Structure and Ontology</em>. Oxford University Press. <a href="https://doi.org/10.1093/0195139305.001.0001">doi:10.1093/0195139305.001.0001</a></div>
+
+    <div class="reference-item">Shaviro, S. (2014). <em>The Universe of Things: On Speculative Realism</em>. University of Minnesota Press.</div>
+
+    <div class="reference-item">Tsementzis, D. (2017). Univalent foundations as structuralist foundations. <em>Synthese</em>, 194(9), 3583&ndash;3617. <a href="https://doi.org/10.1007/s11229-016-1109-x">doi:10.1007/s11229-016-1109-x</a></div>
+
+    <div class="reference-item">Univalent Foundations Program. (2013). <em>Homotopy Type Theory: Univalent Foundations of Mathematics</em>. Institute for Advanced Study.</div>
+
+    <div class="reference-item">Whitehead, A. N. (1978). <em>Process and Reality</em>. Corrected ed. Free Press.</div>
+  </div>
+
+</article>
+</div>
+
+<footer>
+  <span>Same but Different &mdash; TTT</span>
+  <span>Draft, March 2026</span>
+</footer>
+
+</div><!-- /#page-content -->
+
+<script>
+// --- Passphrase gate ---
+(function() {
+  const PASSPHRASE = 'topology';
+  const overlay = document.getElementById('auth-overlay');
+  const content = document.getElementById('page-content');
+  const input = document.getElementById('auth-input');
+  const btn = document.getElementById('auth-btn');
+  const err = document.getElementById('auth-error');
+
+  function unlock() {
+    sessionStorage.setItem('ttt-auth', '1');
+    overlay.style.display = 'none';
+    content.style.display = '';
+  }
+
+  if (sessionStorage.getItem('ttt-auth') === '1') {
+    overlay.style.display = 'none';
+    content.style.display = '';
+    return;
+  }
+
+  function attempt() {
+    if (input.value === PASSPHRASE) {
+      unlock();
+    } else {
+      input.classList.remove('shake');
+      void input.offsetWidth; // reflow to restart animation
+      input.classList.add('shake');
+      err.classList.add('visible');
+      setTimeout(() => err.classList.remove('visible'), 1800);
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') attempt(); });
+})();
+
+// --- Theme toggle ---
+const THEME_KEY = 'ttt-theme';
+const btn = document.getElementById('theme-toggle');
+
+function applyTheme(mode) {
+  if (mode === 'day') {
+    document.body.classList.add('day-mode');
+    btn.textContent = '☾';
+    btn.title = 'Switch to night mode';
+  } else {
+    document.body.classList.remove('day-mode');
+    btn.textContent = '☀';
+    btn.title = 'Switch to day mode';
+  }
+}
+
+// Init from localStorage; fall back to OS preference
+const savedTheme = localStorage.getItem(THEME_KEY) ||
+  (window.matchMedia('(prefers-color-scheme: light)').matches ? 'day' : 'night');
+applyTheme(savedTheme);
+
+btn.addEventListener('click', () => {
+  const isDay = document.body.classList.contains('day-mode');
+  const next = isDay ? 'night' : 'day';
+  localStorage.setItem(THEME_KEY, next);
+  applyTheme(next);
+});
+
+// --- Font size control ---
+const article = document.querySelector('article');
+const indicator = document.getElementById('font-indicator');
+const FONT_KEY = 'ttt-font-size';
+const MIN_SIZE = 13;
+const MAX_SIZE = 26;
+const STEP = 1;
+
+let currentSize = parseInt(localStorage.getItem(FONT_KEY) || '18', 10);
+let fadeTimer = null;
+
+function applyFontSize(size) {
+  article.style.fontSize = size + 'px';
+  // Also update p, ol, ul since they have explicit font-size
+  article.querySelectorAll('p, ol, ul').forEach(el => {
+    el.style.fontSize = size + 'px';
+  });
+}
+
+function showIndicator(size) {
+  indicator.textContent = size + 'px';
+  indicator.classList.add('visible');
+  if (fadeTimer) clearTimeout(fadeTimer);
+  fadeTimer = setTimeout(() => indicator.classList.remove('visible'), 1000);
+}
+
+applyFontSize(currentSize);
+
+document.addEventListener('keydown', (e) => {
+  if (!e.metaKey) return;
+  if (e.key === '=' || e.key === '+') {
+    e.preventDefault();
+    if (currentSize < MAX_SIZE) {
+      currentSize = Math.min(MAX_SIZE, currentSize + STEP);
+      localStorage.setItem(FONT_KEY, currentSize);
+      applyFontSize(currentSize);
+      showIndicator(currentSize);
+    }
+  } else if (e.key === '-') {
+    e.preventDefault();
+    if (currentSize > MIN_SIZE) {
+      currentSize = Math.max(MIN_SIZE, currentSize - STEP);
+      localStorage.setItem(FONT_KEY, currentSize);
+      applyFontSize(currentSize);
+      showIndicator(currentSize);
+    }
+  }
+});
+</script>
+
+</body>
 </html>

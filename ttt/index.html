@@ -1,9 +1,303 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta http-equiv="refresh" content="0; url=https://topology.eu">
-<script>window.location.replace("https://topology.eu");</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<title>TTT — Topological Theory of Things</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gloock&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=IBM+Plex+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* Night mode (default) */
+:root {
+  --bg: #0a0e1a; --bg2: #0f1424; --cream: #e8e0d4; --cream2: #7a8580;
+  --gold: #c9a96e; --gold-dim: #2a2318; --silver: #8a7898; --line: #1a2028; --line2: #242d38;
+  --text: #e8e0d4;
+  --card-bg: #0f1424; --card-border: rgba(201,169,110,0.25);
+  --card-muted-border: rgba(138,138,138,0.18); --card-muted-bg: #0c1020;
+  --link-color: #c9a96e;
+}
+
+/* Day mode */
+body.day-mode {
+  --bg: #f5f0e8; --bg2: #ede8de; --cream: #1a1a1a; --cream2: #3a3632;
+  --gold: #8a6a2a; --gold-dim: #e8d9b8; --silver: #6a6258; --line: #d8d0c0; --line2: #ccc4b4;
+  --text: #1a1a1a;
+  --card-bg: #ede8de; --card-border: rgba(138,106,42,0.4);
+  --card-muted-border: rgba(100,100,100,0.25); --card-muted-bg: #e8e3d8;
+  --link-color: #2a4a7a;
+}
+
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--cream); font-family: 'Crimson Pro', Georgia, serif; line-height: 1.75; min-height: 100vh; display: flex; flex-direction: column; }
+
+a { color: var(--link-color); text-decoration: none; cursor: pointer; }
+a:hover { opacity: 0.8; }
+
+/* Theme toggle */
+#theme-toggle {
+  position: fixed; top: 18px; right: 20px; z-index: 100;
+  background: none; border: 1px solid var(--line2); border-radius: 20px;
+  padding: 5px 12px; cursor: pointer;
+  font-size: 15px; color: var(--silver); line-height: 1;
+  transition: border-color 0.2s, color 0.2s;
+}
+#theme-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Nav */
+nav {
+  padding: 20px 40px; display: flex; justify-content: space-between; align-items: center;
+  max-width: 1100px; margin: 0 auto; width: 100%;
+}
+.nav-back {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+  color: var(--silver);
+}
+.nav-back:hover { color: var(--gold); }
+
+/* Hero */
+.hero {
+  max-width: 780px; margin: 40px auto 0; padding: 0 40px;
+  text-align: left;
+}
+.hero-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--silver); margin-bottom: 20px;
+  display: block;
+}
+.hero-title {
+  font-family: 'Gloock', serif; font-size: clamp(36px, 6vw, 64px);
+  font-weight: 400; color: var(--cream); line-height: 1.1; margin-bottom: 12px;
+}
+.hero-subtitle {
+  font-family: 'Crimson Pro', serif; font-size: clamp(17px, 2.2vw, 22px);
+  font-style: italic; color: var(--silver); margin-bottom: 28px; font-weight: 300;
+}
+.hero-desc {
+  font-size: clamp(16px, 1.8vw, 19px); font-weight: 300; color: var(--cream2);
+  line-height: 1.8; margin-bottom: 20px; max-width: 600px;
+}
+.hero-authors {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em;
+  color: var(--silver); margin-bottom: 0;
+}
+
+/* Divider */
+.divider {
+  max-width: 780px; margin: 48px auto; padding: 0 40px;
+  border: none; border-top: 1px solid var(--line2);
+}
+
+/* Pillar key */
+.pillar-key {
+  max-width: 780px; margin: 0 auto 36px; padding: 0 40px;
+  display: flex; gap: 28px; flex-wrap: wrap;
+}
+.pillar-item {
+  display: flex; align-items: center; gap: 8px;
+}
+.pillar-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+}
+.pillar-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--silver);
+}
+
+@media (max-width: 800px) {
+  .pillar-key { padding: 0 24px; gap: 18px; }
+}
+
+/* Cards grid */
+.cards-section {
+  max-width: 1060px; margin: 0 auto; padding: 0 40px 80px;
+  width: 100%;
+}
+.cards-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+
+/* Base card */
+.card {
+  border: 1px solid var(--card-border); border-radius: 6px;
+  background: var(--card-bg); padding: 32px 28px 28px;
+  display: flex; flex-direction: column;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.28), 0 0 0 1px rgba(201,169,110,0.15);
+  border-color: rgba(201,169,110,0.5);
+}
+.card.muted {
+  border-color: var(--card-muted-border);
+  background: var(--card-muted-bg);
+}
+.card.muted:hover {
+  border-color: rgba(201,169,110,0.3);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+}
+
+.card-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+}
+.card.muted .card-label { color: var(--silver); }
+
+.card-title {
+  font-family: 'Gloock', serif; font-size: 22px; font-weight: 400;
+  color: var(--cream); margin-bottom: 12px; line-height: 1.2;
+}
+
+.card-desc {
+  font-size: 15px; font-weight: 300; color: var(--cream2);
+  line-height: 1.7; flex-grow: 1; margin-bottom: 20px;
+}
+
+.card-link {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.1em;
+  color: var(--gold); text-transform: uppercase; display: inline-block;
+}
+.card.muted .card-link { color: var(--silver); }
+.card-link:hover { opacity: 0.75; }
+
+.card-note {
+  font-family: 'Crimson Pro', serif; font-style: italic;
+  font-size: 13px; color: var(--silver); margin-top: 10px; opacity: 0.8;
+}
+
+/* Related links inside muted card */
+.related-links {
+  margin-top: 20px; border-top: 1px solid var(--line2); padding-top: 16px;
+  display: flex; flex-direction: column; gap: 8px;
+}
+.related-link {
+  font-family: 'Crimson Pro', serif; font-size: 14px; font-style: italic;
+  color: var(--silver);
+}
+.related-link:hover { color: var(--gold); opacity: 1; }
+
+/* Footer */
+footer {
+  margin-top: auto; padding: 28px 40px;
+  display: flex; justify-content: space-between; align-items: center;
+  max-width: 1060px; margin: auto auto 0; width: 100%;
+  border-top: 1px solid var(--line2);
+}
+.footer-credit {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; color: var(--silver);
+}
+.footer-link {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.08em; color: var(--silver);
+}
+.footer-link:hover { color: var(--gold); }
+
+@media (max-width: 800px) {
+  nav { padding: 16px 24px; }
+  .hero { padding: 0 24px; margin-top: 28px; }
+  .divider { padding: 0 24px; margin: 36px auto; }
+  .cards-section { padding: 0 24px 60px; }
+  .cards-grid { grid-template-columns: 1fr; gap: 16px; }
+  footer { padding: 24px; }
+}
+</style>
 </head>
-<body></body>
+<body>
+
+<button id="theme-toggle" aria-label="Toggle day/night mode">◑</button>
+
+<nav>
+  <a href="../" class="nav-back">&larr; inscription</a>
+</nav>
+
+<main>
+<section class="hero">
+  <span class="hero-label">TTT</span>
+  <h1 class="hero-title">Topological Theory of Things</h1>
+  <p class="hero-subtitle">A speculative realism. A pluralistic situational relational ontology.</p>
+  <p class="hero-desc">Things are knots in a relational fabric — locally structured, topologically persistent, geometrically variable.</p>
+  <p class="hero-authors">Zachary Mainen &middot; Razvan Sandru &middot; Gonçalo Guiomar</p>
+</section>
+
+<hr class="divider">
+
+<div class="pillar-key" aria-label="Concept families">
+  <div class="pillar-item">
+    <span class="pillar-dot" style="background:#dbb545;"></span>
+    <span class="pillar-label">Thing</span>
+  </div>
+  <div class="pillar-item">
+    <span class="pillar-dot" style="background:#4a9eff;"></span>
+    <span class="pillar-label">Relation</span>
+  </div>
+  <div class="pillar-item">
+    <span class="pillar-dot" style="background:#3ecf8e;"></span>
+    <span class="pillar-label">Situation</span>
+  </div>
+  <div class="pillar-item">
+    <span class="pillar-dot" style="background:#c8c8c8;"></span>
+    <span class="pillar-label">Bridge</span>
+  </div>
+</div>
+
+<section class="cards-section">
+  <div class="cards-grid">
+
+    <div class="card">
+      <div class="card-label">Graph</div>
+      <div class="card-title">Concept Browser</div>
+      <p class="card-desc">93 concepts across 8 dependency layers — Things, Relations, Situations, and Bridges. Interactive force-directed graph.</p>
+      <a href="concepts.html" class="card-link">&rarr; explore concepts</a>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Paper</div>
+      <div class="card-title">Same but Different</div>
+      <p class="card-desc">Preprint, March 2026. How topology and geometry dissolve three classical metaphysical problems: order, identity, knowledge.</p>
+      <a href="paper.html" class="card-link">&rarr; read draft</a>
+      <p class="card-note">Draft — passphrase required</p>
+    </div>
+
+    <div class="card muted">
+      <div class="card-label">Related</div>
+      <div class="card-title">Library Theorem</div>
+      <p class="card-desc">A formal treatment of knowledge systems as relational structures.</p>
+      <a href="../papers/library-theorem/" class="card-link">&rarr; read</a>
+      <div class="related-links">
+        <a href="../inscription/" class="related-link">Reality Is a Tangle</a>
+        <a href="../inscription/" class="related-link">One Relation Is Enough</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+</main>
+
+<footer>
+  <span class="footer-credit">Champalimaud Foundation, Lisbon &middot; 2026</span>
+  <a href="../" class="footer-link">haak</a>
+</footer>
+
+<script>
+(function() {
+  const KEY = 'ttt-theme';
+  const btn = document.getElementById('theme-toggle');
+  function applyTheme(day) {
+    document.body.classList.toggle('day-mode', day);
+    btn.textContent = day ? '◐' : '◑';
+  }
+  const saved = localStorage.getItem(KEY);
+  applyTheme(saved === 'day');
+  btn.addEventListener('click', function() {
+    const isDay = document.body.classList.contains('day-mode');
+    localStorage.setItem(KEY, isDay ? 'night' : 'day');
+    applyTheme(!isDay);
+  });
+})();
+</script>
+</body>
 </html>
