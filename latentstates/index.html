@@ -10,455 +10,686 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* ── Design System: Cool Gray ── */
 :root {
-  --bg: #101012;
-  --bg-surface: #18181a;
-  --border: #252528;
-  --text-primary: #d8d8dc;
-  --text-secondary: #a0a0a8;
-  --text-muted: #707078;
-  --accent: #8090a0;
-  --accent-alt: #a0a8b0;
-  --font-heading: 'Syne', sans-serif;
-  --font-body: 'Space Grotesk', sans-serif;
-  --page-width: 1100px;
+  --bg: #0a0a0a;
+  --fg: #e8e8e8;
+  --meta: #888;
 }
 
-html { scroll-behavior: smooth; }
+html { font-size: 16px; }
 
 body {
   background: var(--bg);
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-weight: 300;
-  line-height: 1.7;
+  color: var(--fg);
+  font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
-a { color: inherit; text-decoration: none; transition: color 0.2s; }
-a:hover { color: var(--accent-alt); }
+a { color: inherit; text-decoration: none; }
+a:hover { opacity: 0.7; }
 
-/* ── Nav ── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 32px;
-  background: rgba(16, 16, 18, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-logo {
-  font-family: var(--font-heading);
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--text-primary);
-}
-.nav-links { display: flex; gap: 24px; }
-.nav-links a {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-secondary);
-  letter-spacing: 0.02em;
-}
-.nav-links a:hover { color: var(--text-primary); }
-
-/* ── Hero ── */
-.hero {
+/* ============================
+   Constellation page — single viewport
+   ============================ */
+.constellation-page {
+  width: 100vw;
+  height: 100vh;
   position: relative;
-  width: 100%;
-  min-height: 70vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-top: 52px;
   overflow: hidden;
+  background: var(--bg);
 }
 
-.hero-text {
-  position: relative;
-  z-index: 2;
-  text-align: center;
-  max-width: 680px;
-  padding: 0 32px;
-}
-
-.hero-question {
-  font-family: var(--font-heading);
-  font-size: clamp(32px, 4.5vw, 56px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-  color: var(--text-primary);
-}
-
-.hero-sub {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1.6vw, 18px);
-  font-weight: 300;
-  color: var(--text-secondary);
-  margin-top: 12px;
-  font-style: italic;
-}
-
-.hero-desc {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1.1vw, 16px);
-  font-weight: 300;
-  color: var(--text-muted);
-  margin-top: 24px;
-  line-height: 1.7;
-  max-width: 480px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ── Flow Canvas ── */
 #flow-canvas {
-  position: fixed;
+  position: absolute;
   top: 0; left: 0;
   width: 100%; height: 100%;
   z-index: 0;
   pointer-events: none;
 }
 
-/* ── Projects Grid ── */
-.projects {
-  position: relative;
+/* Title — top portion */
+.page-title {
+  position: absolute;
+  top: 8vh;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.page-title h1 {
+  font-family: 'Source Serif 4', serif;
+  font-size: clamp(28px, 3.5vw, 44px);
+  font-variation-settings: "wght" 300;
+  color: #e8e8e8;
+  line-height: 1.2;
+}
+
+.page-title p {
+  font-size: clamp(13px, 1.4vw, 17px);
+  opacity: 0.6;
+  margin-top: 0.5em;
+  font-style: italic;
+}
+
+/* Constellation container */
+.constellation {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
   z-index: 1;
-  padding: 80px 0 120px;
 }
 
-.projects-inner {
-  max-width: var(--page-width);
-  margin: 0 auto;
-  padding: 0 32px;
+/* Track labels — faint watermarks */
+.track-label {
+  position: absolute;
+  font-family: 'Source Serif 4', serif;
+  font-size: 100px;
+  font-variation-settings: "wght" 200;
+  opacity: 0.035;
+  pointer-events: none;
+  user-select: none;
 }
+.track-states { left: 4%; top: 52%; transform: rotate(-4deg); }
+.track-spaces { right: 4%; top: 48%; transform: rotate(3deg); }
 
-.projects-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px 32px;
-}
-
-.project-card {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  transition: opacity 0.3s;
-}
-.project-card:hover { opacity: 0.85; }
-
-.project-card img {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  object-fit: cover;
-  display: block;
-}
-
-.project-card .card-placeholder {
-  width: 100%;
-  aspect-ratio: 3 / 2;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
+/* Project nodes — compact */
+.cnode {
+  position: absolute;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  gap: 10px;
+  text-decoration: none;
+  color: #e8e8e8;
+  transition: opacity 0.3s;
+  cursor: default;
+}
+
+a.cnode { cursor: pointer; }
+
+.cnode-img {
+  width: 72px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 2px;
+  opacity: 0.7;
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.cnode:hover .cnode-img {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.cnode-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cnode-cat {
+  font-family: -apple-system, sans-serif;
+  font-size: 8px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-muted);
+  opacity: 0.4;
 }
 
-.project-card .card-title {
-  font-family: var(--font-heading);
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-top: 12px;
-  letter-spacing: -0.01em;
+.cnode-title {
+  font-family: 'Source Serif 4', serif;
+  font-size: 15px;
+  font-variation-settings: "wght" 400;
+  transition: font-variation-settings 0.2s;
 }
 
-.project-card .card-meta {
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--text-muted);
-  margin-top: 4px;
+.cnode:hover .cnode-title {
+  font-variation-settings: "wght" 700;
 }
 
-/* ── Footer ── */
-footer {
+.cnode-year {
+  font-size: 10px;
+  opacity: 0.25;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sibling dimming */
+.constellation.has-hover .cnode { opacity: 0.25; transition: opacity 0.3s; }
+.constellation.has-hover .cnode:hover { opacity: 1; }
+
+/* Filtered-out nodes */
+.cnode.filtered-out { display: none; }
+
+/* ============================
+   Drift animations
+   ============================ */
+@keyframes float-1 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(4px, -3px); }
+  66% { transform: translate(-3px, 4px); }
+}
+@keyframes float-2 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(-5px, 3px); }
+  66% { transform: translate(3px, -4px); }
+}
+@keyframes float-3 {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(3px, 5px); }
+  66% { transform: translate(-4px, -3px); }
+}
+
+.cnode:nth-child(3n+1) { animation: float-1 25s ease-in-out infinite; }
+.cnode:nth-child(3n+2) { animation: float-2 30s ease-in-out infinite; }
+.cnode:nth-child(3n)   { animation: float-3 22s ease-in-out infinite; }
+
+.cnode:nth-child(1) { animation-delay: 0s; }
+.cnode:nth-child(2) { animation-delay: -8s; }
+.cnode:nth-child(3) { animation-delay: -3s; }
+.cnode:nth-child(4) { animation-delay: -12s; }
+.cnode:nth-child(5) { animation-delay: -19s; }
+.cnode:nth-child(6) { animation-delay: -6s; }
+.cnode:nth-child(7) { animation-delay: -15s; }
+.cnode:nth-child(8) { animation-delay: -22s; }
+.cnode:nth-child(9) { animation-delay: -10s; }
+.cnode:nth-child(10) { animation-delay: -4s; }
+.cnode:nth-child(11) { animation-delay: -17s; }
+
+.cnode:hover { animation-play-state: paused; }
+
+/* ============================
+   Pill toggle — bottom of viewport
+   ============================ */
+.pill-toggle {
+  position: fixed;
+  bottom: 3vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  overflow: hidden;
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 0;
+}
+
+.pill-toggle-track {
+  position: relative;
+  display: flex;
+}
+
+.pill-slider {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0;
+  background: rgba(255,255,255,0.06);
+  transition: transform 0.3s ease, width 0.3s ease;
+  pointer-events: none;
+}
+
+.pill-option {
+  padding: 8px 18px;
+  font-size: 11px;
+  cursor: pointer;
+  color: rgba(136, 136, 136, 0.7);
+  transition: color 0.2s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  user-select: none;
   position: relative;
   z-index: 1;
-  padding: 48px 32px;
-  text-align: center;
-  font-size: 13px;
+  white-space: nowrap;
+}
+
+.pill-option:hover { color: var(--fg); }
+.pill-option.active { color: var(--fg); }
+
+/* ============================
+   Nav
+   ============================ */
+.site-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: 0 32px;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.site-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 56px;
+}
+
+.site-nav-logo {
+  font-family: 'Source Serif 4', serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+  color: #e8e8e8;
+  text-decoration: none;
+}
+
+.site-nav-links {
+  display: flex;
+  gap: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.site-nav-links a {
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+/* ============================
+   Footer — below viewport, scroll to reach
+   ============================ */
+.footer {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 4vh 8vw;
+}
+
+.footer-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4vw;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-col h3 {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: rgba(136, 136, 136, 0.7);
+  font-weight: 600;
+  margin-bottom: 2em;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.footer-col ul { list-style: none; }
+
+.footer-col li {
+  font-size: 15px;
   font-weight: 400;
-  color: var(--text-muted);
-  letter-spacing: 0.04em;
+  line-height: 2.2;
+  color: rgba(232, 232, 232, 0.7);
+  transition: color 0.2s ease;
 }
 
-/* ── Responsive ── */
+.footer-col li:hover { color: var(--fg); }
+.footer-col li a:hover { opacity: 1; color: var(--fg); }
+
+.colophon {
+  max-width: 1200px;
+  margin: 4vh auto 0;
+  padding-top: 2vh;
+  border-top: 1px solid rgba(255,255,255,0.04);
+  font-size: 12px;
+  color: rgba(136, 136, 136, 0.4);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ============================
+   Responsive — mobile collapses to scrollable list
+   ============================ */
 @media (max-width: 768px) {
-  nav { padding: 0 20px; }
-  .hero { min-height: 60vh; }
-  .hero-question { font-size: 32px; }
-  .projects-inner { padding: 0 20px; }
-  .projects-grid {
-    grid-template-columns: 1fr;
-    gap: 40px;
+  .constellation-page {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
   }
-}
 
-@media (max-width: 480px) {
-  .hero-text { padding: 0 20px; }
-  .projects-inner { padding: 0 16px; }
+  .constellation {
+    position: relative;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 120px 20px 80px;
+  }
+
+  .page-title {
+    position: relative;
+    top: auto; left: auto;
+    transform: none;
+    padding: 80px 20px 0;
+  }
+
+  .cnode {
+    position: static !important;
+    animation: none !important;
+  }
+
+  .cnode-img {
+    width: 64px;
+    height: 42px;
+  }
+
+  .track-label { display: none; }
+
+  #flow-canvas { display: none; }
+
+  .constellation.has-hover .cnode { opacity: 1; }
+
+  .footer-columns {
+    grid-template-columns: 1fr;
+    gap: 4vh;
+  }
+
+  .pill-toggle { bottom: 2vh; }
 }
 </style>
 </head>
 <body>
 
-<!-- ── Nav ── -->
-<nav>
-  <a href="./" class="nav-logo">LS</a>
-  <div class="nav-links">
-    <a href="people/">People</a>
-    <a href="about/">About</a>
+<!-- Nav -->
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="site-nav-logo">LS</a>
+    <div class="site-nav-links">
+      <a href="people/index.html">People</a>
+      <a href="about/index.html">About</a>
+    </div>
   </div>
 </nav>
 
-<canvas id="flow-canvas"></canvas>
+<!-- ================================
+     SINGLE VIEWPORT: Title + Constellation
+     ================================ -->
+<section class="constellation-page" id="constellation-page">
+  <canvas id="flow-canvas"></canvas>
 
-<!-- ── Hero ── -->
-<section class="hero">
-  <div class="hero-text">
-    <div class="hero-question">What is it like to experience?</div>
-    <div class="hero-sub">Yourself. Another person. A forest. A machine.</div>
-    <div class="hero-desc">Science in the wild and art in the lab. Since 2016, Latent States has taken neuroscience out of the clinic and into festivals, galleries, and open fields &mdash; designing encounters where the experiment is the experience.</div>
+  <div class="page-title">
+    <h1>What is it like<br>to experience?</h1>
+    <p>Yourself. Another person. A forest. A machine.</p>
+  </div>
+
+  <div class="constellation">
+    <!-- Faint track labels -->
+    <span class="track-label track-states">States</span>
+    <span class="track-label track-spaces">Spaces</span>
+
+    <!-- Origins — top center area -->
+    <a class="cnode" href="psiloscope/index.html" data-tag="origins" style="left:18%;top:32%">
+      <img class="cnode-img" src="assets/psiloscope-dance.png" alt="Psiloscope"><div class="cnode-text"><span class="cnode-cat">COLLECTIVE MOTION LAB</span><span class="cnode-title">Psiloscope</span><span class="cnode-year">2016</span></div>
+    </a>
+    <a class="cnode" href="mindcrystal/index.html" data-tag="origins" style="left:45%;top:28%">
+      <div class="cnode-img" style="background:var(--bg);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.2);">2018</div><div class="cnode-text"><span class="cnode-cat">COLLECTIVE MOTION LAB</span><span class="cnode-title">MindCrystal</span><span class="cnode-year">2018</span></div>
+    </a>
+    <a class="cnode" href="human-open-field/index.html" data-tag="origins" style="left:72%;top:34%">
+      <img class="cnode-img" src="assets/human-open-field-hero.jpg"><div class="cnode-text"><span class="cnode-cat">OPEN-AIR EXPERIMENT</span><span class="cnode-title">Human Open Field</span><span class="cnode-year">2019</span></div>
+    </a>
+
+    <!-- States — left side -->
+    <a class="cnode" href="lsc/index.html" data-tag="states" style="left:12%;top:52%">
+      <img class="cnode-img" src="assets/seeing-1.jpg"><div class="cnode-text"><span class="cnode-cat">FIELD STUDY</span><span class="cnode-title">Latent States Camp</span><span class="cnode-year">2023&ndash;</span></div>
+    </a>
+
+    <!-- Spaces — right side -->
+    <a class="cnode" href="polylith/index.html" data-tag="spaces" style="left:62%;top:44%">
+      <img class="cnode-img" src="assets/cf-metamersion-polylith.png"><div class="cnode-text"><span class="cnode-cat">BRAIN-DRIVEN INSTALLATION</span><span class="cnode-title">Polylith</span><span class="cnode-year">2022</span></div>
+    </a>
+    <a class="cnode" href="atavic-forest/index.html" data-tag="spaces" style="left:78%;top:50%">
+      <img class="cnode-img" src="assets/cf-metamersion-ls-atavic-forest.jpg"><div class="cnode-text"><span class="cnode-cat">BRAIN-DRIVEN INSTALLATION</span><span class="cnode-title">Atavic Forest</span><span class="cnode-year">2022</span></div>
+    </a>
+    <a class="cnode" href="ls1/index.html" data-tag="spaces" style="left:65%;top:58%">
+      <img class="cnode-img" src="assets/cf-metamersion-ls-latent-space-i.jpg"><div class="cnode-text"><span class="cnode-cat">BRAIN-DRIVEN INSTALLATION</span><span class="cnode-title">Latent Space I</span><span class="cnode-year">2022</span></div>
+    </a>
+    <a class="cnode" href="palimpsest/index.html" data-tag="spaces" style="left:82%;top:64%">
+      <img class="cnode-img" src="assets/cf-metamersion-ls-palimpsest.png"><div class="cnode-text"><span class="cnode-cat">BRAIN-DRIVEN INSTALLATION</span><span class="cnode-title">Palimpsest</span><span class="cnode-year">2023</span></div>
+    </a>
+    <!-- Bridge — center -->
+    <a class="cnode" href="altered-reflections/index.html" data-tag="states spaces" style="left:35%;top:62%">
+      <img class="cnode-img" src="assets/cf-metamersion-ha-altered-reflexions.jpg"><div class="cnode-text"><span class="cnode-cat">MIRROR STUDY</span><span class="cnode-title">Altered Reflections</span><span class="cnode-year">2024</span></div>
+    </a>
+    <a class="cnode" href="submersion/index.html" data-tag="states spaces" style="left:45%;top:74%">
+      <img class="cnode-img" src="assets/cf-metamersion-ha-submersion.jpeg"><div class="cnode-text"><span class="cnode-cat">SENSORY DEPRIVATION</span><span class="cnode-title">Submersion</span><span class="cnode-year">2024</span></div>
+    </a>
   </div>
 </section>
 
-<!-- ── Projects ── -->
-<section class="projects" id="projects">
-  <div class="projects-inner">
-    <div class="projects-grid">
+<!-- Pill toggle -->
+<div class="pill-toggle" id="pill-toggle">
+  <div class="pill-toggle-track" id="pill-track">
+    <div class="pill-slider" id="pill-slider"></div>
+    <div class="pill-option active" data-filter="all">All</div>
+    <div class="pill-option" data-filter="origins">Origins</div>
+    <div class="pill-option" data-filter="states">States</div>
+    <div class="pill-option" data-filter="spaces">Spaces</div>
+  </div>
+</div>
 
-      <a class="project-card" href="psiloscope/">
-        <img src="assets/psiloscope-dance.png" alt="Psiloscope — collective dance floor visualization" loading="lazy">
-        <div class="card-title">Psiloscope</div>
-        <div class="card-meta">2016 &middot; Boom Festival</div>
-      </a>
-
-      <a class="project-card" href="mindcrystal/">
-        <div class="card-placeholder">2018</div>
-        <div class="card-title">MindCrystal</div>
-        <div class="card-meta">2018 &middot; Waking Life Festival</div>
-      </a>
-
-      <div class="project-card">
-        <img src="assets/human-open-field-hero.jpg" alt="Human Open Field" loading="lazy">
-        <div class="card-title">Human Open Field</div>
-        <div class="card-meta">2019 &middot; Open-air experiment</div>
-      </div>
-
-      <a class="project-card" href="polylith/">
-        <img src="assets/cf-metamersion-polylith.png" alt="Polylith — brain-driven installation" loading="lazy">
-        <div class="card-title">Polylith</div>
-        <div class="card-meta">2022 &middot; Champalimaud Foundation</div>
-      </a>
-
-      <a class="project-card" href="atavic-forest/">
-        <img src="assets/cf-metamersion-ls-atavic-forest.jpg" alt="Atavic Forest — generative neural landscape" loading="lazy">
-        <div class="card-title">Atavic Forest</div>
-        <div class="card-meta">2022 &middot; Lunar Ring, Jonathan Uliel Saldanha</div>
-      </a>
-
-      <a class="project-card" href="ls1/">
-        <img src="assets/cf-metamersion-ls-latent-space-i.jpg" alt="Latent Space I — brain-driven installation" loading="lazy">
-        <div class="card-title">Latent Space I</div>
-        <div class="card-meta">2022 &middot; Champalimaud Foundation</div>
-      </a>
-
-      <a class="project-card" href="palimpsest/">
-        <img src="assets/cf-metamersion-ls-palimpsest.png" alt="Palimpsest — brain-driven installation" loading="lazy">
-        <div class="card-title">Palimpsest</div>
-        <div class="card-meta">2023 &middot; Champalimaud Foundation</div>
-      </a>
-
-      <a class="project-card" href="lsc/">
-        <img src="assets/camp-1.jpg" alt="Latent States Camp — field study" loading="lazy">
-        <div class="card-title">Latent States Camp</div>
-        <div class="card-meta">2023&ndash;2025 &middot; Field study</div>
-      </a>
-
-      <a class="project-card" href="metamersion/">
-        <img src="assets/cf-metamersion-ha-installation-overview.jpg" alt="Healing Algorithms — neuroscience exhibition" loading="lazy">
-        <div class="card-title">Healing Algorithms</div>
-        <div class="card-meta">2024 &middot; Champalimaud Foundation</div>
-      </a>
-
-      <div class="project-card">
-        <img src="assets/cf-metamersion-ha-altered-reflexions.jpg" alt="Altered Reflections — mirror study" loading="lazy">
-        <div class="card-title">Altered Reflections</div>
-        <div class="card-meta">2024 &middot; Mirror study</div>
-      </div>
-
-      <div class="project-card">
-        <img src="assets/cf-metamersion-ha-submersion.jpeg" alt="Submersion — sensory deprivation" loading="lazy">
-        <div class="card-title">Submersion</div>
-        <div class="card-meta">2024 &middot; Sensory deprivation</div>
-      </div>
-
+<!-- Footer — below viewport -->
+<footer class="footer">
+  <div class="footer-columns">
+    <div class="footer-col">
+      <h3>Works</h3>
+      <ul>
+        <li><a href="psiloscope/index.html">Psiloscope</a></li>
+        <li><a href="mindcrystal/index.html">MindCrystal</a></li>
+        <li>Human Open Field</li>
+        <li><a href="polylith/index.html">Polylith</a></li>
+        <li><a href="atavic-forest/index.html">Atavic Forest</a></li>
+        <li><a href="ls1/index.html">Latent Space I</a></li>
+        <li><a href="palimpsest/index.html">Palimpsest</a></li>
+        <li><a href="lsc/index.html">Latent States Camp</a></li>
+        <li>Altered Reflections</li>
+        <li>Submersion</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>Partners</h3>
+      <ul>
+        <li><a href="boom/index.html">Boom Festival</a></li>
+        <li><a href="waking-life/index.html">Waking Life Festival</a></li>
+        <li>Champalimaud Foundation</li>
+        <li>Lunar Ring</li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>More</h3>
+      <ul>
+        <li><a href="people/">People</a></li>
+        <li><a href="about/">About</a></li>
+      </ul>
     </div>
   </div>
-</section>
-
-<!-- ── Footer ── -->
-<footer>Latent States &middot; Lisbon</footer>
+  <div class="colophon">Latent States &middot; Lisbon &middot; 2016&ndash;present</div>
+</footer>
 
 <script>
 // =============================================
-// Flow field — cool gray particles weaving between project cards
+// River flow field — particles between project nodes
 // =============================================
 const canvas = document.getElementById('flow-canvas');
 const ctx = canvas.getContext('2d');
 
-const COLORS = ['#606878','#708090','#8090a0','#586070','#a0a8b0','#4a5260'];
-const PARTICLE_COUNT = 220;
-const TRAIL = 14;
-const CURSOR_R = 250, CURSOR_FORCE = 0.06;
+const NODES = {
+  psiloscope:  [0.18, 0.32],
+  mindcrystal: [0.45, 0.28],
+  hof:         [0.72, 0.34],
+  lsc:         [0.12, 0.52],
+  polylith:    [0.62, 0.44],
+  atavic:      [0.78, 0.50],
+  ls1:         [0.65, 0.58],
+  palimpsest:  [0.82, 0.64],
+  altered:     [0.35, 0.62],
+  submersion:  [0.45, 0.74]
+};
+
+const CONNECTIONS = [
+  ['psiloscope', 'mindcrystal'],
+  ['mindcrystal', 'hof'],
+  ['hof', 'lsc'],
+  ['mindcrystal', 'polylith'],
+  ['hof', 'polylith'],
+  ['polylith', 'atavic'],
+  ['atavic', 'ls1'],
+  ['ls1', 'palimpsest'],
+  ['palimpsest', 'altered'],
+  ['lsc', 'altered'],
+  ['palimpsest', 'submersion'],
+  ['lsc', 'submersion']
+];
+
+const COLORS = ['#8a8a8a','#a0a0a0','#b0b0b0','#787878','#c0c0c0'];
+const PARTICLES_PER_CONN = 6;
 
 let W, H, dpr;
-let mouse = { x: -9999, y: -9999, speed: 0, prevX: -9999, prevY: -9999 };
-let particles = [];
-let noiseTime = 0;
-
-// Simple noise function (value noise with smooth interpolation)
-function noise2d(x, y) {
-  const ix = Math.floor(x), iy = Math.floor(y);
-  const fx = x - ix, fy = y - iy;
-  const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
-  function hash(px, py) {
-    let h = (px * 2654435761 ^ py * 2246822519) & 0x7fffffff;
-    return (h % 65536) / 65536;
-  }
-  const a = hash(ix, iy), b = hash(ix + 1, iy);
-  const c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
-  return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
-}
-
-function getFlowAngle(x, y, t) {
-  const scale = 0.0015;
-  const n = noise2d(x * scale + t * 0.3, y * scale + t * 0.2);
-  return n * Math.PI * 4;
-}
-
-function makeParticle() {
-  return {
-    x: Math.random() * W,
-    y: Math.random() * H,
-    speed: 0.4 + Math.random() * 0.6,
-    trail: [],
-    color: COLORS[(Math.random() * COLORS.length) | 0],
-    life: Math.random() * 600 + 200,
-    age: 0,
-  };
-}
+const pageEl = document.querySelector('.constellation-page');
+let mouse = { x: -9999, y: -9999 };
 
 function resize() {
   dpr = Math.min(devicePixelRatio || 1, 2);
-  W = window.innerWidth; H = window.innerHeight;
+  W = pageEl.offsetWidth;
+  H = pageEl.offsetHeight;
   canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
+window.addEventListener('resize', resize);
+resize();
+window.addEventListener('load', () => { resize(); curves = buildCurves(); });
 
-function init() {
-  resize();
-  particles = [];
-  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(makeParticle());
-}
-
-window.addEventListener('resize', () => { resize(); });
 document.addEventListener('mousemove', e => {
-  mouse.prevX = mouse.x; mouse.prevY = mouse.y;
-  mouse.x = e.clientX; mouse.y = e.clientY;
-  const dx = mouse.x - mouse.prevX, dy = mouse.y - mouse.prevY;
-  mouse.speed = Math.sqrt(dx * dx + dy * dy);
+  const rect = pageEl.getBoundingClientRect();
+  mouse.x = e.clientX - rect.left;
+  mouse.y = e.clientY - rect.top;
 });
 document.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+document.addEventListener('touchmove', e => {
+  const rect = pageEl.getBoundingClientRect();
+  const touch = e.touches[0];
+  mouse.x = touch.clientX - rect.left;
+  mouse.y = touch.clientY - rect.top;
+}, { passive: true });
+
+function buildCurves() {
+  return CONNECTIONS.map(([srcKey, tgtKey], i) => {
+    const src = NODES[srcKey], tgt = NODES[tgtKey];
+    const sx = src[0] * W, sy = src[1] * H;
+    const tx = tgt[0] * W, ty = tgt[1] * H;
+    const mx = (sx + tx) / 2, my = (sy + ty) / 2;
+    const dx = tx - sx, dy = ty - sy;
+    const len = Math.sqrt(dx * dx + dy * dy);
+    const perpX = -dy / len, perpY = dx / len;
+    const sign = (i % 2 === 0) ? 1 : -1;
+    const offset = len * 0.3 * sign;
+    return { sx, sy, tx, ty, cx: mx + perpX * offset, cy: my + perpY * offset };
+  });
+}
+
+let curves = buildCurves();
+window.addEventListener('resize', () => { curves = buildCurves(); });
+
+let particles = [];
+CONNECTIONS.forEach((_, ci) => {
+  for (let i = 0; i < PARTICLES_PER_CONN; i++) {
+    particles.push({
+      ci,
+      t: Math.random(),
+      speed: 0.0005 + Math.random() * 0.0015,
+      wobblePhase: Math.random() * Math.PI * 2,
+      wobbleFreq: 2 + Math.random() * 3,
+      lateralOffset: (Math.random() - 0.5) * 30,
+      color: COLORS[(Math.random() * COLORS.length) | 0]
+    });
+  }
+});
+
+function bezierPoint(c, t) {
+  const u = 1 - t;
+  return {
+    x: u * u * c.sx + 2 * u * t * c.cx + t * t * c.tx,
+    y: u * u * c.sy + 2 * u * t * c.cy + t * t * c.ty
+  };
+}
+
+function bezierTangent(c, t) {
+  const u = 1 - t;
+  return {
+    x: 2 * u * (c.cx - c.sx) + 2 * t * (c.tx - c.cx),
+    y: 2 * u * (c.cy - c.sy) + 2 * t * (c.ty - c.cy)
+  };
+}
 
 function frame() {
-  ctx.fillStyle = 'rgba(16, 16, 18, 0.04)';
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#0a0a0a';
   ctx.fillRect(0, 0, W, H);
-
-  noiseTime += 0.002;
 
   for (let i = 0; i < particles.length; i++) {
     const p = particles[i];
-    p.age++;
+    const c = curves[p.ci];
 
-    if (p.age > p.life || p.x < -20 || p.x > W + 20 || p.y < -20 || p.y > H + 20) {
-      particles[i] = makeParticle();
-      continue;
+    p.t += p.speed;
+    if (p.t >= 1) {
+      p.t = 0;
+      p.wobblePhase = Math.random() * Math.PI * 2;
     }
 
-    const angle = getFlowAngle(p.x, p.y, noiseTime);
-    let vx = Math.cos(angle) * p.speed;
-    let vy = Math.sin(angle) * p.speed;
+    const pos = bezierPoint(c, p.t);
+    const tan = bezierTangent(c, p.t);
+    const tanLen = Math.sqrt(tan.x * tan.x + tan.y * tan.y) || 1;
+    const nx = -tan.y / tanLen, ny = tan.x / tanLen;
+    const wobble = Math.sin(p.t * p.wobbleFreq * Math.PI * 2 + p.wobblePhase) * 20 + p.lateralOffset;
 
-    // Cursor interaction
-    const dx = mouse.x - p.x, dy = mouse.y - p.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < CURSOR_R && dist > 1) {
-      const strength = (1 - dist / CURSOR_R) * CURSOR_FORCE * (1 + Math.min(mouse.speed, 40) * 0.08);
-      vx += (dx / dist) * strength * 8;
-      vy += (dy / dist) * strength * 8;
+    let finalX = pos.x + nx * wobble;
+    let finalY = pos.y + ny * wobble;
+
+    if (mouse.x > 0 && mouse.y > 0) {
+      let dx = mouse.x - finalX;
+      let dy = mouse.y - finalY;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 350 && dist > 5) {
+        let strength = Math.min(25 / (dist * 0.3), 50);
+        finalX += dx / dist * strength;
+        finalY += dy / dist * strength;
+      }
     }
 
-    p.x += vx;
-    p.y += vy;
+    let alpha = 1;
+    if (p.t < 0.05) alpha = p.t / 0.05;
+    else if (p.t > 0.92) alpha = (1 - p.t) / 0.08;
 
-    p.trail.push(p.x, p.y);
-    if (p.trail.length > TRAIL * 2) p.trail.splice(0, 2);
-
-    const len = p.trail.length / 2;
-    if (len < 2) continue;
-
-    // Fade in/out based on age
-    let fade = 1;
-    if (p.age < 40) fade = p.age / 40;
-    else if (p.age > p.life - 60) fade = Math.max(0, (p.life - p.age) / 60);
-
-    // Draw trail
     ctx.beginPath();
-    ctx.moveTo(p.trail[0], p.trail[1]);
-    for (let j = 1; j < len; j++) ctx.lineTo(p.trail[j * 2], p.trail[j * 2 + 1]);
-    ctx.strokeStyle = p.color;
-    ctx.lineWidth = 0.5;
-    ctx.globalAlpha = 0.18 * fade;
-    ctx.stroke();
-
-    // Draw head
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 0.6, 0, Math.PI * 2);
+    ctx.arc(finalX, finalY, 3, 0, Math.PI * 2);
     ctx.fillStyle = p.color;
-    ctx.globalAlpha = 0.3 * fade;
+    ctx.globalAlpha = 0.08 * alpha;
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(finalX, finalY, 1.5, 0, Math.PI * 2);
+    ctx.fillStyle = p.color;
+    ctx.globalAlpha = 0.5 * alpha;
     ctx.fill();
   }
 
@@ -466,10 +697,58 @@ function frame() {
   requestAnimationFrame(frame);
 }
 
-init();
-ctx.fillStyle = '#101012';
+ctx.fillStyle = '#0a0a0a';
 ctx.fillRect(0, 0, W, H);
 requestAnimationFrame(frame);
+
+// Constellation dimming
+const constellation = document.querySelector('.constellation');
+document.querySelectorAll('.cnode').forEach(node => {
+  node.addEventListener('mouseenter', () => constellation.classList.add('has-hover'));
+  node.addEventListener('mouseleave', () => constellation.classList.remove('has-hover'));
+});
+
+// =============================================
+// Pill toggle — filter constellation nodes
+// =============================================
+const constellationNodes = document.querySelectorAll('.cnode');
+const pillToggle = document.getElementById('pill-toggle');
+const pillOptions = document.querySelectorAll('.pill-option');
+const pillSlider = document.getElementById('pill-slider');
+let activeFilter = 'all';
+
+function updateSlider() {
+  const active = document.querySelector('.pill-option.active');
+  if (!active) return;
+  pillSlider.style.width = active.offsetWidth + 'px';
+  pillSlider.style.transform = `translateX(${active.offsetLeft}px)`;
+}
+
+function filterProjects(filter) {
+  activeFilter = filter;
+  constellationNodes.forEach(node => {
+    const tag = node.dataset.tag;
+    if (filter === 'all') {
+      node.classList.remove('filtered-out');
+    } else if (tag && tag.includes(filter)) {
+      node.classList.remove('filtered-out');
+    } else {
+      node.classList.add('filtered-out');
+    }
+  });
+}
+
+pillOptions.forEach(pill => {
+  pill.addEventListener('click', () => {
+    pillOptions.forEach(p => p.classList.remove('active'));
+    pill.classList.add('active');
+    updateSlider();
+    filterProjects(pill.dataset.filter);
+  });
+});
+
+window.addEventListener('load', updateSlider);
+requestAnimationFrame(updateSlider);
 </script>
 
 </body>

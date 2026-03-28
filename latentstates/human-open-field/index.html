@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Human Open Field — Latent States</title>
+<meta name="description" content="The classic rodent open field test reimagined for humans. Visitors explored an empty room wearing AR goggles while EEG and movement tracking captured neural and bodily traces. Pavilhão do Conhecimento, Lisbon 2019.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #101012;
+  --bg-surface: #18181a;
+  --border: #252528;
+  --text-primary: #d8d8dc;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
+  --accent: #8090a0;
+  --accent-alt: #a0a8b0;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --content-width: 720px;
+  --page-width: 1200px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-alt); }
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(16, 16, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.nav-links a:hover { color: var(--text-primary); }
+
+.hero {
+  width: 100%;
+  margin-top: 52px;
+}
+.hero-image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 80vh;
+}
+
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hero-info {
+  padding-top: 64px;
+  padding-bottom: 80px;
+}
+.hero-info h1 {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+.hero-info .meta-line {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.hero-info .credits-line {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--text-secondary);
+}
+
+.text-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+.text-section h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+.text-section p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
+}
+.text-section p:last-child { margin-bottom: 0; }
+
+.image-cluster {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.image-cluster img {
+  width: 100%;
+  display: block;
+}
+
+.credits-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px 24px;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+.credits-grid dt {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.credits-grid dd {
+  color: var(--text-secondary);
+}
+
+.project-nav {
+  max-width: var(--page-width);
+  margin: 120px auto 0;
+  padding: 0 32px 80px;
+}
+.project-nav-inner {
+  display: flex;
+  gap: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+.nav-item {
+  flex: 1;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+.nav-item:hover { opacity: 0.8; }
+.nav-direction {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.nav-project-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.nav-item--next { text-align: right; }
+
+footer {
+  padding: 48px 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hero-info h1 { font-size: 36px; }
+  .hero-info { padding-top: 48px; padding-bottom: 56px; }
+  .text-section { padding-top: 56px; padding-bottom: 56px; }
+  .text-section h2 { font-size: 24px; }
+  .credits-grid {
+    grid-template-columns: 1fr;
+    gap: 4px 0;
+  }
+  .credits-grid dt { padding-top: 12px; }
+  .project-nav { padding: 0 20px 60px; }
+  .project-nav-inner { flex-direction: column; gap: 24px; }
+  .nav-item--next { text-align: left; }
+}
+
+@media (max-width: 480px) {
+  .hero-info h1 { font-size: 30px; }
+  .section { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-logo">LS</a>
+  <div class="nav-links">
+    <a href="../people/index.html">People</a>
+    <a href="../about/index.html">About</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <img src="../assets/human-open-field-hero.jpg" alt="Human Open Field experiment at Pavilh&atilde;o do Conhecimento" class="hero-image">
+</div>
+
+<div class="section hero-info">
+  <h1>Human Open Field</h1>
+  <div class="meta-line">2019 &middot; Open-Air Experiment &middot; Pavilh&atilde;o do Conhecimento, Lisbon</div>
+  <div class="credits-line">EXPAND residence &middot; Espa&ccedil;o do Tempo &middot; Audi&ecirc;ncia Zero</div>
+</div>
+
+<div class="section text-section">
+  <p>The classic rodent open field test &mdash; a cornerstone of behavioural neuroscience since 1934 &mdash; reimagined for humans. Visitors explored an empty room wearing augmented reality goggles that distorted their visual perception, while EEG and movement tracking captured the neural and bodily traces of their experience.</p>
+</div>
+
+<div class="image-cluster">
+  <img src="../assets/human-open-field-hero.jpg" alt="Participant in the Human Open Field wearing AR goggles" loading="lazy">
+</div>
+
+<div class="section text-section">
+  <p>The setup was elemental: an empty room at Pavilh&atilde;o do Conhecimento, Lisbon&rsquo;s science museum. Participants wore AR goggles fitted with four types of visual filters &mdash; monochrome with background subtraction, edge emphasis, live projection mapping with kaleidoscopic graphics. Wireless EEG was embedded directly in the goggles. Cameras tracked position, posture, and speed throughout each session.</p>
+  <p>The experiment was grounded in Jean-Luc Marion&rsquo;s phenomenology of &ldquo;givenness.&rdquo; The AR distortions functioned as artistic frames that diverted attention, created contrast, invited exploration, and deepened perception &mdash; the four characteristics Marion attributes to artwork. Each filter became a different mode of encounter with the same bare space.</p>
+  <p>After each session, participants sat for phenomenological interviews: open-ended, non-standardised conversations about their experience. Not surveys, not checklists &mdash; genuine attempts to access lived experience. The gap between what the sensors measured and what participants reported became the experiment&rsquo;s central object of study.</p>
+</div>
+
+<div class="section text-section">
+  <h2>Credits</h2>
+  <dl class="credits-grid">
+    <dt>Concept</dt>
+    <dd>Zachary Mainen, Razvan Sandru</dd>
+    <dt>Collaborating institutions</dt>
+    <dd>Center for Interdisciplinary and Intercultural Studies (T&uuml;bingen), Champalimaud Neuroscience Programme (Lisbon), Platt Laboratories (Philadelphia)</dd>
+    <dt>Programme</dt>
+    <dd>EXPAND, Pavilh&atilde;o do Conhecimento</dd>
+    <dt>Partners</dt>
+    <dd>Espa&ccedil;o do Tempo, Audi&ecirc;ncia Zero, Ci&ecirc;ncia Viva</dd>
+  </dl>
+</div>
+
+<div class="project-nav">
+  <div class="project-nav-inner">
+    <a href="../mindcrystal/index.html" class="nav-item">
+      <div class="nav-direction">&larr; Previous</div>
+      <div class="nav-project-title">MindCrystal</div>
+    </a>
+    <a href="../polylith/index.html" class="nav-item nav-item--next">
+      <div class="nav-direction">Next &rarr;</div>
+      <div class="nav-project-title">Polylith</div>
+    </a>
+  </div>
+</div>
+
+<footer>Latent States &middot; Lisbon</footer>
+
+</body>
+</html>

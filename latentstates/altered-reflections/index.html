@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Altered Reflections — Latent States</title>
+<meta name="description" content="An AI mirror that reimagines your face in real time. A bridge between the science of self-perception and the art of generative imagery.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #101012;
+  --bg-surface: #18181a;
+  --border: #252528;
+  --text-primary: #d8d8dc;
+  --text-secondary: #a0a0a8;
+  --text-muted: #707078;
+  --accent: #8090a0;
+  --accent-alt: #a0a8b0;
+  --font-heading: 'Syne', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --content-width: 720px;
+  --page-width: 1200px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+a:hover { color: var(--accent-alt); }
+
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  background: rgba(16, 16, 18, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+}
+.nav-links { display: flex; gap: 24px; }
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  letter-spacing: 0.02em;
+}
+.nav-links a:hover { color: var(--text-primary); }
+
+.hero { width: 100%; margin-top: 52px; }
+.hero-image {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  max-height: 80vh;
+}
+
+.section {
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.hero-info { padding-top: 64px; padding-bottom: 40px; }
+.hero-info h1 {
+  font-family: var(--font-heading);
+  font-size: 56px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.intro { padding-bottom: 80px; }
+.intro p {
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+
+.metadata { padding-bottom: 90px; }
+.metadata-grid {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 8px 24px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.metadata-grid dt {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.metadata-grid dd { color: var(--text-secondary); }
+
+.text-section { padding-top: 80px; padding-bottom: 80px; }
+.text-section h2 {
+  font-family: var(--font-heading);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+.text-section p {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.7;
+  color: var(--text-secondary);
+  margin-bottom: 1.4em;
+}
+.text-section p:last-child { margin-bottom: 0; }
+
+.credits-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px 24px;
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.6;
+}
+.credits-grid dt {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-top: 2px;
+}
+.credits-grid dd { color: var(--text-secondary); }
+
+.project-nav {
+  max-width: var(--page-width);
+  margin: 120px auto 0;
+  padding: 0 32px 80px;
+}
+.project-nav-inner {
+  display: flex;
+  gap: 32px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+.nav-item {
+  flex: 1;
+  text-decoration: none;
+  transition: opacity 0.3s;
+}
+.nav-item:hover { opacity: 0.8; }
+.nav-direction {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+.nav-project-title {
+  font-family: var(--font-heading);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.nav-item--next { text-align: right; }
+
+footer {
+  padding: 48px 32px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 0.04em;
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .hero-info h1 { font-size: 36px; }
+  .hero-info { padding-top: 48px; }
+  .intro p { font-size: 18px; }
+  .intro { padding-bottom: 56px; }
+  .text-section { padding-top: 56px; padding-bottom: 56px; }
+  .text-section h2 { font-size: 24px; }
+  .credits-grid { grid-template-columns: 1fr; gap: 4px 0; }
+  .credits-grid dt { padding-top: 12px; }
+  .metadata-grid { grid-template-columns: 1fr; gap: 4px 0; }
+  .metadata-grid dt { padding-top: 8px; }
+  .project-nav { padding: 0 20px 60px; }
+  .project-nav-inner { flex-direction: column; gap: 24px; }
+  .nav-item--next { text-align: left; }
+}
+
+@media (max-width: 480px) {
+  .hero-info h1 { font-size: 30px; }
+  .section { padding: 0 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="../index.html" class="nav-logo">LS</a>
+  <div class="nav-links">
+    <a href="../people/index.html">People</a>
+    <a href="../about/index.html">About</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <img src="../assets/cf-metamersion-ha-altered-reflexions.jpg" alt="Altered Reflections — AI mirror installation transforming a visitor's face in real time" class="hero-image">
+</div>
+
+<div class="section hero-info">
+  <h1>Altered Reflections</h1>
+</div>
+
+<div class="section intro">
+  <p>An AI mirror that reimagines your face in real time. Visitors stood before a screen and watched as a neural network transformed their reflection &mdash; ageing, stylizing, fracturing their likeness into something familiar yet alien. A bridge between the science of self-perception and the art of generative imagery.</p>
+</div>
+
+<div class="section metadata">
+  <dl class="metadata-grid">
+    <dt>Year</dt>
+    <dd>2024</dd>
+    <dt>Type</dt>
+    <dd>Mirror Study</dd>
+    <dt>Venues</dt>
+    <dd>Metamersion III: Healing Algorithms (Champalimaud Foundation) + Latent States Camp (Waking Life Festival)</dd>
+    <dt>Programme</dt>
+    <dd>Latent States</dd>
+  </dl>
+</div>
+
+<div class="section text-section">
+  <h2>The Experience</h2>
+  <p>A live camera feed processed through a real-time AI model that morphed the visitor&rsquo;s face. The transformations ranged from subtle &mdash; age progression, gender shifts &mdash; to surreal: artistic style transfers, fragmentation. Each visitor saw themselves differently. The AI&rsquo;s interpretation was unique each time.</p>
+</div>
+
+<div class="section text-section">
+  <h2>The Bridge</h2>
+  <p>Altered Reflections appeared at both Metamersion III (the art exhibition at Champalimaud) and LSC 2024 (the science camp at Waking Life). In the art context, it was an encounter with AI as creative mirror. In the science context, it generated data about self-perception and emotional response to AI-generated imagery. Same piece, two frameworks &mdash; the bridge between States and Spaces.</p>
+</div>
+
+<div class="section text-section">
+  <h2>Credits</h2>
+  <dl class="credits-grid">
+    <dt>Installation</dt>
+    <dd>Lunar Ring</dd>
+    <dt>Programme</dt>
+    <dd>Metamersion III: Healing Algorithms + Latent States Camp 2024</dd>
+  </dl>
+</div>
+
+<div class="project-nav">
+  <div class="project-nav-inner">
+    <a href="../lsc/index.html" class="nav-item">
+      <div class="nav-direction">&larr; Previous</div>
+      <div class="nav-project-title">Latent States Camp</div>
+    </a>
+    <a href="../submersion/index.html" class="nav-item nav-item--next">
+      <div class="nav-direction">Next &rarr;</div>
+      <div class="nav-project-title">Submersion</div>
+    </a>
+  </div>
+</div>
+
+<footer>Latent States &middot; Lisbon</footer>
+
+</body>
+</html>
